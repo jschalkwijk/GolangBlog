@@ -1,0 +1,20 @@
+{{define "new-post"}}
+    {{template "header"}}
+    <h1>Create new post</h1>
+
+    <form action="/posts/add-post" method="POST">
+        <input type="text" name="title" placeholder=" Title"/><br />
+        <input type="text" name="description" placeholder="Post Description (max 160 characters)" value=""/><br />
+            <label for="select">Category</label>
+            <select id="categories" name="cat_name">
+                <option name="none" value="None">None</option>
+            </select>
+            <br />
+            <input type="text" name="category" placeholder="Category"/><br />
+            <input type="hidden" name="cat_type" value="post"/><br />
+        <textarea name="content" rows="20" cols="80"></textarea><br />
+        <input type="submit" value="Save">
+        </form>
+    </form>
+    {{template "footer"}}
+{{end}}

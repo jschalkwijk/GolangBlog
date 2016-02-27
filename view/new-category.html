@@ -1,0 +1,12 @@
+{{define "new-category"}}
+    {{template "header"}}
+    <h1>Create new Category</h1>
+
+    <form action="/categories/add-category" method="POST">
+        <input type="text" name="title" placeholder=" Title"/><br />
+        <input type="text" name="description" placeholder="Category Description (max 160 characters)" value=""/><br />
+        <input type="submit" value="Save">
+    </form>
+    </form>
+    {{template "footer"}}
+{{end}}

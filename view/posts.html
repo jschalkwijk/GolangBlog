@@ -1,0 +1,28 @@
+{{define "posts"}}
+    {{template "header"}}
+<body>
+        <a href="/posts/new">Create Post</a>
+
+        {{ range $key, $value := .Posts}}
+            <div class="top-margin">
+                <div class="container large">
+                    <article>
+                        <h1><a class="article-title" href="/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
+                        <p class="article-meta"><img class="glyph-small" src="#"/>
+                            <span>{{.Author}}</span><img class="glyph-small" src="#"/>
+                            <img class="glyph-small" src="#"/>
+                            <span><a href="#">{{.Category_ID}}</a></span>
+                            <img class="glyph-small" src="#"/>
+                            <span> 5 </span>
+                        </p>
+                        <p><a href="/posts/edit/{{.Post_ID}}/{{.Title}}">edit</a></p>
+                        <div class="article-content"><p>{{printf "%s" .Content}}</p>
+                            <button class="read-more"><a href="#">Read More</a></button>
+                        </div><br />
+                    </article>
+                </div>
+            </div>
+        {{ end }}
+
+    {{template "footer"}}
+{{end}}
