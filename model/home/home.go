@@ -3,7 +3,6 @@ package home
 import (
 	"html/template"
 	"net/http"
-	"strings"
 	"path/filepath"
 )
 

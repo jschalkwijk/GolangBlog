@@ -1,0 +1,726 @@
+/*
+Theme Name: Portfolio
+Theme URI: http://jornschalkwijk.nl
+Description: Jorn Portfolio Theme with Bootstrap & Wordpress
+Version: 0.1
+Tags:two-columns, right-sidebar, responsive
+Author: Jorn Schalkwijk
+License: All Rights Reserved
+The CSS and design is released under GPL: http://www.opensource.org/licenses/gpl-license.php
+*/ 
+
+/*General*/
+
+* {
+	padding: 0px;
+	margin: 0px;
+}
+
+body {
+	margin: 0px;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	line-height: 1.42857143;
+	color: #333;
+	background-color: #fff;
+}
+
+ul {
+	padding:0px;
+	margin: 0px 0px 0px 0px;
+	list-style-type: none;
+}
+
+li {
+	margin: 0px;
+}
+
+a {
+	text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6, h7, h8 {
+	color: #333333;
+}
+
+
+/* containers */
+
+.container {
+	width: intrinsic;
+	height: auto;
+	padding: 5px;
+	margin: auto;
+}
+
+.full-width {
+	width: 100%;
+	height: auto;
+	padding: 5px;
+	margin: auto;
+}
+
+.xxlarge {
+	max-width: 1280px;
+	height: auto;
+	margin: auto;
+	padding: 5px;
+}
+
+.xlarge {
+	max-width: 1080px;
+	min-height: auto;
+	margin: auto;
+	padding: 5px;
+}
+
+.large{
+	max-width: 720px;
+	height: auto;
+	margin: auto;
+	padding: 5px;
+}
+
+.medium {
+	max-width: 420px;
+	height: auto;
+	padding: 5px;
+}
+
+.small {
+	max-width: 320px;
+	height: auto;
+	padding: 5px;
+}
+
+.xsmall {
+	width: 100px;
+}
+
+/*glyph sizes */
+
+.glyph-small {
+	width: 15px;
+	height: 15px;
+	margin-bottom: -2px;
+}
+
+.glyph-medium {
+	width: 30px;
+	height: 30px;
+	margin-bottom: -2px;
+}
+
+
+/* Helpers */
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.top-margin {
+	margin-top: 50px;
+}
+
+.center {
+	width: intrinsic;
+	height: auto;
+	padding: 5px;
+	margin: auto;
+}
+
+/* Button Styling */
+
+button {
+	padding: 5px; 
+	margin: 5px 5px 5px 5px;
+	float: none;
+	background-color: #FF7878;
+	border: none;
+	color: white;
+	text-decoration: none;
+	border-radius: 5px;
+	font-size: 16px;
+}
+
+button a {
+	color: white;
+	text-decoration: none;
+}
+button a:hover {
+	color: white;
+	text-decoration: none;
+}
+button:hover  {
+	background-color: black;
+}
+
+#learn-more {
+	width: 200px;
+	height: 75px;
+	font-size: 23px;
+	margin: 0px 0 0 0;
+	text-align: center;
+}
+
+.quote {
+	max-width: 700px;
+}
+
+/* Wrapper */
+
+#wrapper {
+	background-color: #f2f2f2;
+}
+
+/* Display Header */
+
+.display {
+  min-height: 250px;
+  background-color: #eee;
+  padding: 50px 5px 5px 5px;
+  -webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+}
+
+.display p {
+  margin-bottom: 15px;
+  font-size: 21px;
+  font-weight: 200;
+}
+
+.display h1 {
+	font-size: 60px;
+}
+/* Navigation */
+
+/* Navigation Basic Styling */
+
+nav {
+	text-align: center;
+	list-style-type:none;
+	width: intrinsic;
+	background: #CCC;
+	margin: 0px;
+	height: 50px;
+	background-color: #333333;
+}
+
+nav li {
+	list-style-type:none;
+	display: inline;
+	padding: 0px;
+}
+
+nav li a:hover {
+	background-color: #000000;
+}
+
+nav li a {
+	color: #999;
+	font-size: large;
+	font-family: Helvetica;
+	height: 100%;
+	padding: 0px 10px 0px 10px;
+	display: inline-table;
+	 -webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+
+#menu {
+	background-color:#333333;
+	display: none;
+	min-height: 50px;
+	margin: 0px;
+	width: 100%;
+	padding: 3px;
+	box-sizing: border-box;
+}
+#menu img {
+	float: left;
+	width: 44px;
+	height: 44px;
+}
+
+#menu p {
+	color: #999;
+	width: intrinsic;
+	height: auto;
+	font-size: 16px;
+	margin: auto;
+	line-height: 42px;
+}
+
+/* Responsive */
+
+img {
+	width: 100%;
+}
+
+/* Responsive, screen width smaller then 700px; */
+ 
+/* Javascript Disabled - These are always visibile */
+@media only screen and (max-width: 700px) { 
+
+nav li:nth-child(even) { background: #333; color: #999;  }
+nav li:nth-child(odd) { background: #474747; color: #999;  }  
+
+/* Jasvascript disabled*/
+
+nav {
+	list-style-type:none;
+	background: #BBB;
+	position: static;
+	padding-top: 0px;
+	width: 100%;
+	height: auto;
+}
+
+nav ul {
+	margin-top: 0px;
+	width: 100%;
+}
+
+nav li {
+	display: block;
+	margin: 0px;
+	width: 100%;
+}
+
+nav li a{
+	padding: 10px 0px 10px 0px;
+}
+nav li a:hover {
+	background:none;
+	padding: 20px 0px 20px 0px;
+}
+
+/* Javascript Enabled */
+
+.hidden {
+	display: none;
+	margin: 0px;
+}
+
+.show {
+	display: block;
+	margin: 0px;
+	width: 100%;
+}
+
+.js-nav {
+	position: fixed !important;
+}
+
+.js-ul {
+	position: absolute !important;
+	margin-top: 50px;
+}
+
+#menu {
+	display: block;
+	margin: 0px;
+	max-width: 700px;
+	position: fixed; 
+}
+
+}
+/* Responsive, screen width bigger then 700px; */
+
+/* Javascript Disabled - These are always visibile */
+@media only screen and (min-width: 700px) { 
+nav {
+		max-height: 50px;
+		margin: 0px;
+		width: 100%;
+		position: fixed;
+}
+
+nav ul {
+	margin-top: 0px;
+	line-height: 50px;
+}
+
+nav li {
+	display: inline;
+}
+
+/* Jasvascript Enabled */
+.show {
+	display: inline;
+}
+
+#menu {
+	display: none;
+}
+
+}
+
+/* End Navigation */
+
+/* Article or Post */
+#main {
+	height: auto;
+	margin: auto;
+}
+#main-content {
+	min-height: 580px;
+	margin-bottom: 5px;
+}
+
+#article-wrapper {
+	max-width: 740px;
+	height: auto;	
+	float: left;
+	margin:0px 10px 5px 0px;
+}
+
+article {
+	min-width: 750px;
+	height: auto;
+	float: left;
+}
+
+.article-content {
+	height: auto; 
+	padding: 5px;
+	margin: 0px;
+	background-color: rgba(255,255,255,0.5);
+	border-bottom: 3px solid #d2d2d2;
+}
+
+.article-content p {
+	padding: 0px 5px 10px 5px;
+	background-color: none;	
+}
+
+/*TILT*/
+.tilt {
+  -webkit-transition: all 0.5s ease;
+     -moz-transition: all 0.5s ease;
+       -o-transition: all 0.5s ease;
+      -ms-transition: all 0.5s ease;
+          transition: all 0.5s ease;
+}
+ 
+.tilt:hover {
+  -webkit-transform: rotate(-10deg);
+     -moz-transform: rotate(-10deg);
+       -o-transform: rotate(-10deg);
+      -ms-transform: rotate(-10deg);
+          transform: rotate(-10deg);
+}
+
+/* Article Title/Meta */
+
+.article-title {
+	width: 100%;
+	height: auto;
+	font-family: 'Raleway', Arial, Helvetica;
+	background-color:none;
+	color: #f85c37;
+	margin: 0px;
+	padding: 5px;
+	-webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	float: left;
+	border-bottom: 1px dotted #d2d2d2;
+
+}
+
+.article-title a {
+	color: #2d2520;
+	padding: 5px;
+	margin-top: 0px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-o-box-sizing: border-box;
+}
+
+.article-meta {
+	width: 100%;
+	height: auto;
+	float: left;
+	display: inline;
+	list-style-type:none;
+	padding: 3px;
+	margin: 0px 0% 5px 0%;
+	background-color:none;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border-bottom: 1px solid #d2d2d2;
+}
+
+.article-meta a {
+	color:#ea6a1b;
+}
+
+/* Downloads */
+
+#downloads {
+	width: intrinsic;
+	height: auto;
+	margin: auto;
+}
+
+#downloads h2 {
+	text-align: center;
+}
+
+#downloads button {
+	text-decoration: none;
+	border-radius: 5px;
+	font-size: 22px;
+}
+
+#downloads table {
+	font-size: 22px;
+}
+
+/* Skills */
+
+#progress {
+	height: auto;
+	margin-bottom:  5px;
+}
+  
+/*Image Holders*/
+
+#main-icon-wrapper {
+	width: intrinsic;
+	height: auto;
+	margin: auto;
+
+}
+#icon-left {
+	float: left;
+}
+
+#icon-right {
+	float: left;
+	margin-bottom: 30px;
+}
+
+.img-title {
+	width: min-intrinsic;
+	margin: auto;
+	text-align: center;
+}
+.image-holder {
+	max-width: 150px;
+	max-height: 150px;
+	background: none;
+	list-style: none;
+	margin: 0 auto;	
+	padding: 10px;
+	float: left;
+}
+
+.power {
+	margin: auto;
+	background: transparent;
+	width: intrinsic;
+}
+
+/* Widget */
+
+.widget-wrapper {
+	max-width: 320px;
+	height: auto;
+	background-color: rgba(255,255,255,0.75);
+	margin: 0px;
+	float: right;
+}
+
+.widget-title {
+	color: #2d2520;
+	width: 100%;
+	height: auto;
+	background-color: none;
+	margin: 0px;
+	padding: 11px 5px 11px 5px;
+	border-bottom: 1px dotted #d2d2d2;
+}
+
+.widget-content {
+	width: 100%;
+	height: auto;
+	background-color: none;
+	margin: 0px;
+	padding: 3px;
+	/* wordt in WP widget wrpper ul*/
+}
+
+/*Contact*/
+
+#contact {
+	max-width: 200px;
+}
+
+#contact input {
+	width: 100%;
+	height: 30px;
+	border-radius: 5px;
+	margin-bottom: 5px;
+}
+
+ #contact textarea {
+	width: 100%;
+	min-height: 100px;
+	border-radius: 5px;
+	margin-bottom: 5px;
+	-webkit-appearance: textfield;
+padding: 1px;
+background-color: 
+white;
+border: 2px inset;
+border-image: initial;
+-webkit-rtl-ordering: logical;
+-webkit-user-select: text;
+cursor: auto;
+
+ }
+
+#contact button {
+	min-width: 150px;
+	height: 50px;
+}
+
+.phone {
+	max-width: 100px;
+	max-height: 100px;
+}
+
+#mail {
+	margin: 20px;
+}
+
+#call {
+	margin: 20px;
+}
+/* Footer */
+
+footer {
+	max-height: 150px;
+	background: #2d2d2d;
+	padding-top: 30px;
+	margin-top: 0px;
+	padding-bottom: 30px;
+	clear: both;
+}
+
+footer p {
+	width: intrinsic;
+	color: white;
+	margin: auto;
+	padding: 5px;
+	margin: auto;
+}
+
+footer img {
+	width: 30px;
+	height: 30px;
+	margin-bottom: -10px;
+}
+
+/* Flexible Images/Video etc. */
+
+img, video, canvas, url {
+  max-width: 100%;
+}
+
+/* Laptop/Tablet (1024px) */
+@media only screen and (min-width: 900px) {
+
+	#article-wrapper  {
+		max-width: 70%;
+	}
+	.widget-wrapper {
+		max-width: 29%;
+		float: right;
+	}
+}
+
+@media only screen and (max-width: 900px) {
+	.image-holder {
+		max-height: 150px;
+		max-width: 150px;
+	}
+	
+	#article-wrapper  {
+		max-width: 100%;
+	}
+	.widget-wrapper {
+		max-width: 100%;
+	}
+}
+
+
+@media only screen and (max-width: 700px) {
+	.image-holder {
+		max-height: 150px;
+		max-width: 150px;
+	}
+	#icon-left {
+		float: none;
+		}	
+
+	#icon-right {
+		float: left;
+		}
+	
+	#downloads button {
+		text-decoration: none;
+		border-radius: 5px;
+		font-size: 18px;
+	}
+
+	#downloads table {
+	font-size: 18px;
+	}
+}
+
+
+/* Phone Portrait (320px) */
+@media only screen and (max-width: 320px) {
+ .image-holder {
+		max-height: 100px;
+		max-width: 100px;
+	}
+	#icon-left {
+		float: none;
+		}	
+
+	#icon-right {
+		float: left;
+		}
+	
+	#downloads button {
+		text-decoration: none;
+		border-radius: 5px;
+		font-size: 16px;
+	}
+
+	#downloads table {
+		font-size: 16px;
+	}
+
+}
+
