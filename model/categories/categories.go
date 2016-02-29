@@ -53,20 +53,20 @@ type Data struct {
 */
 
 
-func RenderTemplate(w http.ResponseWriter,name string,  p *Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",view + "/" + name + ".html",templates+"/"+"footer.html")
+func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
+	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	t.ExecuteTemplate(w,"header",nil)
+	t.ExecuteTemplate(w,"nav",nil)
 	t.ExecuteTemplate(w,name,p)
 	t.ExecuteTemplate(w,"footer",nil)
 	err = t.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	fmt.Println(view)
 }
 
 // Get all categories

@@ -17,29 +17,18 @@ import (
 var static, _ = filepath.Abs("../jschalkwijk/GolangBlog/static/")
 
 func main() {
-
-//	_, err := os.Stat(filepath.Join(".", static, "style.css"))
+// With this funtion I can check if my filepath is working for serving static files such as CSS or Templates etc
+// IMPORTANT:I failed to add stat ic files because Go will use the current Directory you are in as the App's ROOT.
+// If I run it from GolangBlog, the root is /Users/jorn/Documents/Golang/src/github.com/jschalkwijk/GolangBlog
+// If I run it from jschalkwijk
+	// 	_, err := os.Stat(filepath.Join(".", "GolangBlog/static/css", "style.css"))
 //	checkErr(err)
 
 	r := mux.NewRouter()
 	// Index
 	//#1
-	//r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
-	//#2
-	//	s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
-	//	r.PathPrefix("/static/").Handler(s)
-	//#3
-	// r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
-	//#4
-	//ServeStatic(r, "/static/")
-	//#5
-	//r.Handle("/static/{rest}", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
-	// print current dir
-	//	_, filename, _, _ := runtime.Caller(1)
-//	f, err := os.Open(path.Join(path.Dir(filename), ""))
-//	fmt.Println(f)
-//	checkErr(err)
-	
+	r.PathPrefix("/GolangBlog/static/css").Handler(http.StripPrefix("/GolangBlog/static/css", http.FileServer(http.Dir("./GolangBlog/static/css"))))
+
 	b,err := exists(static);
 	fmt.Println(b)
 	checkErr(err)
