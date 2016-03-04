@@ -1,7 +1,7 @@
 package categories
 import (
 	"net/http"
-	"github.com/jschalkwijk/GolangBlog/model/categories"
+	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	//"github.com/jschalkwijk/GolangBlog/controller"
 	"github.com/gorilla/mux"
 )

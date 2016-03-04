@@ -2,7 +2,7 @@ package posts
 
 import (
 	"net/http"
-	"github.com/jschalkwijk/GolangBlog/model/posts"
+	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
 	//"github.com/jschalkwijk/GolangBlog/controller"
 	"github.com/gorilla/mux"
 	//"github.com/jschalkwijk/GolangBlog/model/data"

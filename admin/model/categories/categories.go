@@ -1,18 +1,18 @@
 package categories
 
 import (
-_"github.com/go-sql-driver/mysql"
-"database/sql"
-"fmt"
-"html/template"
-"net/http"
-"path/filepath"
-"strconv"
+	_"github.com/go-sql-driver/mysql"
+	"database/sql"
+	"fmt"
+	"html/template"
+	"net/http"
+	"strconv"
+	"github.com/jschalkwijk/GolangBlog/admin/model/db"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/templates")
+var view = "GolangBlog/admin/view"
+var templates = "GolangBlog/admin/templates"
 
 // categorie struct to create categories which will be added to the collection struct
 type Categorie struct {
@@ -71,7 +71,7 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 
 // Get all categories
 func GetCategories() *Data {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
@@ -96,7 +96,7 @@ func GetCategories() *Data {
 
 //Get a single categorie
 func GetSingleCategory(id string,category_title string) *Data {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
 	defer db.Close()
@@ -120,7 +120,7 @@ func GetSingleCategory(id string,category_title string) *Data {
 
 // categorie Methods
 func (p *Categorie) saveCategory() error {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	defer db.Close()
 	checkErr(err)
 	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE categorie_id=?")
@@ -136,7 +136,7 @@ func (p *Categorie) saveCategory() error {
 }
 
 func (p *Categorie) addCategory() error {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
 	fmt.Println(stmt)

@@ -6,16 +6,15 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"path/filepath"
 	"strconv"
-
+	"github.com/jschalkwijk/GolangBlog/admin/model/db"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/templates")
+var view = "GolangBlog/admin/view"
+var templates = "GolangBlog/admin/templates"
 
-// Post struct to create posts which will be added to the collection struct
+// Post struct to create blog which will be added to the collection struct
 type Post struct {
 	Post_ID int
 	Title string
@@ -40,7 +39,7 @@ var date string
 var category_id int
 var trashed int
 
-// Stores a single post, or multiple posts which we can then iterate over in the template
+// Stores a single post, or multiple blog which we can then iterate over in the template
 type Data struct {
 	Posts []Post
 }
@@ -74,7 +73,7 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 
 // Get all Posts
 func GetPosts() *Data {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
@@ -103,7 +102,7 @@ func GetSinglePost(id string,post_title string) *Data {
 //	vars := mux.Vars(r)
 //	id:= vars["id"]
 //	post_title := vars["title"]
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
 	defer db.Close()
@@ -127,7 +126,7 @@ func GetSinglePost(id string,post_title string) *Data {
 
 // Post Methods
 func (p *Post) savePost() error {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	defer db.Close()
 	checkErr(err)
 	stmt, err := db.Prepare("UPDATE posts SET title=?, description=?, content=? WHERE post_id=?")
@@ -143,7 +142,7 @@ func (p *Post) savePost() error {
 }
 
 func (p *Post) addPost() error {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:8889)/nerdcms_db?charset=utf8")
+	db, err := sql.Open("mysql", db.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO posts (title,description,content) VALUES(?,?,?) ")
 	fmt.Println(stmt)
@@ -172,7 +171,7 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/posts/"+id+"/"+title, http.StatusFound)
+	http.Redirect(w, r, "/admin/posts/"+id+"/"+title, http.StatusFound)
 }
 func NewPost(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
@@ -187,7 +186,7 @@ func NewPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/posts/", http.StatusFound)
+	http.Redirect(w, r, "/admin/posts/", http.StatusFound)
 }
 
 func checkErr(err error) {
