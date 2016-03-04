@@ -1,10 +1,10 @@
-package categories
+package blog
 
 import (
 	_"github.com/go-sql-driver/mysql"
 	"html/template"
 	"net/http"
-	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
+	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
@@ -18,7 +18,7 @@ var templates = "GolangBlog/templates"
 */
 
 
-func RenderTemplate(w http.ResponseWriter,name string, p *cat.Data) {
+func RenderTemplate(w http.ResponseWriter,name string, p *posts.Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

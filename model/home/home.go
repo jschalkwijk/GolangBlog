@@ -3,11 +3,10 @@ package home
 import (
 	"html/template"
 	"net/http"
-	"path/filepath"
 )
 
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/templates")
+var view = "GolangBlog/view"
+var templates = "GolangBlog/templates"
 
 type Collection struct {
 

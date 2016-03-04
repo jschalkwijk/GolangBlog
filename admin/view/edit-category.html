@@ -1,5 +1,4 @@
 {{define "edit-category"}}
-    {{template "header"}}
     <h1>Edit Category</h1>
     {{ range $key, $value := .Categories}}
         <form action="/categories/save/{{.Category_ID}}/{{.Title}}" method="POST">
@@ -10,5 +9,4 @@
         </form>
         </form>
     {{end}}
-    {{template "footer"}}
 {{end}}

@@ -1,8 +1,8 @@
-{{define "posts"}}
+{{define "blog"}}
 <div class="container large">
     {{ range $key, $value := .Posts}}
         <article>
-            <h1><a class="article-title" href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
+            <h1><a class="article-title" href="/blog/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
             <p class="article-meta"><img class="glyph-small" src="/images/author.png"/>
                 <span>{{.Author}}</span><img class="glyph-small" src="/images/time.png"/>
                 <img class="glyph-small" src="/images/category.png"/>

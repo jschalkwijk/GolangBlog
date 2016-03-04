@@ -1,9 +1,9 @@
 {{define "edit-post"}}
     {{template "header"}}
         {{ range $key, $value := .Posts}}
-        <h1>Editing <a href="/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
+        <h1>Editing <a href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
 
-        <form action="/posts/save/{{.Post_ID}}/{{.Title}}" method="POST">
+        <form action="/admin/posts/save/{{.Post_ID}}/{{.Title}}" method="POST">
             <input type="text" name="title" placeholder=" Title" value="{{.Title}}"/><br />
             <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{.Description}}"/><br />
             <label for="select">Category</label>

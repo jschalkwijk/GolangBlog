@@ -3,11 +3,10 @@ package admin
 import (
 	"html/template"
 	"net/http"
-	"path/filepath"
 )
 
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/admin/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/admin/templates")
+var view = "GolangBlog/admin/view"
+var templates = "GolangBlog/admin/templates"
 
 type Collection struct {
 
