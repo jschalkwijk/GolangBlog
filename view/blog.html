@@ -1,5 +1,5 @@
 {{define "blog"}}
-<div class="container large">
+<div class="container large top-margin">
     {{ range $key, $value := .Posts}}
         <article>
             <h1><a class="article-title" href="/blog/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
@@ -11,7 +11,8 @@
                 <span> 5 </span>
             </p>
             <p><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}">edit</a></p>
-            <div class="article-content"><p>{{printf "%s" .Content}}</p>
+            <div class="article-content">
+                <p>{{ .Content}}</p>
                 <button class="read-more"><a href="#">Read More</a></button>
             </div><br />
         </article>

@@ -19,7 +19,7 @@ type Post struct {
 	Post_ID int
 	Title string
 	Description string
-	Content string
+	Content template.HTML
 	Keywords string
 	Approved int
 	Author string
@@ -88,8 +88,9 @@ func GetPosts() *Data {
 		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
 			&author,&date,&category_id,&trashed)
 		checkErr(err)
-
-		post := Post{post_id,title,description,content,keywords,approved,author,date,category_id,trashed}
+		// convert string to HTML markdown
+		body := template.HTML(content)
+		post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,trashed}
 
 		collection.Posts = append(collection.Posts , post)
 	}
@@ -115,8 +116,8 @@ func GetSinglePost(id string,post_title string) *Data {
 	err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
 		&author,&date,&category_id,&trashed)
 	checkErr(err)
-
-	post := Post{post_id,title,description,content,keywords,approved,author,date,category_id,trashed}
+	body := template.HTML(content)
+	post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,trashed}
 
 	collection.Posts = append(collection.Posts , post)
 
@@ -164,7 +165,8 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 	content := r.FormValue("content")
 	new_id,error := strconv.Atoi(id)
 	checkErr(error)
-	p := &Post{Post_ID: new_id, Title: title,Description: description, Content: content}
+	body := template.HTML(content)
+	p := &Post{Post_ID: new_id, Title: title,Description: description, Content: body}
 	fmt.Println(p)
 	err := p.savePost()
 	if err != nil {
@@ -178,8 +180,8 @@ func NewPost(w http.ResponseWriter, r *http.Request) {
 	description := r.FormValue("description")
 	//category_id := r.FormValue("category_id")
 	content := r.FormValue("content")
-
-	p := &Post{Title: title ,Description: description, Content: content}
+	body := template.HTML(content)
+	p := &Post{Title: title ,Description: description, Content: body}
 	fmt.Println(p)
 	err := p.addPost()
 	if err != nil {

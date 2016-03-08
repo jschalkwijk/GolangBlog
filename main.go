@@ -75,9 +75,10 @@ func checkErr(err error) {
 // load all static diretories: Source: http://www.shakedos.com/2014/Feb/08/serving-static-files-with-go.html
 func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 	staticPaths := map[string]string{
-		"/css/":           staticDirectory + "/css/",
-		"/images/":           staticDirectory + "/images/",
-		"/scripts/":          staticDirectory + "/scripts/",
+		"/css/": staticDirectory + "/css/",
+		"/images/": staticDirectory + "/images/",
+		"/scripts/": staticDirectory + "/scripts/",
+		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",
 	}
 	for pathPrefix, pathValue := range staticPaths {
 		router.PathPrefix(admin+pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,
