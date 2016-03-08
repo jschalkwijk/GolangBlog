@@ -1,20 +1,23 @@
 {{define "posts"}}
 <div class="container large">
     {{ range $key, $value := .Posts}}
-        <article>
-            <h1><a class="article-title" href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
-            <p class="article-meta"><img class="glyph-small" src="/images/author.png"/>
-                <span>{{.Author}}</span><img class="glyph-small" src="/images/time.png"/>
-                <img class="glyph-small" src="/images/category.png"/>
-                <span><a href="#">{{.Category_ID}}</a></span>
-                <img class="glyph-small" src="/images/comments.png"/>
-                <span> 5 </span>
-            </p>
-            <p><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}">edit</a></p>
-            <div class="article-content"><p>{{printf "%s" .Content}}</p>
-                <button class="read-more"><a href="#">Read More</a></button>
-            </div><br />
-        </article>
+            <table class="backend-table title">
+                <tr>
+                    <th>Title</th><th>Author</th><th>Category</th><th>Date</th><th>Edit</th><th>View</th><!-- <th>Remove</th> --></tr>
+                        <form class="backend-form" method="post" action="<?php echo $action; ?>">
+                            <tr>
+                                <td class="td-title"><p><a class="article-title" href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></p></td>
+                                <td class="td-author"><p>{{.Author}}</p></td>
+                                <td class="td-category"><p>{{.Category_ID}}</p></td>
+                                <td class="td-date"><p>{{.Date}}</p></td>
+                                <input type="hidden" name="id" value="{{.Post_ID}}" />
+                                <td class="td-btn"><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                                <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                                <td class="td-btn"><input type="checkbox" name="checkbox[]" value="{{.Post_ID}}"/></td>
+                            </tr>
+                        </form>
+                </tr>
+            </table>
     {{ end }}
 </div>
 {{end}}
