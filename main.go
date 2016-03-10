@@ -16,7 +16,6 @@ import (
 
 var static string = "/GolangBlog/static/"
 var adminStatic string = "/GolangBlog/admin/static/"
-var css string = "/GolangBlog/static/css/"
 
 func main() {
 	// With this funtion I can check if my filepath is working for serving static files such as CSS or Templates etc
@@ -27,9 +26,9 @@ func main() {
 	//	checkErr(err)
 	fmt.Println("Starting GolangBlog..")
 	r := mux.NewRouter()
-	serveStatic(r,static)
-	serveStatic(r,adminStatic)
-	//r.PathPrefix("/css/").Handler(http.StripPrefix("/css/", http.FileServer(http.Dir("."+css))))
+	serveStatic(r,static,"")
+	serveStatic(r,adminStatic,"/admin")
+	//r.PathPrefix("/admin/css/").Handler(http.StripPrefix("/admin/css/", http.FileServer(http.Dir("."+adminCSS))))
 
 	r.HandleFunc("/", home.DashboardHandler)
 	// Blog
@@ -74,16 +73,15 @@ func checkErr(err error) {
 }
 
 // load all static diretories: Source: http://www.shakedos.com/2014/Feb/08/serving-static-files-with-go.html
-func serveStatic(router *mux.Router, staticDirectory string) {
+func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 	staticPaths := map[string]string{
-		"css":           staticDirectory + "/css/",
-		"images":           staticDirectory + "/images/",
-		"scripts":          staticDirectory + "/scripts/",
+		"/css/": staticDirectory + "/css/",
+		"/images/": staticDirectory + "/images/",
+		"/scripts/": staticDirectory + "/scripts/",
+		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",
 	}
-	for pathName, pathValue := range staticPaths {
-		pathPrefix := "/" + pathName + "/"
-		//fmt.Println(pathPrefix)
-		router.PathPrefix(pathPrefix).Handler(http.StripPrefix(pathPrefix,
+	for pathPrefix, pathValue := range staticPaths {
+		router.PathPrefix(admin+pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,
 			http.FileServer(http.Dir("."+pathValue))))
 	}
 }

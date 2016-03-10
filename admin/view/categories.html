@@ -1,16 +1,21 @@
 {{define "categories"}}
-
-{{ range $key, $value := .Categories}}
-    <div class="top-margin">
-        <div class="container large">
-            <article>
-                <h1><a class="article-title" href="/categories/{{.Category_ID}}/{{.Title}}">{{.Title}}</a></h1>
-                <p><a href="/categories/edit/{{.Category_ID}}/{{.Title}}">edit</a></p>
-                <div class="article-content"><p>{{printf "%s" .Description}}</p>
-                </div><br />
-            </article>
-        </div>
+<div class="top-margin">
+    <div class="container large">
+        <table class="backend-table title">
+            <tr><th>Category</th><th>Author</th><th>N/A</th><th>Date</th><th>Edit</th><th>View</th></tr>
+                {{ range $key, $value := .Categories}}
+                    <tr>
+                        <td class="td-title"><p><a href="/admin/categories/{{.Category_ID}}/{{.Title}}">{{.Title}}</a></p></td>
+                        <td class="td-author"><p>{{.Author}}</p></td>
+                        <td class="td-category"><p>None</p></td>
+                        <td class="td-date"><p>{{.Date}}</p></td>
+                        <input type="hidden" name="id" value="{{.Category_ID}}" />
+                        <td class="td-btn"><a href="/admin/categories/edit/{{.Category_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                        <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                        <td class="td-btn"><input type="checkbox" name="checkbox[]" value="{{.Category_ID}}"/></td>
+                    </tr>
+                {{ end }}
+        </table>
     </div>
-{{ end }}
-
+</div>
 {{end}}

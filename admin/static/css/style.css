@@ -1,3 +1,160 @@
+/* Search */
+.search input {
+	border-radius: 10px;
+	height: 30px;
+	border: none;
+	background-color:#333;
+	padding-left: 10px;
+	color: #999;
+	outline:none;
+}
+
+/* Login styles*/
+
+#login {
+	max-width: 200px;
+}
+
+#login input {
+	width: 100%;
+	height: 30px;
+	border-radius: 5px;
+	margin-bottom: 5px;
+}
+
+#login button {
+	width: 100%;
+	height: 30px;
+}
+
+/* Add Post styles*/
+#addpost-form input,#create-form input, #edit-form input ,#add-user input {
+	width: 100%;
+	height: 30px;
+	border-radius: 5px;
+	margin-bottom: 5px;
+}
+#addpost-form textarea , #create-form textarea, #edit-form textarea,#add-user textarea{
+	width: 100%;
+	min-height: 500px;
+	resize: none;
+	border-radius: 5px;
+}
+
+#addpost-form input[type=radio],#create-form input[type=radio], #edit-form input[type=radio] ,#add-user input[type=radio] {
+	width: max-content;
+}
+
+/* Blog / Pages / Blocks overview styling */
+.backend-form a img{
+	padding: 5px; 
+	margin: 0px 5px 0px 5px;
+	float: none;
+	background-color: #ea6a1b;
+	border: none;
+	color: white;
+	text-decoration: none;
+	border-radius: 5px;
+	font-size: 14px;
+	height: 28px;
+}
+.backend-form img:hover  {
+	background-color: black;
+}
+.backend-form a {
+	height: 28px;
+}
+/* Blog / Pages / Trashed overview styling*/
+.title {
+	font-family: Helvetica,Arial,Sans Serif;
+	font-size: 16px;
+	background-color: none;
+	color:#333;
+	width: 100%;
+	padding:5px;
+	margin:0px;
+	height: auto;
+}
+
+.title form {
+	margin:0px;
+	padding: 0px;
+	height: inherit;
+}
+.post {
+	font-family: Helvetica,Arial,Sans Serif;
+	font-size: 12px;
+	background-color: none;
+	color:black;
+	width: 100%;
+	padding:0px;
+	margin:0px;
+}
+
+.right {
+	float: right;
+	margin: 0px;
+}
+
+.logged {
+	margin:0px;
+	padding:0px;
+	color: orange;
+	display:inline;
+	font-size: 14px;
+}
+
+.backend-table {
+	padding: 0px;
+	margin: 1px;
+	width:max-content;
+}
+
+.backend-table td {
+	border-bottom: 2px solid #d2d2d2;	
+}
+.backend-table tr{
+	text-align:left;
+	
+}
+
+.backend-table th{
+	text-align:left;
+}
+
+.backend-table button {
+	background-color: none;
+}
+
+.td-title, .td-author, .td-category {
+	min-width: 100px;
+	max-width: 200px;
+}
+.td-date {
+	width:90px
+}
+
+.td-btn {
+	min-width:35px;
+}
+input[type=submit] {
+	border: none;
+	background:transparent;
+	background-color: none;
+	color: #ea6a1b;
+	margin: 0px;
+	padding: 0px;
+	text-decoration: underline;
+}
+
+form a {
+	border: none;
+	background:transparent;
+	background-color: none;
+	color: blue;
+	margin: 0px;
+}
+
 /*
 Theme Name: Portfolio
 Theme URI: http://jornschalkwijk.nl
@@ -7,7 +164,7 @@ Tags:two-columns, right-sidebar, responsive
 Author: Jorn Schalkwijk
 License: All Rights Reserved
 The CSS, XHTML and design is released under GPL: http://www.opensource.org/licenses/gpl-license.php
-*/ 
+*/
 
 /*General*/
 
@@ -28,7 +185,7 @@ body {
 ul {
 	padding:0px;
 	margin: 0px 0px 0px 0px;
-	list-style-type: none;
+	list-style-type: no
 }
 
 li {
@@ -37,10 +194,19 @@ li {
 
 a {
 	text-decoration: none;
+	color: #ea6a1b;
 }
+
+input=['submit']
+
+
 
 h1, h2, h3, h4, h5, h6, h7, h8 {
 	color: #333333;
+}
+button {
+	width: max-content;
+	height: auto;
 }
 
 
@@ -81,10 +247,16 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 	padding: 5px;
 }
 
+.medium-large {
+	max-width: 560px;
+	height: auto;
+	padding: 5px;
+}
 .medium {
 	max-width: 420px;
 	height: auto;
 	padding: 5px;
+	margin: auto;
 }
 
 .small {
@@ -94,24 +266,51 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 }
 
 .xsmall {
+	width: 220px;
+}
+.xxsmall {
 	width: 100px;
 }
 
 /*glyph sizes */
 
-.glyph-small {
-	width: 15px;
-	height: 15px;
+.glyph-xsmall {
+	width: 20px;
+	height: 20px;
 	margin-bottom: -2px;
 }
-
+.glyph-small {
+	width: 25px;
+	height: 25px;
+	margin-bottom: 0px;
+}
 .glyph-medium {
 	width: 30px;
 	height: 30px;
 	margin-bottom: -2px;
 }
 
-
+.glyph-large {
+	width: 50px;
+	height: 50px;
+	margin-bottom: -2px;
+}
+/* Files */
+.media {
+	max-width: 125px;
+	min-width: 125px;
+	float:left;
+	margin-right: 5px;
+	position: relative;
+}
+.media checkbox {
+	height:120px;
+	width: 5px;
+	float:left;
+}
+.files {
+	height: 65px;
+}
 /* Helpers */
 .left {
 	float: left;
@@ -125,10 +324,6 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 	clear: both;
 }
 
-.top-margin {
-	margin-top: 50px;
-}
-
 .center {
 	width: max-content;
 	height: auto;
@@ -140,14 +335,15 @@ h1, h2, h3, h4, h5, h6, h7, h8 {
 
 button {
 	padding: 5px; 
-	margin: 5px 5px 5px 5px;
+	margin: 0px 5px 0px 5px;
 	float: none;
-	background-color: #FF7878;
+	/* background-color: #ea6a1b; */
+	background-color: #80B12C;
 	border: none;
 	color: white;
 	text-decoration: none;
 	border-radius: 5px;
-	font-size: 16px;
+	font-size: 14px;
 }
 
 button a {
@@ -162,16 +358,18 @@ button:hover  {
 	background-color: black;
 }
 
-#learn-more {
-	width: 200px;
-	height: 75px;
-	font-size: 23px;
-	margin: 0px 0 0 0;
-	text-align: center;
-}
-
-.quote {
-	max-width: 700px;
+/* if a link needs to look like a button  */
+.link-btn {
+	padding: 5px; 
+	margin: 0px 5px 0px 5px;
+	float: none;
+	/* background-color: #ea6a1b; */
+	background-color: #80B12C;
+	border: none;
+	color: white;
+	text-decoration: none;
+	border-radius: 5px;
+	font-size: 14px;
 }
 
 /* Wrapper */
@@ -183,6 +381,7 @@ button:hover  {
 /* Display Header */
 
 .display {
+  margin-top: 0px;
   min-height: 250px;
   background-color: #eee;
   padding: 50px 5px 5px 5px;
@@ -228,7 +427,7 @@ nav li a:hover {
 
 nav li a {
 	color: #999;
-	font-size: large;
+	font-size: medium;
 	font-family: Helvetica;
 	height: 100%;
 	padding: 0px 10px 0px 10px;
@@ -264,11 +463,7 @@ nav li a {
 	line-height: 42px;
 }
 
-/* Responsive */
 
-img {
-	width: 100%;
-}
 
 /* Responsive, screen width smaller then 700px; */
  
@@ -302,6 +497,7 @@ nav li {
 
 nav li a{
 	padding: 10px 0px 10px 0px;
+	font-size: small;
 }
 nav li a:hover {
 	background:none;
@@ -358,6 +554,7 @@ nav li {
 	display: inline;
 }
 
+
 /* Jasvascript Enabled */
 .show {
 	display: inline;
@@ -375,6 +572,7 @@ nav li {
 #main {
 	height: auto;
 	margin: auto;
+	padding-top: 50px;
 }
 #main-content {
 	min-height: 580px;
@@ -382,14 +580,14 @@ nav li {
 }
 
 #article-wrapper {
-	max-width: 740px;
+	width: 100%;
 	height: auto;	
 	float: left;
 	margin:0px 10px 5px 0px;
 }
 
 article {
-	min-width: 750px;
+	width: 100%;
 	height: auto;
 	float: left;
 }
@@ -405,23 +603,6 @@ article {
 .article-content p {
 	padding: 0px 5px 10px 5px;
 	background-color: none;	
-}
-
-/*TILT*/
-.tilt {
-  -webkit-transition: all 0.5s ease;
-     -moz-transition: all 0.5s ease;
-       -o-transition: all 0.5s ease;
-      -ms-transition: all 0.5s ease;
-          transition: all 0.5s ease;
-}
- 
-.tilt:hover {
-  -webkit-transform: rotate(-10deg);
-     -moz-transform: rotate(-10deg);
-       -o-transform: rotate(-10deg);
-      -ms-transform: rotate(-10deg);
-          transform: rotate(-10deg);
 }
 
 /* Article Title/Meta */
@@ -453,7 +634,7 @@ article {
 	-o-box-sizing: border-box;
 }
 
-.article-meta {
+.meta {
 	width: 100%;
 	height: auto;
 	float: left;
@@ -468,75 +649,13 @@ article {
 	border-bottom: 1px solid #d2d2d2;
 }
 
-.article-meta a {
+.meta a {
 	color:#ea6a1b;
 }
 
-/* Downloads */
-
-#downloads {
-	width: max-content;
-	height: auto;
-	margin: auto;
-}
-
-#downloads h2 {
-	text-align: center;
-}
-
-#downloads button {
-	text-decoration: none;
-	border-radius: 5px;
-	font-size: 22px;
-}
-
-#downloads table {
-	font-size: 22px;
-}
-
-/* Skills */
-
-#progress {
-	height: auto;
-	margin-bottom:  5px;
-}
-  
-/*Image Holders*/
-
-#main-icon-wrapper {
-	width: max-content;
-	height: auto;
-	margin: auto;
-
-}
-#icon-left {
-	float: left;
-}
-
-#icon-right {
-	float: left;
-	margin-bottom: 30px;
-}
-
-.img-title {
-	width: min-max-content;
-	margin: auto;
-	text-align: center;
-}
-.image-holder {
-	max-width: 150px;
-	max-height: 150px;
-	background: none;
-	list-style: none;
-	margin: 0 auto;	
-	padding: 10px;
-	float: left;
-}
-
-.power {
-	margin: auto;
-	background: transparent;
-	width: max-content;
+.checkbox {
+	padding-right: 5px;
+	line-height: 35px;
 }
 
 /* Widget */
@@ -568,55 +687,6 @@ article {
 	/* wordt in WP widget wrpper ul*/
 }
 
-/*Contact*/
-
-#contact {
-	max-width: 200px;
-}
-
-#contact input {
-	width: 100%;
-	height: 30px;
-	border-radius: 5px;
-	margin-bottom: 5px;
-}
-
- #contact textarea {
-	width: 100%;
-	min-height: 100px;
-	border-radius: 5px;
-	margin-bottom: 5px;
-	-webkit-appearance: textfield;
-padding: 1px;
-background-color: 
-white;
-border: 2px inset;
-border-image: initial;
--webkit-rtl-ordering: logical;
--webkit-user-select: text;
-cursor: auto;
-
- }
-
-#contact button {
-	min-width: 150px;
-	height: 50px;
-}
-
-.phone {
-	max-width: 100px;
-	max-height: 100px;
-}
-
-#mail {
-	margin: 20px;
-}
-
-#call {
-	margin: 20px;
-}
-/* Footer */
-
 footer {
 	max-height: 150px;
 	background: #2d2d2d;
@@ -631,12 +701,11 @@ footer p {
 	color: white;
 	margin: auto;
 	padding: 5px;
-	margin: auto;
 }
 
 footer img {
-	width: 30px;
-	height: 30px;
+	max-width: 30px;
+	max-height: 30px;
 	margin-bottom: -10px;
 }
 
@@ -644,6 +713,7 @@ footer img {
 
 img, video, canvas, url {
   max-width: 100%;
+  height: auto;
 }
 
 /* Laptop/Tablet (1024px) */
@@ -659,10 +729,6 @@ img, video, canvas, url {
 }
 
 @media only screen and (max-width: 900px) {
-	.image-holder {
-		max-height: 150px;
-		max-width: 150px;
-	}
 	
 	#article-wrapper  {
 		max-width: 100%;
@@ -670,57 +736,151 @@ img, video, canvas, url {
 	.widget-wrapper {
 		max-width: 100%;
 	}
-}
-
-
-@media only screen and (max-width: 700px) {
-	.image-holder {
-		max-height: 150px;
-		max-width: 150px;
-	}
-	#icon-left {
-		float: none;
-		}	
-
-	#icon-right {
-		float: left;
-		}
 	
-	#downloads button {
-		text-decoration: none;
-		border-radius: 5px;
-		font-size: 18px;
+	nav li a {
+		font-size: small;
 	}
-
-	#downloads table {
-	font-size: 18px;
-	}
+	
 }
 
 
 /* Phone Portrait (320px) */
 @media only screen and (max-width: 320px) {
- .image-holder {
-		max-height: 100px;
-		max-width: 100px;
-	}
-	#icon-left {
-		float: none;
-		}	
 
-	#icon-right {
-		float: left;
-		}
-	
-	#downloads button {
-		text-decoration: none;
-		border-radius: 5px;
-		font-size: 16px;
+
+}
+/* photo slider */
+#frame {
+	max-width: 1080px;
+	max-height: 720px;
+	background-color: transparent; 
+	margin-top:100px;
+	position: relative;
+}
+
+#slider {
+	margin: 0px;
+	position: relative;
+};
+
+#img {
+	margin: 0px;
+	position: relative;
+};
+
+.transition {
+	-o-transition:1.0s;
+	-ms-transition:1.0s;
+ 	-moz-transition:1.0s;
+ 	-webkit-transition:1.0s;
+ 	transition:1.0s;
+
+}
+
+#dashboard {
+	width: 100%;
+	height: auto;
+	margin: auto;
+	background: none;
+	margin-top: -68px;
+	position: relative;
+	/*Hover Off*/
+	-o-transition:1.0s;
+	-ms-transition:1.0s;
+ 	-moz-transition:1.0s;
+ 	-webkit-transition:1.0s;
+ 	transition:1.0s;
+}
+#dashboard:hover {
+	/*Hover On*/
+	background-color: rgba(255,255,255,0.6); 
+	-o-transition:1.0s;
+	-ms-transition:1.0s;
+ 	-moz-transition:1.0s;
+ 	-webkit-transition:1.0s;
+ 	transition:1.0s;
+}
+
+#controls {
+	width:max-content;
+	height: 65px;
+	margin: auto; 
+	background-color: transparent;
+}
+
+#next, #previous, #pause, #play, #download, #fullScreen {
+	width: 65px;
+	height: 65px;
+	margin: 0;
+	background-color: transparent;
+}
+
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+/*styles*/
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-width : 320px)
+and (max-width : 480px) {
+	#controls {
+		height: 60px;
 	}
 
-	#downloads table {
-		font-size: 16px;
+	#next, #previous, #pause, #play, #download {
+		max-width: 60px;
+		max-height: 60px;
 	}
 
+	#dashboard {
+		margin-top: -64px;
+	}
+}
+
+/* Smartphones (portrait) ----------- */
+@media only screen 
+and (max-width : 320px) {
+	#controls {
+		height: 40px;
+	}
+
+	#next, #previous, #pause, #play, #download {
+		max-width: 40px;
+		max-height: 40px;
+	}
+
+	#dashboard {
+		margin-top: -44px;
+	}
+}
+/* overlay */
+div#overlay {
+	display: none;
+	z-index: 2;
+	background: #000;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+}
+div#specialBox {
+	display: none;
+	position: relative;
+	z-index: 3;
+	margin: 150px auto 0px auto;
+	max-width: 1080px; 
+	max-height: 720px;
+	background: none;
+}
+div#snapper {
+	position:absolute;
+	top: 0px;
+	left: 0px;
+	padding-left:24px;
 }
 

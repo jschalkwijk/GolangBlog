@@ -1,21 +1,45 @@
 {{define "edit-post"}}
-    {{template "header"}}
-        {{ range $key, $value := .Posts}}
-        <h1>Editing <a href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></h1>
+<script src="/admin/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste",
 
-        <form action="/admin/posts/save/{{.Post_ID}}/{{.Title}}" method="POST">
-            <input type="text" name="title" placeholder=" Title" value="{{.Title}}"/><br />
-            <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{.Description}}"/><br />
-            <label for="select">Category</label>
-            <select id="categories" name="cat_name">
-                <option name="none" value="None">None</option>
-            </select>
-            <br />
-            <input type="text" name="category" placeholder="Category"/><br />
-            <input type="hidden" name="cat_type" value="post"/><br />
-            <textarea name="content" rows="20" cols="80">{{printf "%s" .Content}}</textarea><br />
-            <input type="submit" value="Save">
-        </form>
+        ],
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+        paste_data_images: true
+    });
+</script>
+    <div class="container xlarge">
+        <!--// define template vars-->
+        {{ $categories := .Categories}}
+        {{ $posts := .Posts}}
+
+        {{ range $key, $value := .Posts}}
+        {{ $c := .Category }}
+            <form id="addpost-form"  action="/admin/posts/save/{{.Post_ID}}/{{.Title}}" method="POST">
+                <input type="text" name="title" placeholder=" Title" value="{{.Title}}"/><br />
+                <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{.Description}}"/><br />
+                <label for="select">Category</label>
+                <select id="categories" name="selected-category">
+                    <option name="none" value="None">None</option>
+                    {{ range $cat := $categories}}
+                        {{ if eq $c $cat.Title}}
+                            <option value="{{ $cat.Category_ID }}" selected="selected">{{  $cat.Title }}</option>
+                        {{ else }}
+                            <option value="{{ $cat.Category_ID }}">{{  $cat.Title }}</option>
+                        {{ end }}
+                    {{ end }}
+                </select>
+                <br />
+                <input type="text" name="category" placeholder="Category"/><br />
+                <input type="hidden" name="cat_type" value="post"/><br />
+                <textarea name="content" rows="20" cols="80">{{printf "%s" .Content}}</textarea><br />
+                <button type="submit" name="Save">Submit</button>
+            </form>
         {{end}}
-    {{template "footer"}}
+    </div>
 {{end}}

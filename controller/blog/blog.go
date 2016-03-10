@@ -19,7 +19,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := posts.GetSinglePost(id,post_title)
+	p := posts.GetSinglePost(id,post_title,false)
 	blog.RenderTemplate(w,"blog", p)
 }
 
