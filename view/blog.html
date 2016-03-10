@@ -6,11 +6,10 @@
             <p class="article-meta"><img class="glyph-small" src="/images/author.png"/>
                 <span>{{.Author}}</span><img class="glyph-small" src="/images/time.png"/>
                 <img class="glyph-small" src="/images/category.png"/>
-                <span><a href="#">{{.Category_ID}}</a></span>
+                <span><a href="#">{{.Category}}</a></span>
                 <img class="glyph-small" src="/images/comments.png"/>
                 <span> 5 </span>
             </p>
-            <p><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}">edit</a></p>
             <div class="article-content">
                 <p>{{ .Content}}</p>
                 <button class="read-more"><a href="#">Read More</a></button>

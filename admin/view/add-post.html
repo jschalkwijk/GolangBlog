@@ -21,6 +21,9 @@
                 <label for="select">Category</label>
                 <select id="categories" name="cat_name">
                     <option name="none" value="None">None</option>
+                    {{ range $key, $value := .Categories }}
+                        <option value="{{ .Category_ID }}">{{ .Title }}</option>
+                    {{ end }}
                 </select>
                 <br />
                 <input type="text" name="category" placeholder="Category"/><br />

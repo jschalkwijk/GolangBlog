@@ -14,13 +14,25 @@
     });
 </script>
     <div class="container xlarge">
+        <!--// define template vars-->
+        {{ $categories := .Categories}}
+        {{ $posts := .Posts}}
+
         {{ range $key, $value := .Posts}}
+        {{ $c := .Category }}
             <form id="addpost-form"  action="/admin/posts/save/{{.Post_ID}}/{{.Title}}" method="POST">
                 <input type="text" name="title" placeholder=" Title" value="{{.Title}}"/><br />
                 <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{.Description}}"/><br />
                 <label for="select">Category</label>
-                <select id="categories" name="cat_name">
+                <select id="categories" name="selected-category">
                     <option name="none" value="None">None</option>
+                    {{ range $cat := $categories}}
+                        {{ if eq $c $cat.Title}}
+                            <option value="{{ $cat.Category_ID }}" selected="selected">{{  $cat.Title }}</option>
+                        {{ else }}
+                            <option value="{{ $cat.Category_ID }}">{{  $cat.Title }}</option>
+                        {{ end }}
+                    {{ end }}
                 </select>
                 <br />
                 <input type="text" name="category" placeholder="Category"/><br />

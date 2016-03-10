@@ -1,4 +1,4 @@
-package db
+package config
 
 //db_user,db_pass,@tcp(db_host:port)/db_name?charset=utf8
 var user string = "root"

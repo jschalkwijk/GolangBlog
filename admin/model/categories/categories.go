@@ -7,15 +7,15 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"github.com/jschalkwijk/GolangBlog/admin/model/db"
+	"github.com/jschalkwijk/GolangBlog/admin/model/config"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
 var view = "GolangBlog/admin/view"
 var templates = "GolangBlog/admin/templates"
 
-// categorie struct to create categories which will be added to the collection struct
-type Categorie struct {
+// category struct to create categories which will be added to the collection struct
+type Category struct {
 	Category_ID int
 	Title string
 	Description string
@@ -43,7 +43,7 @@ var trashed int
 
 // Stores a single categorie, or multiple categories which we can then iterate over in the template
 type Data struct {
-	Categories []Categorie
+	Categories []Category
 }
 
 /*
@@ -71,7 +71,7 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 
 // Get all categories
 func GetCategories() *Data {
-	db, err := sql.Open("mysql", db.DB)
+	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
@@ -86,7 +86,7 @@ func GetCategories() *Data {
 		&author,&cat_type,&date,&parent_id,&trashed)
 		checkErr(err)
 
-		category := Categorie{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
+		category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
 
 		collection.Categories = append(collection.Categories , category)
 	}
@@ -96,12 +96,12 @@ func GetCategories() *Data {
 
 //Get a single categorie
 func GetSingleCategory(id string,category_title string) *Data {
-	db, err := sql.Open("mysql", db.DB)
+	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
 	defer db.Close()
 	defer fmt.Println("Connection Closed")
-	fmt.Println("SELECT * FROM categories WHERE categorie_id="+id+" AND title='"+category_title+"' LIMIT  1")
+
 	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? AND title=? LIMIT 1", id,category_title)
 
 	collection := new(Data)
@@ -110,7 +110,7 @@ func GetSingleCategory(id string,category_title string) *Data {
 	&author,&cat_type,&date,&parent_id,&trashed)
 	checkErr(err)
 
-	category := Categorie{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
+	category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
 
 	collection.Categories = append(collection.Categories , category)
 
@@ -119,8 +119,8 @@ func GetSingleCategory(id string,category_title string) *Data {
 }
 
 // categorie Methods
-func (p *Categorie) saveCategory() error {
-	db, err := sql.Open("mysql", db.DB)
+func (p *Category) saveCategory() error {
+	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	checkErr(err)
 	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE categorie_id=?")
@@ -135,8 +135,8 @@ func (p *Categorie) saveCategory() error {
 	return err
 }
 
-func (p *Categorie) addCategory() error {
-	db, err := sql.Open("mysql", db.DB)
+func (p *Category) addCategory() error {
+	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
 	fmt.Println(stmt)
@@ -157,28 +157,28 @@ func EditCategory(w http.ResponseWriter, r *http.Request,id string,title string)
 	id_string := r.FormValue("category_id")
 	category_id,error := strconv.Atoi(id_string)
 	checkErr(error)
-	p := &Categorie{Category_ID: category_id, Title: title,Description: description}
+	p := &Category{Category_ID: category_id, Title: title,Description: description}
 	fmt.Println(p)
 	err := p.saveCategory()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/categories/"+id+"/"+title, http.StatusFound)
+	http.Redirect(w, r, "/admin/categories/"+id+"/"+title, http.StatusFound)
 }
 
 func NewCategory(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 
-	p := &Categorie{Title: title ,Description: description}
+	p := &Category{Title: title ,Description: description}
 	fmt.Println(p)
 	err := p.addCategory()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/categories/", http.StatusFound)
+	http.Redirect(w, r, "/admin/categories/", http.StatusFound)
 }
 
 func checkErr(err error) {

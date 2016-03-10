@@ -6,6 +6,7 @@ import (
 	//"github.com/jschalkwijk/GolangBlog/controller"
 	"github.com/gorilla/mux"
 	//"github.com/jschalkwijk/GolangBlog/model/data"
+	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 )
 
 
@@ -18,21 +19,20 @@ func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := posts.GetSinglePost(id,post_title)
+	p := posts.GetSinglePost(id,post_title,false)
 	posts.RenderTemplate(w,"posts", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
-	collection := new(posts.Data)
-	p := collection
-	posts.RenderTemplate(w,"add-post", p)
+	c := categories.GetCategories()
+	categories.RenderTemplate(w,"add-post", c)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := posts.GetSinglePost(id,post_title)
+	p := posts.GetSinglePost(id,post_title, true)
 	posts.RenderTemplate(w,"edit-post", p)
 }
 func Save(w http.ResponseWriter, r *http.Request){
