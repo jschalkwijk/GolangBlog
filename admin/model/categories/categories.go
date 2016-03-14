@@ -135,7 +135,7 @@ func (p *Category) saveCategory() error {
 	return err
 }
 
-func (p *Category) addCategory() error {
+func (p *Category) AddCategory() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
@@ -173,7 +173,7 @@ func NewCategory(w http.ResponseWriter, r *http.Request) {
 
 	p := &Category{Title: title ,Description: description}
 	fmt.Println(p)
-	err := p.addCategory()
+	err := p.AddCategory()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

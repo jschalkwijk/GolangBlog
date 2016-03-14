@@ -84,7 +84,7 @@ func GetPosts() *Data {
 
 	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id order by posts.post_id DESC")
 //	err = config.QueryRow("SELECT categories.title as cat FROM categories JOIN posts ON categories.categorie_id = posts.category_id").Scan(&cat)
-//	checkErr(err)
+	checkErr(err)
 //	fmt.Println(cat)
 	collection := new(Data)
 	for rows.Next() {
@@ -141,13 +141,13 @@ func (p *Post) savePost() error {
 
 	fmt.Println("reference to Post struct: ", p)
 
-	stmt, err := db.Prepare("UPDATE posts SET title=?, description=?, content=? WHERE post_id=?")
+	stmt, err := db.Prepare("UPDATE posts SET title=?, description=?,category_id=?, content=? WHERE post_id=?")
 	fmt.Println(stmt)
 	checkErr(err)
 	// to be able to save the new html to the database, we have to convert it to a slice of bytes, why is this working?, we can't save
 	// a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
 	// the content in html format on the page.
-	res, err := stmt.Exec(p.Title,p.Description,[]byte(p.Content),p.Post_ID)
+	res, err := stmt.Exec(p.Title,p.Description,p.Category_ID,[]byte(p.Content),p.Post_ID)
 	checkErr(err)
 	//affect, err := res.RowsAffected()
 	//checkErr(err)
@@ -160,10 +160,10 @@ func (p *Post) savePost() error {
 func (p *Post) addPost() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
-	stmt, err := db.Prepare("INSERT INTO posts (title,description,content) VALUES(?,?,?) ")
+	stmt, err := db.Prepare("INSERT INTO posts (title,description,content,category_id) VALUES(?,?,?,?)")
 	fmt.Println(stmt)
 	checkErr(err)
-	res, err := stmt.Exec(p.Title,p.Description,[]byte(p.Content))
+	res, err := stmt.Exec(p.Title,p.Description,[]byte(p.Content),p.Category_ID)
 	affect, err := res.RowsAffected()
 	fmt.Println(affect)
 	fmt.Println(res)
@@ -176,12 +176,23 @@ func (p *Post) addPost() error {
 func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 	title = r.FormValue("title")
 	description := r.FormValue("description")
-	//category_id := r.FormValue("category_id")
+	category_id := r.FormValue("selected-category")
 	content := r.FormValue("content")
-	new_id,error := strconv.Atoi(id)
+
+	category := r.FormValue("category")
+
+	if (category != "") {
+		category_id = addCategoryFromForm(category,category_id);
+	} else {
+		fmt.Println("empty string")
+	}
+
+	idINT,error := strconv.Atoi(id)
+	checkErr(error)
+	categoryINT,error := strconv.Atoi(category_id)
 	checkErr(error)
 	body := template.HTML(content)
-	p := &Post{Post_ID: new_id, Title: title,Description: description, Content: body}
+	p := &Post{Post_ID: idINT, Title: title,Description: description,Category_ID: categoryINT, Content: body}
 	fmt.Println(p)
 	err := p.savePost()
 	if err != nil {
@@ -193,19 +204,49 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 func NewPost(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
-	//category_id := r.FormValue("category_id")
+	category_id := r.FormValue("selected-category")
 	content := r.FormValue("content")
+	category := r.FormValue("category")
+
+	if (category != "") {
+		category_id = addCategoryFromForm(category,category_id);
+	} else {
+		fmt.Println("empty string")
+	}
+
 	body := template.HTML(content)
-	p := &Post{Title: title ,Description: description, Content: body}
+	categoryINT,error := strconv.Atoi(category_id)
+	checkErr(error)
+	p := &Post{Title: title ,Description: description, Content: body,Category_ID: categoryINT}
 	fmt.Println(p)
 	err := p.addPost()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/admin/posts/", http.StatusFound)
+	http.Redirect(w, r, "/admin/posts", http.StatusFound)
 }
 
+func addCategoryFromForm (category string, category_id string) string {
+	//fmt.Print(category)
+	c := &cat.Category{Title: category}
+	fmt.Println(c)
+	err := c.AddCategory()
+	checkErr(err)
+
+	db, err := sql.Open("mysql", config.DB)
+	fmt.Println("Connection with database Established")
+	defer db.Close()
+	defer fmt.Println("Connection with database Closed")
+	checkErr(err)
+
+	row := db.QueryRow("SELECT categorie_id FROM categories WHERE title = ? LIMIT 1",category)
+	err = row.Scan(&category_id)
+	checkErr(err)
+	fmt.Println("category_id: ",category_id)
+
+	return category_id
+}
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
