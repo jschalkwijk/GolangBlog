@@ -7,7 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"github.com/jschalkwijk/GolangBlog/admin/model/config"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 )
 

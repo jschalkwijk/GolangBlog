@@ -1,3 +1,7 @@
+/*	-- Categories Model --
+ * 	All functions in this file are called by the corresponding controller or by
+ 	functions from itself.
+ */
 package categories
 
 import (
@@ -7,14 +11,14 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"github.com/jschalkwijk/GolangBlog/admin/model/config"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
 )
 
-// here we define the absolute path to the view folder it takes the go root until the github folder.
+/* Declaring folder paths */
 var view = "GolangBlog/admin/view"
 var templates = "GolangBlog/admin/templates"
 
-// category struct to create categories which will be added to the collection struct
+/* Category struct will hold data about a category and can be added to the Data struct */
 type Category struct {
 	Category_ID int
 	Title string
@@ -29,6 +33,10 @@ type Category struct {
 	Trashed int
 }
 
+/*
+ * Declaring vars corresponding to the struct. When scanning data from the database, the
+   data will be stored on the memory address of these vars.
+*/
 var category_id int
 var title string
 var description string
@@ -41,19 +49,19 @@ var date string
 var parent_id int
 var trashed int
 
-// Stores a single categorie, or multiple categories which we can then iterate over in the template
+/* Stores a single category, or multiple categories in a SLice which can be iterated over in the template */
 type Data struct {
 	Categories []Category
 }
 
-/*
-  The function template.ParseFiles will read the contents of "".html and return a *template.Template.
-  The method t.Execute executes the template, writing the generated HTML to the http.ResponseWriter.
-  The .Title and .Body dotted identifiers inside the template refer to p.Title and p.Body.
+/* -- RenderTemplate --
+ * 	The function template.ParseFiles will read the contents of multiple "name".html files into cache.
+ *	The method t.Execute executes the template, the string must correspond to the name giving to the template
+ *	when defining them.
+ *	After executing all the subtemplates, t.Execute will write the generated HTML to the http.ResponseWriter.
 */
 
-
-func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
+func RenderTemplate(w http.ResponseWriter,name string,  c *Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -61,15 +69,24 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 	}
 	t.ExecuteTemplate(w,"header",nil)
 	t.ExecuteTemplate(w,"nav",nil)
-	t.ExecuteTemplate(w,name,p)
+	t.ExecuteTemplate(w,name,c)
 	t.ExecuteTemplate(w,"footer",nil)
 	err = t.Execute(w, nil)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-// Get all categories
+/* -- Get all categories --
+ * 	Connects to the database and gets all category rows.
+ * 	Instantiate a new Data struct assigned to var collection
+ * 	For every row get the values and set the values to the memory address of the named variable.
+ 		- Instantiate a new Category Struct and insert values.
+ 		- Append the category struct to the Data.Categories Slice.
+ *	Returns the Data Struct after the loop is completed. This Struct can be used
+  	inside a template.
+ */
 func GetCategories() *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
@@ -81,6 +98,7 @@ func GetCategories() *Data {
 	checkErr(err)
 
 	collection := new(Data)
+
 	for rows.Next() {
 		err = rows.Scan(&category_id, &title, &description, &content,&keywords,&approved,
 		&author,&cat_type,&date,&parent_id,&trashed)
@@ -94,7 +112,16 @@ func GetCategories() *Data {
 	return collection
 }
 
-//Get a single categorie
+/* -- Get a single categories -- */
+/* GetSingleCategory gets a category from the DB and returns a pointer to the Struct. It takes a id and category_title.
+ * 	Connects to the database and gets all category rows.
+ * 	Instantiate a new Data struct assigned to var collection
+ * 	Get a single row from the DB and get the values and set the values to the memory address of the named variable.
+ *	Instantiate a new Category Struct and insert values.
+ *	Append the category struct to the Data.Categories Slice.
+ *	Returns the Data Struct after the loop is completed. This Struct can be used
+  	inside a template.
+ */
 func GetSingleCategory(id string,category_title string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
@@ -118,11 +145,21 @@ func GetSingleCategory(id string,category_title string) *Data {
 	return collection
 }
 
-// categorie Methods
+/* -- Category Methods -- */
+
+/* saveCategory updates the values of an existing category to the database and is a method to Category
+ * Called by EditCategory
+ * Connect to the DB and prepares query.
+ * Execute query with the inserted struct values and replaces the ? in the query string.
+ * Checks how many rows are affected.
+ * Returns an error if needed.
+*/
 func (p *Category) saveCategory() error {
 	db, err := sql.Open("mysql", config.DB)
-	defer db.Close()
 	checkErr(err)
+
+	defer db.Close()
+
 	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE categorie_id=?")
 	fmt.Println(stmt)
 	checkErr(err)
@@ -135,6 +172,13 @@ func (p *Category) saveCategory() error {
 	return err
 }
 
+/* AddCategory saves the values of a new category to the database and is a method to Category.
+ * Called by NewCategory
+ * Connect to the DB and prepares query.
+ * Execute query with the inserted values and replaces the ? in the query string.
+ * Checks how many rows are affected.
+ * Returns an error if needed.
+*/
 func (p *Category) AddCategory() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
@@ -150,9 +194,15 @@ func (p *Category) AddCategory() error {
 }
 // End category methods
 
-
-func EditCategory(w http.ResponseWriter, r *http.Request,id string,title string) {
-	title = r.FormValue("title")
+/* EditCategory takes updated form values from the http.request to populate a Category and call the saveCategory method.
+ * The request delivers the FormValues if asked.
+ * Convert category_id to an INT. The category ID is pulled from the from as a string.
+ * FormValues are appointed to to the memory address of the Category struct. There is only one to edit so no need to
+   instantiate a separate one.
+ * Call saveCategory, a method of the Category Struct, to update the DB
+*/
+func EditCategory(w http.ResponseWriter, r *http.Request,id string) {
+	title := r.FormValue("title")
 	description := r.FormValue("description")
 	id_string := r.FormValue("category_id")
 	category_id,error := strconv.Atoi(id_string)
@@ -167,6 +217,12 @@ func EditCategory(w http.ResponseWriter, r *http.Request,id string,title string)
 	http.Redirect(w, r, "/admin/categories/"+id+"/"+title, http.StatusFound)
 }
 
+/* NewCategory takes updated form values from the http.request to populate a Category and call the AddCategory method.
+ * The request delivers the FormValues if asked.
+ * FormValues are appointed to to the memory address of the Category struct. There is only one to edit so no need to
+   instantiate a separate one.
+ * Call AddCategory, a method of the Category Struct, to insert new category in the DB.
+*/
 func NewCategory(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
@@ -180,7 +236,7 @@ func NewCategory(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/admin/categories/", http.StatusFound)
 }
-
+git stat
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
