@@ -1,3 +1,7 @@
+/*	-- Posts Model --
+ * 	All functions in this file are called by the corresponding controller or by
+ 	functions from itself.
+ */
 package posts
 
 import (
@@ -15,7 +19,7 @@ import (
 var view = "GolangBlog/admin/view"
 var templates = "GolangBlog/admin/templates"
 
-// Post struct to create blog which will be added to the collection struct
+/* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
 	Post_ID int
 	Title string
@@ -30,6 +34,10 @@ type Post struct {
 	Trashed int
 }
 
+/*
+ * Declaring vars corresponding to the struct. When scanning data from the database, the
+   data will be stored on the memory address of these vars.
+*/
 var post_id int
 var title string
 var description string
@@ -40,23 +48,21 @@ var author string
 var date string
 var category_id int
 var category string
-
 var trashed int
 
-// Stores a single post, or multiple blog which we can then iterate over in the template
+/* Stores a single post, or multiple posts in a Slice which can be iterated over in the template */
 type Data struct {
 	Posts      []Post
 	Categories []cat.Category
 }
-//var Posts []Post
 
-/*
-  The function template.ParseFiles will read the contents of "".html and return a *template.Template.
-  The method t.Execute executes the template, writing the generated HTML to the http.ResponseWriter.
-  The .Title and .Body dotted identifiers inside the template refer to p.Title and p.Body.
+
+/* RenderTemplate parses templates in cache before executing them. takes Response, content template name, and a Data struct
+ * 	The function template.ParseFiles will read the contents of multiple "name".html files into cache.
+ *	The method t.Execute executes the template, the string must correspond to the name giving to the template
+ *	when defining them.
+ *	After executing all the subtemplates, t.Execute will write the generated HTML to the http.ResponseWriter.
 */
-
-
 func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
@@ -73,7 +79,15 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
 	}
 }
 
-// Get all Posts
+/* -- Get all Posts --
+ * 	Connects to the database and gets all posts rows.
+ * 	Instantiate a new Data struct assigned to var collection
+ * 	For every row get the values, and set the values to the memory address of the named variable.
+ 		- Instantiate a new Post Struct and insert values.
+ 		- Append the Post struct to the Data.Posts Slice.
+ *	Returns the Data Struct after the loop is completed. This Struct can be used
+  	inside a template.
+ */
 func GetPosts() *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
@@ -81,12 +95,12 @@ func GetPosts() *Data {
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-
+	// Selects all rows from posts, and links the category_id row to the matching title.
 	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id order by posts.post_id DESC")
-//	err = config.QueryRow("SELECT categories.title as cat FROM categories JOIN posts ON categories.categorie_id = posts.category_id").Scan(&cat)
 	checkErr(err)
-//	fmt.Println(cat)
+
 	collection := new(Data)
+
 	for rows.Next() {
 		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
 			&author,&date,&category_id,&trashed,&category)
@@ -100,14 +114,23 @@ func GetPosts() *Data {
 	return collection
 }
 
-//Get a single Post
+/* -- Get a single Post -- */
+/* GetSinglePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.
+ * 	Connects to the database and gets all post rows.
+ * 	Instantiate a new Data struct assigned to var collection
+ * 	Get a single row from the DB and get the values and set the values to the memory address of the named variable.
+ *	Instantiate a new Post Struct and insert values.
+ *	Append the Post struct to the Data.Posts Slice.
+ *	Returns the Data Struct after the loop is completed. This Struct can be used
+  	inside a template.
+ */
 func GetSinglePost(id string,post_title string, getCat bool) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
 	defer db.Close()
 	defer fmt.Println("Connection Closed")
-	fmt.Println("SELECT * FROM posts WHERE post_id="+id+" AND title='"+post_title+"' LIMIT  1")
+
 	rows := db.QueryRow("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
 
 	collection := new(Data)
@@ -119,11 +142,12 @@ func GetSinglePost(id string,post_title string, getCat bool) *Data {
 	post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
 
 	collection.Posts = append(collection.Posts , post)
-
-	// When we need to edit or create a post, we need to get the categories in order to select them inside the html page.
-	// since we already have a function inside the categories model, we will call that.
-	// This returns a pointer to the Data struct of model/categories. We  set our
-	// Data struct, categories, to the slice of categories.
+	 /* When we need to edit or create a post, we need to get the categories in order to select them inside the html page.
+	  * since we already have a function inside the categories model, we will call that.
+	  * This returns a pointer to the Data struct of model/categories. We  set our
+	    categories.Data struct, Categories, to the slice of posts.Data.Categories.
+	  * They are accessible inside the template now.
+	 */
 	if(getCat) {
 		test := cat.GetCategories()
 		collection.Categories = test.Categories
@@ -133,7 +157,15 @@ func GetSinglePost(id string,post_title string, getCat bool) *Data {
 	return collection
 }
 
-// Post Methods
+/* -- Post Methods -- */
+
+/* savePost updates the values of an existing post to the database and is a method to Post
+ * Called by EditPost
+ * Connect to the DB and prepares query.
+ * Execute query with the inserted struct values and replaces the ? in the query string.
+ * Checks how many rows are affected.
+ * Returns an error if needed.
+*/
 func (p *Post) savePost() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
@@ -144,19 +176,26 @@ func (p *Post) savePost() error {
 	stmt, err := db.Prepare("UPDATE posts SET title=?, description=?,category_id=?, content=? WHERE post_id=?")
 	fmt.Println(stmt)
 	checkErr(err)
-	// to be able to save the new html to the database, we have to convert it to a slice of bytes, why is this working?, we can't save
-	// a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
-	// the content in html format on the page.
+	/* To be able to save the new html to the database, convert it to a slice of bytes, why is this working?, we can't save
+	 * a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
+	 * the content in html format on the page.
+	 */
 	res, err := stmt.Exec(p.Title,p.Description,p.Category_ID,[]byte(p.Content),p.Post_ID)
 	checkErr(err)
 	//affect, err := res.RowsAffected()
 	//checkErr(err)
-
 	//fmt.Println(affect)
 	fmt.Println(res)
 	return err
 }
 
+/* addPost saves the values of a new category to the database and is a method to Post.
+ * Called by NewPost
+ * Connect to the DB and prepares query.
+ * Execute query with the inserted values and replaces the ? in the query string.
+ * Checks how many rows are affected.
+ * Returns an error if needed.
+*/
 func (p *Post) addPost() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
@@ -172,7 +211,13 @@ func (p *Post) addPost() error {
 }
 // End Post methods
 
-
+/* EditPost takes updated form values from the http.request to populate a Post and call the savePost method.
+ * The request delivers the FormValues if asked.
+ * Convert post_id to an INT. The post ID is pulled from the from as a string.
+ * FormValues are appointed to to the memory address of the Post struct. There is only one to edit so no need to
+   instantiate a separate one.
+ * Call savePost, a method of the Post Struct, to update the DB
+*/
 func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 	title = r.FormValue("title")
 	description := r.FormValue("description")
@@ -181,16 +226,21 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 
 	category := r.FormValue("category")
 
+	/* 	To add a new category from a edit post form we need to create a new
+	 	category, and then get the new ID of that category to insert it into the Post struct.
+	 	Also see addCategoryFromForm
+	 */
 	if (category != "") {
 		category_id = addCategoryFromForm(category,category_id);
 	} else {
 		fmt.Println("empty string")
 	}
-
+	// convert string to INT before inserting into Struct and DB
 	idINT,error := strconv.Atoi(id)
 	checkErr(error)
 	categoryINT,error := strconv.Atoi(category_id)
 	checkErr(error)
+	// Convert string to HTML
 	body := template.HTML(content)
 	p := &Post{Post_ID: idINT, Title: title,Description: description,Category_ID: categoryINT, Content: body}
 	fmt.Println(p)
@@ -201,20 +251,31 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 	}
 	http.Redirect(w, r, "/admin/posts/"+id+"/"+title, http.StatusFound)
 }
+
+/* NewPost takes updated form values from the http.request to populate a Post and call the addPost method.
+ * The request delivers the FormValues if asked.
+ * FormValues are appointed to to the memory address of the Post struct. There is only one to edit so no need to
+   instantiate a separate one.
+ * Call addPost, a method of the Post Struct, to insert new post in the DB.
+*/
 func NewPost(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 	category_id := r.FormValue("selected-category")
 	content := r.FormValue("content")
 	category := r.FormValue("category")
-
+	/* 	To add a new category from a add post form we need to create a new
+	 	category, and then get the new ID of that category to insert it into the Post struct.
+	 	Also see addCategoryFromForm
+	 */
 	if (category != "") {
 		category_id = addCategoryFromForm(category,category_id);
 	} else {
 		fmt.Println("empty string")
 	}
-
+	// Convert string to HTML
 	body := template.HTML(content)
+	// convert string values to INT before inserting into Struct and DB
 	categoryINT,error := strconv.Atoi(category_id)
 	checkErr(error)
 	p := &Post{Title: title ,Description: description, Content: body,Category_ID: categoryINT}
@@ -227,6 +288,10 @@ func NewPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/admin/posts", http.StatusFound)
 }
 
+/* addCategoryFromForm uses cat.AddCategory to add a new category.
+ * Because a new categpry is created it is needed to get the ID from the database
+  after creation so it can be added to returned and added inside a new or existing post.
+*/
 func addCategoryFromForm (category string, category_id string) string {
 	//fmt.Print(category)
 	c := &cat.Category{Title: category}
@@ -243,7 +308,7 @@ func addCategoryFromForm (category string, category_id string) string {
 	row := db.QueryRow("SELECT categorie_id FROM categories WHERE title = ? LIMIT 1",category)
 	err = row.Scan(&category_id)
 	checkErr(err)
-	fmt.Println("category_id: ",category_id)
+	//fmt.Println("category_id: ",category_id)
 
 	return category_id
 }

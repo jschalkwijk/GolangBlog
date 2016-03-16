@@ -1,11 +1,22 @@
+/*	-- PostsController --
+ * 	All functions in this file are called by package main.
+ *	Functions inside this controller take a http.ResponseWriter, r *http.Request.
+ *  If specified in main we can take URL parameters using the Gorrila Mux tool.
+ * 	They can call functions from an imported model.
+ * 	If a func from a model returns data, it had to be assigned to a variable.
+ *  The variable with the data must be passed to the models RenderTemplate func
+ 	in order to render the template with the data.
+ *	In some cases you need to render a template without data. This is done by
+ 	creating an empty data struct from the imported model and then pass it to the
+ 	RenderTemplate func.
+ */
+
 package posts
 
 import (
 	"net/http"
 	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
-	//"github.com/jschalkwijk/GolangBlog/controller"
 	"github.com/gorilla/mux"
-	//"github.com/jschalkwijk/GolangBlog/model/data"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 )
 

@@ -11,12 +11,8 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"github.com/jschalkwijk/GolangBlog/admin/config"
+	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 )
-
-/* Declaring folder paths */
-var view = "GolangBlog/admin/view"
-var templates = "GolangBlog/admin/templates"
 
 /* Category struct will hold data about a category and can be added to the Data struct */
 type Category struct {
@@ -49,7 +45,7 @@ var date string
 var parent_id int
 var trashed int
 
-/* Stores a single category, or multiple categories in a SLice which can be iterated over in the template */
+/* Stores a single category, or multiple categories in a Slice which can be iterated over in the template */
 type Data struct {
 	Categories []Category
 }
@@ -62,7 +58,7 @@ type Data struct {
 */
 
 func RenderTemplate(w http.ResponseWriter,name string,  c *Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
+	t, err := template.ParseFiles(cfg.Templates+"/"+"header.html",cfg.Templates+"/"+"nav.html",cfg.View + "/" + name + ".html",cfg.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -88,7 +84,7 @@ func RenderTemplate(w http.ResponseWriter,name string,  c *Data) {
   	inside a template.
  */
 func GetCategories() *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
@@ -123,7 +119,7 @@ func GetCategories() *Data {
   	inside a template.
  */
 func GetSingleCategory(id string,category_title string) *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
 	defer db.Close()
@@ -155,7 +151,7 @@ func GetSingleCategory(id string,category_title string) *Data {
  * Returns an error if needed.
 */
 func (p *Category) saveCategory() error {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 
 	defer db.Close()
@@ -180,7 +176,7 @@ func (p *Category) saveCategory() error {
  * Returns an error if needed.
 */
 func (p *Category) AddCategory() error {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sql.Open("mysql", cfg.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
 	fmt.Println(stmt)
@@ -236,7 +232,7 @@ func NewCategory(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/admin/categories/", http.StatusFound)
 }
-git stat
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
