@@ -23,8 +23,17 @@ import (
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
+	if (r.PostFormValue("approve-selected") != ""){
+		a.Approve(w,r,"posts")
+	}
 	if (r.PostFormValue("trash-selected") != ""){
 		a.Trash(w,r,"posts")
+	}
+	if (r.PostFormValue("restore-selected") != ""){
+		a.Restore(w,r,"posts")
+	}
+	if (r.PostFormValue("hide-selected") != ""){
+		a.Hide(w,r,"posts")
 	}
 	p := posts.GetPosts(0)
 	posts.RenderTemplate(w,"posts", p)

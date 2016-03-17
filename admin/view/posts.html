@@ -19,13 +19,12 @@
             {{ end }}
             <div class="container">
                 <table>
-                    <tr><th>Trash</th><th>Show</th><th>Hide</th></tr>
+                    <tr><th>Trash</th><th>Show</th><th>Hide</th><th>Restore</th><th>Remove</th></tr>
                     <tr><button type="submit" name="trash-selected" id="trash-selected" value="trash"><img class="glyph-small" src="trash-post.png"/></button></tr>
-                    <tr><button type="submit" name="approve-selected" id="approve-selected"><img class="glyph-small" src="show.png"/></button></tr>
-                    <tr><button type="submit" name="hide-selected" id="hide-selected"><img class="glyph-small" src="hide.png"/></button></tr>
-                    <tr><th>Restore</th><th>Remove</th></tr>
-                    <tr><button type="submit" name="restore-selected" id="restore-selected"><img class="glyph-small" src="add-post.png"/></button></tr>
-                    <tr><button type="submit" name="delete-selected" id="delete-selected"><img class="glyph-small" src="delete-post.png"/></button></tr>
+                    <tr><button type="submit" name="approve-selected" id="approve-selected" value="approve"><img class="glyph-small" src="show.png"/></button></tr>
+                    <tr><button type="submit" name="hide-selected" id="hide-selected" value="hide"><img class="glyph-small" src="hide.png"/></button></tr>
+                    <tr><button type="submit" name="restore-selected" id="restore-selected" value="restore"><img class="glyph-small" src="add-post.png"/></button></tr>
+                    <tr><button type="submit" name="delete-selected" id="delete-selected" value="delete"><img class="glyph-small" src="delete-post.png"/></button></tr>
                 </table>
             </div>
         </form>
