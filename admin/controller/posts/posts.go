@@ -18,11 +18,20 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
 	"github.com/gorilla/mux"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
+	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 )
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	p := posts.GetPosts()
+	if (r.PostFormValue("trash-selected") != ""){
+		a.Trash(w,r,"posts")
+	}
+	p := posts.GetPosts(0)
+	posts.RenderTemplate(w,"posts", p)
+}
+
+func Deleted(w http.ResponseWriter, r *http.Request) {
+	p := posts.GetPosts(1)
 	posts.RenderTemplate(w,"posts", p)
 }
 

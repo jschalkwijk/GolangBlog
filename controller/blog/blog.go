@@ -11,7 +11,7 @@ import (
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	p := posts.GetPosts()
+	p := posts.GetPosts(0)
 	blog.RenderTemplate(w,"blog", p)
 }
 
