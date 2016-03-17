@@ -2,8 +2,9 @@
 <div class="container large">
     <table class="backend-table title">
         <tr><th>Title</th><th>Author</th><th>Category</th><th>Date</th><th>Edit</th><th>View</th><!-- <th>Remove</th> --></tr>
-             {{ range $key, $value := .Posts}}
-                    <form class="backend-form" method="post" action="<?php echo $action; ?>">
+        <form class="backend-form" method="post" action="/admin/posts">
+            {{ range $key, $value := .Posts}}
+
                         <tr>
                             <td class="td-title"><a href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></td>
                             <td class="td-author">{{.Author}}</td>
@@ -12,10 +13,21 @@
                             <input type="hidden" name="id" value="{{.Post_ID}}" />
                             <td class="td-btn"><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
                             <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
-                            <td class="td-btn"><input type="checkbox" name="checkbox[]" value="{{.Post_ID}}"/></td>
+                            <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.Post_ID}}"/></td>
                         </tr>
-                    </form>
+
             {{ end }}
+            <div class="container">
+                <table>
+                    <tr><th>Trash</th><th>Show</th><th>Hide</th><th>Restore</th><th>Remove</th></tr>
+                    <tr><button type="submit" name="trash-selected" id="trash-selected" value="trash"><img class="glyph-small" src="trash-post.png"/></button></tr>
+                    <tr><button type="submit" name="approve-selected" id="approve-selected" value="approve"><img class="glyph-small" src="show.png"/></button></tr>
+                    <tr><button type="submit" name="hide-selected" id="hide-selected" value="hide"><img class="glyph-small" src="hide.png"/></button></tr>
+                    <tr><button type="submit" name="restore-selected" id="restore-selected" value="restore"><img class="glyph-small" src="add-post.png"/></button></tr>
+                    <tr><button type="submit" name="delete-selected" id="delete-selected" value="delete"><img class="glyph-small" src="delete-post.png"/></button></tr>
+                </table>
+            </div>
+        </form>
     </table>
 </div>
 {{end}}

@@ -88,7 +88,7 @@ func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetPosts() *Data {
+func GetPosts(trashed int) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
@@ -96,7 +96,7 @@ func GetPosts() *Data {
 	defer fmt.Println("Connection with database Closed")
 
 	// Selects all rows from posts, and links the category_id row to the matching title.
-	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id order by posts.post_id DESC")
+	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
 	checkErr(err)
 
 	collection := new(Data)
@@ -149,8 +149,8 @@ func GetSinglePost(id string,post_title string, getCat bool) *Data {
 	  * They are accessible inside the template now.
 	 */
 	if(getCat) {
-		test := cat.GetCategories()
-		collection.Categories = test.Categories
+		listCat := cat.GetCategories()
+		collection.Categories = listCat.Categories
 	}
 
 	fmt.Println(collection.Categories)
