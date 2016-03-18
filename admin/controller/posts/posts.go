@@ -29,9 +29,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("trash-selected") != ""){
 		a.Trash(w,r,"posts")
 	}
-	if (r.PostFormValue("restore-selected") != ""){
-		a.Restore(w,r,"posts")
-	}
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,"posts")
 	}
@@ -40,6 +37,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
+	if (r.PostFormValue("restore-selected") != ""){
+		a.Restore(w,r,"posts")
+	}
+	if (r.PostFormValue("delete-selected") != ""){
+		a.Delete(w,r,"posts")
+	}
 	p := posts.GetPosts(1)
 	posts.RenderTemplate(w,"posts", p)
 }

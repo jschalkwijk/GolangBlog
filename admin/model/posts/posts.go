@@ -54,6 +54,7 @@ var trashed int
 type Data struct {
 	Posts      []Post
 	Categories []cat.Category
+	Deleted	bool
 }
 
 
@@ -99,7 +100,7 @@ func GetPosts(trashed int) *Data {
 	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
 	checkErr(err)
 
-	collection := new(Data)
+	data:= new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
@@ -108,10 +109,16 @@ func GetPosts(trashed int) *Data {
 		// convert string to HTML markdown
 		body := template.HTML(content)
 		post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
-		collection.Posts = append(collection.Posts , post)
+		data.Posts = append(data.Posts , post)
 	}
 
-	return collection
+	if(trashed == 1) {
+		data.Deleted = true
+	} else {
+		data.Deleted = false
+	}
+
+	return data
 }
 
 /* -- Get a single Post -- */
