@@ -56,7 +56,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
-	c := categories.GetCategories()
+	c := categories.GetCategories(0)
 	categories.RenderTemplate(w,"add-post", c)
 }
 

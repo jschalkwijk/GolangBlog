@@ -156,7 +156,7 @@ func GetSinglePost(id string,post_title string, getCat bool) *Data {
 	  * They are accessible inside the template now.
 	 */
 	if(getCat) {
-		listCat := cat.GetCategories()
+		listCat := cat.GetCategories(0)
 		collection.Categories = listCat.Categories
 	}
 

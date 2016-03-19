@@ -16,14 +16,36 @@ package categories
 import (
 	"net/http"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
+	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 	"github.com/gorilla/mux"
 )
 
+var dbt string = "categories"
+
 func Index(w http.ResponseWriter, r *http.Request) {
-	p := categories.GetCategories()
+	if (r.PostFormValue("approve-selected") != ""){
+		a.Approve(w,r,dbt)
+	}
+	if (r.PostFormValue("trash-selected") != ""){
+		a.Trash(w,r,dbt)
+	}
+	if (r.PostFormValue("hide-selected") != ""){
+		a.Hide(w,r,dbt)
+	}
+	p := categories.GetCategories(0)
 	categories.RenderTemplate(w,"categories", p)
 }
 
+func Deleted(w http.ResponseWriter, r *http.Request) {
+	if (r.PostFormValue("restore-selected") != ""){
+		a.Restore(w,r,dbt)
+	}
+	if (r.PostFormValue("delete-selected") != ""){
+		a.Delete(w,r,dbt)
+	}
+	p := categories.GetCategories(1)
+	categories.RenderTemplate(w,"categories", p)
+}
 func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]

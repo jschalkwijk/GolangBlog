@@ -49,7 +49,7 @@ func main() {
 		aP.HandleFunc("/edit/{id:[0-9]+}/{title}", posts.Edit)
 		aP.HandleFunc("/save/{id:[0-9]+}/{title}", posts.Save)
 		aP.HandleFunc("/add", posts.Add)
-		aP.HandleFunc("/trash", posts.Deleted)
+		aP.HandleFunc("/trashed-posts", posts.Deleted)
 	//Admin Categories
 	r.HandleFunc("/admin/categories", categories.Index)
 		aC := r.PathPrefix("/admin/categories").Subrouter()
@@ -58,6 +58,7 @@ func main() {
 		aC.HandleFunc("/edit/{id:[0-9]+}/{title}", categories.Edit)
 		aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
 		aC.HandleFunc("/add", categories.Add)
+		aC.HandleFunc("/trashed-categories", categories.Deleted)
 
 	http.Handle("/", r)
 

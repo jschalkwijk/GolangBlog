@@ -26,7 +26,6 @@ func update(w http.ResponseWriter, r *http.Request, dbt string,row string,setTo 
 	db, err := sql.Open("mysql", cfg.DB)
 	defer db.Close()
 	checkErr(err)
-	fmt.Println("starts")
 	// Getting the selected checkboxes from the request.Form
 	checked := r.Form["checkbox"]
 	// Creating a string with the amount of ? required for the Query string by using the length of the checkbox slice.
@@ -85,7 +84,7 @@ func Delete(w http.ResponseWriter, r *http.Request, dbt string ){
 	_, err = query.Exec(args...)
 	checkErr(err)
 
-	http.Redirect(w, r, "/admin/"+dbt+"/trash", http.StatusFound)
+	http.Redirect(w, r, "/admin/"+dbt+"/trashed-"+dbt, http.StatusFound)
 }
 
 func checkErr(err error) {

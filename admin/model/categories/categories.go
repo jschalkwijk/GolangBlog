@@ -48,6 +48,7 @@ var trashed int
 /* Stores a single category, or multiple categories in a Slice which can be iterated over in the template */
 type Data struct {
 	Categories []Category
+	Deleted bool
 }
 
 /* -- RenderTemplate --
@@ -83,17 +84,17 @@ func RenderTemplate(w http.ResponseWriter,name string,  c *Data) {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetCategories() *Data {
+func GetCategories(trashed int) *Data {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-	rows, err := db.Query("SELECT * FROM categories ORDER BY categorie_id DESC")
+	rows, err := db.Query("SELECT * FROM categories WHERE trashed = ? ORDER BY categorie_id DESC", trashed)
 	checkErr(err)
 
-	collection := new(Data)
+	data := new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&category_id, &title, &description, &content,&keywords,&approved,
@@ -102,10 +103,16 @@ func GetCategories() *Data {
 
 		category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
 
-		collection.Categories = append(collection.Categories , category)
+		data.Categories = append(data.Categories , category)
 	}
 
-	return collection
+	if(trashed == 1) {
+		data.Deleted = true
+	} else {
+		data.Deleted = false
+	}
+
+	return data
 }
 
 /* -- Get a single categories -- */
@@ -127,7 +134,7 @@ func GetSingleCategory(id string,category_title string) *Data {
 
 	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? AND title=? LIMIT 1", id,category_title)
 
-	collection := new(Data)
+	data := new(Data)
 
 	err = rows.Scan(&category_id, &title, &description, &content,&keywords,&approved,
 	&author,&cat_type,&date,&parent_id,&trashed)
@@ -135,10 +142,10 @@ func GetSingleCategory(id string,category_title string) *Data {
 
 	category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
 
-	collection.Categories = append(collection.Categories , category)
+	data.Categories = append(data.Categories , category)
 
 	//fmt.Println(collection.categories)
-	return collection
+	return data
 }
 
 /* -- Category Methods -- */
