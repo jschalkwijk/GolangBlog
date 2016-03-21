@@ -4,11 +4,11 @@
         <table class="backend-table title">
             <tr><th>User</th><th>Rights</th><th>Edit</th><th>View</th></tr>
             {{ if .Deleted}}
-                <form class="backend-form" method="post" action="/admin/users/trashed-posts">
+                <form class="backend-form" method="post" action="/admin/users/trashed-users">
             {{ else }}
                 <form class="backend-form" method="post" action="/admin/users">
             {{ end }}
-            {{ range $key, $value := .Posts}}
+            {{ range $key, $value := .Users}}
                 <tr>
                     <td class="td-title"><a href="/admin/users/{{.User_ID}}/{{.Name}}">{{.Name}}</a></td>
                     <td class="td-author">{{.Rights}}</td>
