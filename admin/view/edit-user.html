@@ -17,7 +17,7 @@
     <!--// define template vars-->
     {{ range $key, $value := .Users}}
         {{ $rights := .Rights }}
-        <form id="add-user" class="container" method="post" action="/admin/users/add">
+        <form id="add-user" class="container" method="post" action="/admin/users/save">
             <input type="hidden" name="id" value="{{ .User_ID}}"/>
             <input type="text" name="username" placeholder="Username" value="{{ .UserName}}"/><br />
             <input type="password" name="new_password" placeholder="New Password"/><br />

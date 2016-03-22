@@ -1,4 +1,4 @@
-{{define users}}
+{{define "users"}}
 <div class="top-margin">
     <div class="container large">
         <table class="backend-table title">
@@ -17,7 +17,7 @@
                     <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
                     <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.User_ID}}"/></td>
                 </tr>
-            {{ end }}a
+            {{ end }}
                 <div class="container">
                     <table>
                         {{ if .Deleted }}

@@ -12,6 +12,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/admin"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
 )
 
 var static string = "/GolangBlog/static/"
@@ -59,6 +60,7 @@ func main() {
 		aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
 		aC.HandleFunc("/add", categories.Add)
 		aC.HandleFunc("/trashed-categories", categories.Deleted)
+	r.HandleFunc("/admin/users", users.Index)
 
 	http.Handle("/", r)
 
