@@ -13,6 +13,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/login"
 )
 
 var static string = "/GolangBlog/static/"
@@ -69,6 +70,8 @@ func main() {
 		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
 		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
 		u.HandleFunc("/trashed-users", users.Deleted)
+	r.HandleFunc("/admin/login", login.Index)
+
 	http.Handle("/", r)
 
 	fmt.Println("Succes!")
