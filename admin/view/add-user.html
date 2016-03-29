@@ -14,13 +14,13 @@
     });
 </script>
 <div class="container medium"> <h1>Add User</h1>
-    <form id="add-user" class="container" method="post" action="/admin/users/add">
+    <form id="add-user" method="post" action="/admin/users/add">
         <input type="hidden" name="id" value=""/>
         <input type="text" name="username" placeholder="Username" value=""/><br />
-        <input type="password" name="new_password" placeholder="New Password"/><br />
-        <input type="password" name="new_password_again" placeholder="New Password Again"/><br />
-        <input type="text" name="first_name" placeholder="First name" value=""/> <br />
-        <input type="text" name="last_name" placeholder="Last name" value="{{ .LastName }}"/> <br />
+        <input type="password" name="new-password" placeholder="New Password"/><br />
+        <input type="password" name="new-password_again" placeholder="New Password Again"/><br />
+        <input type="text" name="first-name" placeholder="First name" value=""/> <br />
+        <input type="text" name="last-name" placeholder="Last name" value=""/> <br />
         <input type="text" name="email" placeholder="Email" value=""/> <br />
         <input type="text" name="function" placeholder="Function" value=""/> <br />
         <p>Rights</p>
@@ -35,6 +35,5 @@
         <input type="radio" name="confirm" value="No" checked="checked" /> No <br />
         <button type="submit" name="submit">Update</button>
     </form>
-    {{ end }}
 </div>
 {{end}}

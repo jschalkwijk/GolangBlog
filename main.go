@@ -60,8 +60,15 @@ func main() {
 		aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
 		aC.HandleFunc("/add", categories.Add)
 		aC.HandleFunc("/trashed-categories", categories.Deleted)
+	// Users
 	r.HandleFunc("/admin/users", users.Index)
-
+		u := r.PathPrefix("/admin/users").Subrouter()
+		u.HandleFunc("/{id:[0-9]+}/{username}", users.Single)
+		u.HandleFunc("/add-user", users.New)
+		u.HandleFunc("/add", users.Add)
+		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
+		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
+		u.HandleFunc("/trashed-users", users.Deleted)
 	http.Handle("/", r)
 
 	fmt.Println("Succes!")
