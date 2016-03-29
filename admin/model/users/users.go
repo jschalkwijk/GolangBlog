@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"fmt"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var view = "GolangBlog/admin/view"
@@ -134,7 +135,8 @@ func GetSingleUser(id string,post_title string) *Data {
 		dob,function,rights,trashed,approved}
 
 	data.Users = append(data.Users , user)
-
+	err = compareHash([]byte(user.Password))
+	checkErr(err)
 	return data
 }
 
@@ -238,7 +240,9 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	var password string
 
 	if (newPassword == checkPassword){
-		password = newPassword
+		password = hashPassword([]byte(newPassword))
+	} else {
+		fmt.Println("Password not set")
 	}
 	u := &User{UserName: username,Password: password, FirstName: firstName,LastName: lastName,DOB: dob,Email: email,Function: function,Rights: rights}
 	fmt.Println(u)
@@ -250,6 +254,25 @@ func NewUser(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/admin/users", http.StatusFound)
 }
+
+func hashPassword(password []byte) (string){
+
+	// Hashing the password with the default cost of 10
+	hashedPassword, err := bcrypt.GenerateFromPassword(password, 15)
+	if err != nil {
+	panic(err)
+	}
+	fmt.Println(string(hashedPassword))
+	return string(hashedPassword)
+}
+
+func compareHash(hashedPassword []byte) error{
+		password := []byte("root")
+		// Comparing the password with the hash
+		err := bcrypt.CompareHashAndPassword(hashedPassword, password)
+		return err
+}
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
