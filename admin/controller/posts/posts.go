@@ -19,6 +19,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
+	"github.com/jschalkwijk/GolangBlog/admin/model/login"
+	"fmt"
 )
 
 
@@ -32,6 +34,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,"posts")
 	}
+	session := login.GetSession(r)
+	fmt.Printf("%s", session.Username)
+	fmt.Printf("%s", session.FirstName)
+	fmt.Printf("%s", session.LastName)
+	fmt.Printf("%s", session.Rights)
+
 	p := posts.GetPosts(0)
 	posts.RenderTemplate(w,"posts", p)
 }

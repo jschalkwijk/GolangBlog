@@ -71,6 +71,9 @@ func main() {
 		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
 		u.HandleFunc("/trashed-users", users.Deleted)
 	r.HandleFunc("/admin/login", login.Index)
+		l := r.PathPrefix("/admin/login").Subrouter()
+		l.HandleFunc("/auth", login.Auth)
+		l.HandleFunc("/logout", login.Logout)
 
 	http.Handle("/", r)
 
