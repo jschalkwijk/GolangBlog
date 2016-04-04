@@ -8,13 +8,11 @@ import (
 	"fmt"
 )
 
-
-
 func Index(w http.ResponseWriter, r *http.Request) {
 	login.RenderTemplate(w,"login")
 }
 
-func Auth(w http.ResponseWriter, r *http.Request){
+func Auth(w http.ResponseWriter, r *http.Request) {
 	auth := login.Login(w, r)
 	if (auth == nil) {
 		login.SetSession(w,r)

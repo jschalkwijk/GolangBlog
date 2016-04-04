@@ -1,14 +1,15 @@
 package login
 
 import (
-"net/http"
-"html/template"
-"golang.org/x/crypto/bcrypt"
-"database/sql"
-_"github.com/go-sql-driver/mysql"
-"github.com/jschalkwijk/GolangBlog/admin/config"
-"github.com/gorilla/sessions"
-"github.com/nu7hatch/gouuid"
+	"net/http"
+	"html/template"
+	"golang.org/x/crypto/bcrypt"
+	"database/sql"
+	_"github.com/go-sql-driver/mysql"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
+	"github.com/gorilla/sessions"
+	"github.com/nu7hatch/gouuid"
+	"fmt"
 )
 
 var view = "GolangBlog/admin/view"
@@ -20,8 +21,8 @@ type User struct {
 	LastName interface {}
 	Rights interface {}
 	Logged interface{}
-
 }
+
 func RenderTemplate(w http.ResponseWriter,name string) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",view + "/" + name + ".html")
 	if err != nil {
@@ -70,8 +71,7 @@ func SetSession(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSession(r *http.Request) *User {
-	session, err := store.New(r, "session")
-	checkErr(err)
+	session, _ := store.New(r, "session")
 	user := &User{session.Values["username"],session.Values["first-name"],session.Values["last-name"],session.Values["rights"], session.Values["logged-in"]}
 	return user
 }

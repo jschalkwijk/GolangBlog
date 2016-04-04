@@ -25,6 +25,18 @@ import (
 
 
 func Index(w http.ResponseWriter, r *http.Request) {
+	session := login.GetSession(r)
+
+	if (session.Logged != true) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
+	fmt.Printf("%s", session.Username)
+	fmt.Printf("%s", session.FirstName)
+	fmt.Printf("%s", session.LastName)
+	fmt.Printf("%s", session.Rights)
+	fmt.Printf("%s", session.Logged)
+
 	if (r.PostFormValue("approve-selected") != ""){
 		a.Approve(w,r,"posts")
 	}
@@ -34,12 +46,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,"posts")
 	}
-	session := login.GetSession(r)
-	fmt.Printf("%s", session.Username)
-	fmt.Printf("%s", session.FirstName)
-	fmt.Printf("%s", session.LastName)
-	fmt.Printf("%s", session.Rights)
-
 	p := posts.GetPosts(0)
 	posts.RenderTemplate(w,"posts", p)
 }
