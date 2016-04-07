@@ -27,15 +27,15 @@ import (
 func Index(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
-	if (session.Logged != true) {
+	if (!session.Logged) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 
-	fmt.Printf("%s", session.Username)
-	fmt.Printf("%s", session.FirstName)
-	fmt.Printf("%s", session.LastName)
-	fmt.Printf("%s", session.Rights)
-	fmt.Printf("%s", session.Logged)
+	fmt.Print(session.Username)
+	fmt.Print(session.FirstName)
+	fmt.Print(session.LastName)
+	fmt.Print(session.Rights)
+	fmt.Print(session.Logged)
 
 	if (r.PostFormValue("approve-selected") != ""){
 		a.Approve(w,r,"posts")
@@ -51,6 +51,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	if (r.PostFormValue("restore-selected") != ""){
 		a.Restore(w,r,"posts")
 	}
@@ -62,6 +68,12 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
@@ -70,11 +82,23 @@ func Single(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	c := categories.GetCategories(0)
 	categories.RenderTemplate(w,"add-post", c)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
@@ -82,6 +106,12 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	posts.RenderTemplate(w,"edit-post", p)
 }
 func Save(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
@@ -89,6 +119,12 @@ func Save(w http.ResponseWriter, r *http.Request){
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	posts.NewPost(w, r)
 }
 

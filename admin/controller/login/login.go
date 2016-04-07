@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	//"github.com/gorilla/mux"
-	"fmt"
+
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -16,12 +16,6 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 	auth := login.Login(w, r)
 	if (auth == nil) {
 		login.SetSession(w,r)
-		session := login.GetSession(r)
-		fmt.Printf("%s", session.Username)
-		fmt.Printf("%s", session.FirstName)
-		fmt.Printf("%s", session.LastName)
-		fmt.Printf("%s", session.Rights)
-		fmt.Printf("%s", session.Logged)
 		http.Redirect(w, r, "/admin", http.StatusFound)
 	} else {
 		login.RenderTemplate(w,"login")

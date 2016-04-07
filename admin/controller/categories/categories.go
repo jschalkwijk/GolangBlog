@@ -17,12 +17,19 @@ import (
 	"net/http"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
+	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"github.com/gorilla/mux"
 )
 
 var dbt string = "categories"
 
 func Index(w http.ResponseWriter, r *http.Request) {
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	if (r.PostFormValue("approve-selected") != ""){
 		a.Approve(w,r,dbt)
 	}
@@ -37,6 +44,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	if (r.PostFormValue("restore-selected") != ""){
 		a.Restore(w,r,dbt)
 	}
@@ -47,6 +60,12 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	categories.RenderTemplate(w,"categories", p)
 }
 func Single(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
@@ -55,12 +74,24 @@ func Single(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	collection := new(categories.Data)
 	p := collection
 	categories.RenderTemplate(w,"add-category", p)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
@@ -69,11 +100,23 @@ func Edit(w http.ResponseWriter, r *http.Request){
 }
 
 func Save(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	vars := mux.Vars(r)
 	id := vars["id"]
 	categories.EditCategory(w,r,id)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
 	categories.NewCategory(w, r)
 }

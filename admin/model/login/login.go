@@ -9,19 +9,24 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"github.com/gorilla/sessions"
 	"github.com/nu7hatch/gouuid"
-	"fmt"
 )
 
 var view = "GolangBlog/admin/view"
 var templates = "GolangBlog/admin/templates"
 
 type User struct {
-	Username interface {}
-	FirstName interface {}
-	LastName interface {}
-	Rights interface {}
-	Logged interface{}
+	Username string
+	FirstName string
+	LastName string
+	Rights string
+	Logged bool
 }
+
+var username string
+var hashedPassword []byte
+var firstName string
+var lastName string
+var rights string
 
 func RenderTemplate(w http.ResponseWriter,name string) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",view + "/" + name + ".html")
@@ -65,22 +70,22 @@ func SetSession(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
-
 	// Save it before we write to the response/return from the handler.
 	session.Save(r, w)
 }
 
 func GetSession(r *http.Request) *User {
-	session, _ := store.New(r, "session")
-	user := &User{session.Values["username"],session.Values["first-name"],session.Values["last-name"],session.Values["rights"], session.Values["logged-in"]}
-	return user
+	session, _ := store.New(r,"session")
+	if (session.Values["username"] != nil) {
+		// Kan ik niet beter dit een keer doen en dan een referene naar de user struct geven of moet ik dit elke keer aanroepen?
+		user := &User{session.Values["username"].(string), session.Values["first-name"].(string), session.Values["last-name"].(string), session.Values["rights"].(string), session.Values["logged-in"].(bool)}
+		return user
+	} else {
+		user := new(User)
+		return user
+	}
 }
 
-var username string
-var hashedPassword []byte
-var firstName string
-var lastName string
-var rights string
 
 func Login(w http.ResponseWriter, r *http.Request) error {
 	db, err := sql.Open("mysql",config.DB)

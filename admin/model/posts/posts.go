@@ -55,6 +55,7 @@ type Data struct {
 	Posts      []Post
 	Categories []cat.Category
 	Deleted	bool
+	Dashboard bool
 }
 
 
@@ -110,6 +111,7 @@ func GetPosts(trashed int) *Data {
 		body := template.HTML(content)
 		post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
 		data.Posts = append(data.Posts , post)
+		data.Dashboard = false
 	}
 
 	if(trashed == 1) {
