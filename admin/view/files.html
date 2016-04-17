@@ -1,0 +1,29 @@
+{{ define "files" }}
+    {{ $currentAlbum := "" }}
+    {{ $A := .Albums }}
+    <div class="container medium">
+        <form class="small" enctype="multipart/form-data" method="post" action="/admin/files">
+            <input type="hidden" name="MAX_FILE_SIZE" value="43500000" />
+            <label for="files[]">Choose File(max size: 3.5 MB): </label><br />
+            <input type="file" name="files[]" multiple/><br />
+            <select id="albums" name="album_name">
+
+            {{ if ne $currentAlbum "" }}
+                <option name="{{ $currentAlbum }}" value="{{ $currentAlbum }}">{{ $currentAlbum }}</option>
+            {{ else }}
+                <option name="none" value="None">None</option>
+            {{ end }}
+            {{ range $key, $value := .Albums }}
+                <option value="{{ .AlbumName }}">{{ .AlbumName }}</option>
+            {{ end }}
+            </select>
+            <label for="select">Albums</label>
+            {{ if ne $currentAlbum "" }}
+                <input type="text" name="new_album_name" placeholder="Create New Sub Folder" maxlength="60"/>
+            {{ else }}
+                <input type="text" name="new_album_name" placeholder="Create New Album" maxlength="60"/>
+            {{ end }}
+            <button type="submit" name="submit_file">Add File('s)</button>
+        </form>
+    </div>
+{{ end }}
