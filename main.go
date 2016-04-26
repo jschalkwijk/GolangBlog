@@ -9,12 +9,11 @@ import (
 	"github.com/jschalkwijk/GolangBlog/controller/blog"
 	cat "github.com/jschalkwijk/GolangBlog/controller/categories"
 	//back-end controllers
-	"github.com/jschalkwijk/GolangBlog/admin/model/admin"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/login"
-	"github.com/jschalkwijk/GolangBlog/admin/controller/files"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/dashboard"
 )
 
 var static string = "/GolangBlog/static/"
@@ -43,7 +42,7 @@ func main() {
 		c := r.PathPrefix("/categories").Subrouter()
 		c.HandleFunc("/{id:[0-9]+}/{title}", cat.Single)
 	//Admin
-	r.HandleFunc("/admin", admin.DashboardHandler)
+	r.HandleFunc("/admin", dashboard.Index)
 	//Admin Posts
 	r.HandleFunc("/admin/posts", posts.Index)
 		aP := r.PathPrefix("/admin/posts/").Subrouter()
@@ -71,9 +70,6 @@ func main() {
 		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
 		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
 		u.HandleFunc("/trashed-users", users.Deleted)
-	//Files
-	r.HandleFunc("/admin/files", files.Index)
-
 	r.HandleFunc("/admin/login", login.Index)
 		l := r.PathPrefix("/admin/login").Subrouter()
 		l.HandleFunc("/auth", login.Auth)
@@ -85,6 +81,12 @@ func main() {
 	fmt.Println("GolangBlog running on port 8080. Don't forget to run MAMP or SQL server.")
 
 	http.ListenAndServe(":8080", nil)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 // load all static directories: Source: http://www.shakedos.com/2014/Feb/08/serving-static-files-with-go.html

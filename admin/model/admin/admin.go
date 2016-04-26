@@ -16,15 +16,7 @@ type Data struct {
 	Dashboard bool
 }
 
-func DashboardHandler(w http.ResponseWriter, r *http.Request){
-		data := new(Data)
-		data.Posts = *posts.GetPosts(0)
-		data.Users = *users.GetUsers(0)
-		data.Dashboard = true
-		renderTemplate(w,"index", data)
-}
-
-func renderTemplate(w http.ResponseWriter,name string, data *Data) {
+func RenderTemplate(w http.ResponseWriter,name string, data *Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
