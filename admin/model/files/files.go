@@ -7,13 +7,17 @@ import (
 	"time"
 	"fmt"
 	"os"
-	"strconv"
-	"crypto/md5"
 	"io"
+	"github.com/nu7hatch/gouuid"
+	"strconv"
+	"strings"
+//	"database/sql"
+//	_"database/sql/driver"
 )
 
 type File struct {
 	FileID int
+	Name string
 	FileName string
 	Ext string
 	Location string
@@ -60,30 +64,74 @@ func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 func Files(){
 
 }
+
+func insertRows(name string,fileName string,fileSize string,fileType string){
+	fmt.Println("Name: ",name)
+	fmt.Println("Filename: ",fileName)
+	fmt.Println("Size: ", fileSize, " MB")
+	fmt.Println("Type: ",fileType)
+
+//	db, err := sql.Open("mysql", cfg.DB)
+}
 func Upload(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method)
-	if r.Method == "GET" {
-		crutime := time.Now().Unix()
-		h := md5.New()
-		io.WriteString(h, strconv.FormatInt(crutime, 10))
-		token := fmt.Sprintf("%x", h.Sum(nil))
-		t, _ := template.ParseFiles("upload.gtpl")
-		t.Execute(w, token)
-	} else {
-		r.ParseMultipartForm(32 << 20)
-		file, handler, err := r.FormFile("uploadfile")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer file.Close()
-		fmt.Fprintf(w, "%v", handler.Header)
-		f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer f.Close()
-		io.Copy(f, file)
+
+	r.ParseMultipartForm(32 << 20)
+	file, handler, err := r.FormFile("uploadfile")
+
+	checkErr(err)
+	defer file.Close()
+	/*fmt.Fprintf(w, "%v", handler.Header)*/
+
+	// Get the name, type and create a unique name to store in filesystem.
+	name := handler.Filename
+	stripType := strings.Split(handler.Header.Get("Content-Type"),"/")
+	fileType := stripType[1]
+	fileName := newName()
+
+	// Check if files folder exists
+	// if not create it.
+	_, err = os.Stat("GolangBlog/files")
+	if err != nil {
+		err = os.Mkdir("GolangBlog/files", 0777)
+		checkErr(err)
+	}
+
+	// Open a new empty file at a existing path plus the new file name and correct file typ
+	f, err := os.OpenFile("GolangBlog/files/"+fileName+"."+fileType, os.O_WRONLY|os.O_CREATE, 0777)
+	checkErr(err)
+	defer f.Close()
+	/*
+		func Copy(dst Writer, src Reader) (written int64, err error)
+		Copy copies from src to dst
+	*/
+	// Copy the uploaded file src to the new empty file on the filesystem.
+	io.Copy(f, file)
+	// Get the filesize of the file and convert to MB
+	fileInfo, err := os.Stat("GolangBlog/files/"+fileName+"."+fileType)
+	// bytes to MB. 1024 bytes = 1KB.
+	fileSize := fmt.Sprintf("%0.2f",(float64(fileInfo.Size()) / 1024) / 1000)
+	checkErr(err)
+
+	// Insert into Database.
+	insertRows(name,fileName,fileSize,fileType)
+
+	http.Redirect(w, r, "/admin/files", http.StatusFound)
+
+}
+
+func newName() string {
+	uuid, err := uuid.NewV4()
+	checkErr(err)
+	year,month,day := time.Now().Date()
+	fmt.Println(year,month,day)
+	fileName := month.String()+"-"+strconv.Itoa(day)+"-"+strconv.Itoa(year)+"-"+uuid.String()
+	return fileName
+}
+
+func checkErr(err error) {
+	if err != nil {
+		fmt.Println("OOPS something went wrong, you better fix it!", err)
+		return
 	}
 }

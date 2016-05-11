@@ -78,6 +78,8 @@ func main() {
 		l.HandleFunc("/logout", login.Logout)
 	//Files
 		r.HandleFunc("/admin/files", files.Index)
+		f := r.PathPrefix("/admin/files").Subrouter()
+		f.HandleFunc("/upload-file", files.Upload)
 
 
 	http.Handle("/", r)
@@ -93,6 +95,7 @@ func main() {
 func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 	staticPaths := map[string]string{
 		"/css/": staticDirectory + "/css/",
+		"/test/": staticDirectory + "/test/",
 		"/images/": staticDirectory + "/images/",
 		"/scripts/": staticDirectory + "/scripts/",
 		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",

@@ -2,10 +2,10 @@
     {{ $currentAlbum := "" }}
     {{ $A := .Albums }}
     <div class="container medium">
-        <form class="small" enctype="multipart/form-data" method="post" action="/admin/files">
+        <form class="small" enctype="multipart/form-data" method="post" action="/admin/files/upload-file">
             <input type="hidden" name="MAX_FILE_SIZE" value="43500000" />
             <label for="files[]">Choose File(max size: 3.5 MB): </label><br />
-            <input type="file" name="files[]" multiple/><br />
+            <input type="file" name="uploadfile" multiple/><br />
             <select id="albums" name="album_name">
 
             {{ if ne $currentAlbum "" }}

@@ -16,3 +16,13 @@ func Index(w http.ResponseWriter, r *http.Request){
 
 	files.RenderTemplate(w,"files",data)
 }
+
+func Upload(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+
+	files.Upload(w,r)
+}
