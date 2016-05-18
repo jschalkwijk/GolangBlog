@@ -74,47 +74,58 @@ func insertRows(name string,fileName string,fileSize string,fileType string){
 //	db, err := sql.Open("mysql", cfg.DB)
 }
 func Upload(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("method:", r.Method)
+	// fmt.Println("method:", r.Method)
 
-	r.ParseMultipartForm(32 << 20)
-	file, handler, err := r.FormFile("uploadfile")
-
+	// Parse multipart form
+	err := r.ParseMultipartForm(32 << 20)
 	checkErr(err)
-	defer file.Close()
-	/*fmt.Fprintf(w, "%v", handler.Header)*/
-
-	// Get the name, type and create a unique name to store in filesystem.
-	name := handler.Filename
-	stripType := strings.Split(handler.Header.Get("Content-Type"),"/")
-	fileType := stripType[1]
-	fileName := newName()
-
-	// Check if files folder exists
-	// if not create it.
-	_, err = os.Stat("GolangBlog/files")
-	if err != nil {
-		err = os.Mkdir("GolangBlog/files", 0777)
+	// Get a reference to the parsed multipart form
+	m := r.MultipartForm
+	// Access file headers
+	files := m.File["uploadfile"]
+//	file, handler, err := r.FormFile("uploadfile")
+//	checkErr(err)
+	for i, _ := range files {
+		// For eah file header, get the handle to each file
+		file, err := files[i].Open()
+		defer file.Close()
 		checkErr(err)
+
+//		fmt.Fprintf(w, "%v", handler.Header)
+
+		// Get the name, type and create a unique name to store in filesystem.
+		name := files[i].Filename
+		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
+		fileType := stripType[1]
+		fileName := newName()
+
+		// Check if files folder exists
+		// if not create it.
+		_, err = os.Stat("GolangBlog/files")
+		if err != nil {
+			err = os.Mkdir("GolangBlog/files", 0777)
+			checkErr(err)
+		}
+
+		// Open a new empty file at a existing path plus the new file name and correct file typ
+		f, err := os.OpenFile("GolangBlog/files/" + fileName + "." + fileType, os.O_WRONLY | os.O_CREATE, 0777)
+		checkErr(err)
+		defer f.Close()
+		/*
+			func Copy(dst Writer, src Reader) (written int64, err error)
+			Copy copies from src to dst
+		*/
+		// Copy the uploaded file src to the new empty file on the filesystem.
+		io.Copy(f, file)
+		// Get the filesize of the file and convert to MB
+		fileInfo, err := os.Stat("GolangBlog/files/" + fileName + "." + fileType)
+		// bytes to MB. 1024 bytes = 1KB.
+		fileSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
+		checkErr(err)
+
+		// Insert into Database.
+		insertRows(name, fileName, fileSize, fileType)
 	}
-
-	// Open a new empty file at a existing path plus the new file name and correct file typ
-	f, err := os.OpenFile("GolangBlog/files/"+fileName+"."+fileType, os.O_WRONLY|os.O_CREATE, 0777)
-	checkErr(err)
-	defer f.Close()
-	/*
-		func Copy(dst Writer, src Reader) (written int64, err error)
-		Copy copies from src to dst
-	*/
-	// Copy the uploaded file src to the new empty file on the filesystem.
-	io.Copy(f, file)
-	// Get the filesize of the file and convert to MB
-	fileInfo, err := os.Stat("GolangBlog/files/"+fileName+"."+fileType)
-	// bytes to MB. 1024 bytes = 1KB.
-	fileSize := fmt.Sprintf("%0.2f",(float64(fileInfo.Size()) / 1024) / 1000)
-	checkErr(err)
-
-	// Insert into Database.
-	insertRows(name,fileName,fileSize,fileType)
 
 	http.Redirect(w, r, "/admin/files", http.StatusFound)
 
