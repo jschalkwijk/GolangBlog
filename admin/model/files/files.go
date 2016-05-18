@@ -42,6 +42,7 @@ type Data struct {
 	Files []File
 	Albums []Album
 	Deleted bool
+	Messages []string
 }
 
 func RenderTemplate(w http.ResponseWriter, name string, f *Data){
@@ -74,6 +75,7 @@ func insertRows(name string,fileName string,fileSize string,fileType string){
 //	db, err := sql.Open("mysql", cfg.DB)
 }
 func Upload(w http.ResponseWriter, r *http.Request) {
+	data := new(Data)
 	// fmt.Println("method:", r.Method)
 
 	// Parse multipart form
@@ -125,9 +127,9 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 		// Insert into Database.
 		insertRows(name, fileName, fileSize, fileType)
+		data.Messages = append(data.Messages,name+" succesfully added to database.")
 	}
-
-	http.Redirect(w, r, "/admin/files", http.StatusFound)
+	RenderTemplate(w,"files",data)
 
 }
 

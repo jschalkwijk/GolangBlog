@@ -2,9 +2,16 @@
     {{ $currentAlbum := "" }}
     {{ $A := .Albums }}
     <div class="container medium">
+        <p>
+            {{ range $key, $value := .Messages }}
+                <span>{{ . }}</span><br />
+            {{ end }}
+        </p>
+    </div>
+    <div class="container medium">
         <form class="small" enctype="multipart/form-data" method="post" action="/admin/files/upload-file">
             <input type="hidden" name="MAX_FILE_SIZE" value="43500000" />
-            <label for="files[]">Choose File(max size: 3.5 MB): </label><br />
+            <label for="uploadfile">Choose File(max size: 3.5 MB): </label><br />
             <input type="file" name="uploadfile" id="uploadfile" multiple="multiple" /><br />
             <select id="albums" name="album_name">
 
