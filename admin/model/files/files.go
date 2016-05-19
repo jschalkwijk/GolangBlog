@@ -1,9 +1,9 @@
 package files
 
 import (
+	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 	"net/http"
 	"html/template"
-	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 	"time"
 	"fmt"
 	"os"
@@ -11,41 +11,31 @@ import (
 	"github.com/nu7hatch/gouuid"
 	"strconv"
 	"strings"
-//	"database/sql"
-//	_"database/sql/driver"
+	"database/sql"
+	_"database/sql/driver"
 )
 
 type File struct {
 	FileID int
 	Name string
 	FileName string
-	Ext string
-	Location string
+	Type string
+	Size string
+	Path string
 	Approved int
 	Trashed int
 	Date time.Time
 	AlbumID int
-}
-
-type Album struct {
-	AlbumID int
-	AlbumName string
-	Ext string
-	Location string
-	Approved int
-	Trashed int
-	Date time.Time
-	ParentID int
 }
 
 type Data struct {
 	Files []File
-	Albums []Album
+	Folders []Folder
 	Deleted bool
 	Messages []string
 }
 
-func RenderTemplate(w http.ResponseWriter, name string, f *Data){
+func RenderTemplate(w http.ResponseWriter, name string, f interface{}){
 	t, err := template.ParseFiles(cfg.Templates+"/"+"header.html",cfg.Templates+"/"+"nav.html",cfg.View + "/" + name + ".html",cfg.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -66,20 +56,31 @@ func Files(){
 
 }
 
-func insertRows(name string,fileName string,fileSize string,fileType string){
-	fmt.Println("Name: ",name)
-	fmt.Println("Filename: ",fileName)
-	fmt.Println("Size: ", fileSize, " MB")
-	fmt.Println("Type: ",fileType)
-
-//	db, err := sql.Open("mysql", cfg.DB)
-}
 func Upload(w http.ResponseWriter, r *http.Request) {
 	data := new(Data)
 	// fmt.Println("method:", r.Method)
+	// Check if files folder exists
+	// if not create it.
+	_, err := os.Stat("GolangBlog/files")
+	if err != nil {
+		err = os.Mkdir("GolangBlog/files", 0777)
+		checkErr(err)
+	}
 
+	folder := r.FormValue("new_folder_name")
+	if (folder != ""){
+		_, err = os.Stat("GolangBlog/files/"+folder)
+		if err != nil {
+			err = os.Mkdir("GolangBlog/files/"+folder, 0777)
+			checkErr(err)
+			folder := &Folder{FolderName: folder, ParentID: 0}
+			folder.create()
+		} else {
+			fmt.Println("Folder already exists")
+		}
+	}
 	// Parse multipart form
-	err := r.ParseMultipartForm(32 << 20)
+	err = r.ParseMultipartForm(32 << 20)
 	checkErr(err)
 	// Get a reference to the parsed multipart form
 	m := r.MultipartForm
@@ -100,17 +101,10 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
 		fileType := stripType[1]
 		fileName := newName()
-
-		// Check if files folder exists
-		// if not create it.
-		_, err = os.Stat("GolangBlog/files")
-		if err != nil {
-			err = os.Mkdir("GolangBlog/files", 0777)
-			checkErr(err)
-		}
+		path := "files/" + fileName + "." + fileType
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/files/" + fileName + "." + fileType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("GolangBlog/" + path, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
 		defer f.Close()
 		/*
@@ -120,17 +114,41 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		// Copy the uploaded file src to the new empty file on the filesystem.
 		io.Copy(f, file)
 		// Get the filesize of the file and convert to MB
-		fileInfo, err := os.Stat("GolangBlog/files/" + fileName + "." + fileType)
+		fileInfo, err := os.Stat("GolangBlog/" + path)
 		// bytes to MB. 1024 bytes = 1KB.
 		fileSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
 		checkErr(err)
 
-		// Insert into Database.
-		insertRows(name, fileName, fileSize, fileType)
+		// Assign values to the memory address of the file struct
+		fl := &File{Name: name,FileName: fileName, Type: fileType,Size: fileSize,Path: path }
+		// Call method insertRows to Insert into Database.
+		err = fl.insertRows()
 		data.Messages = append(data.Messages,name+" succesfully added to database.")
 	}
+
 	RenderTemplate(w,"files",data)
 
+}
+
+func (f *File) insertRows() error {
+	fmt.Println("Name: ", f.Name)
+	fmt.Println("Filename: ",f.FileName)
+	fmt.Println("Size: ", f.Size, " MB")
+	fmt.Println("Type: ",f.Type)
+
+	db, err := sql.Open("mysql", cfg.DB)
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO files (name,type,file_name,date,path) VALUES(?,?,?,FORMAT(Now(),'MM-DD-YYYY'),?)")
+	fmt.Println(stmt)
+	checkErr(err)
+
+	res, err := stmt.Exec(f.Name,f.Type,f.FileName,f.Path)
+	affect, err := res.RowsAffected()
+	fmt.Println(affect)
+	checkErr(err)
+
+	return err
 }
 
 func newName() string {

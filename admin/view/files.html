@@ -1,6 +1,6 @@
 {{ define "files" }}
-    {{ $currentAlbum := "" }}
-    {{ $A := .Albums }}
+    {{ $currentFolder := "" }}
+    {{ $A := .Folders }}
     <div class="container medium">
         <p>
             {{ range $key, $value := .Messages }}
@@ -15,20 +15,20 @@
             <input type="file" name="uploadfile" id="uploadfile" multiple="multiple" /><br />
             <select id="albums" name="album_name">
 
-            {{ if ne $currentAlbum "" }}
-                <option name="{{ $currentAlbum }}" value="{{ $currentAlbum }}">{{ $currentAlbum }}</option>
+            {{ if ne $currentFolder "" }}
+                <option name="{{ $currentFolder }}" value="{{ $currentFolder }}">{{ $currentFolder }}</option>
             {{ else }}
                 <option name="none" value="None">None</option>
             {{ end }}
-            {{ range $key, $value := .Albums }}
-                <option value="{{ .AlbumName }}">{{ .AlbumName }}</option>
+            {{ range $key, $value := .Folders }}
+                <option value="{{ .FolderName }}">{{ .FolderName }}</option>
             {{ end }}
             </select>
-            <label for="select">Albums</label>
-            {{ if ne $currentAlbum "" }}
-                <input type="text" name="new_album_name" placeholder="Create New Sub Folder" maxlength="60"/>
+            <label for="select">Folders</label>
+            {{ if ne $currentFolder "" }}
+                <input type="text" name="new_folder_name" placeholder="Create New Sub Folder" maxlength="60"/>
             {{ else }}
-                <input type="text" name="new_album_name" placeholder="Create New Album" maxlength="60"/>
+                <input type="text" name="new_folder_name" placeholder="Create New Folder" maxlength="60"/>
             {{ end }}
             <button type="submit" name="submit_file">Add File('s)</button>
         </form>
