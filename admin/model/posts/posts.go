@@ -101,7 +101,7 @@ func GetPosts(trashed int) *Data {
 	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
 	checkErr(err)
 
-	data:= new(Data)
+	data := new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,

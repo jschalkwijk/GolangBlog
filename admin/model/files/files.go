@@ -1,7 +1,7 @@
 package files
 
 import (
-	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"net/http"
 	"html/template"
 	"time"
@@ -36,7 +36,7 @@ type Data struct {
 }
 
 func RenderTemplate(w http.ResponseWriter, name string, f interface{}){
-	t, err := template.ParseFiles(cfg.Templates+"/"+"header.html",cfg.Templates+"/"+"nav.html",cfg.View + "/" + name + ".html",cfg.Templates+"/"+"footer.html")
+	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -53,6 +53,13 @@ func RenderTemplate(w http.ResponseWriter, name string, f interface{}){
 }
 
 func Files(){
+
+/*
+	if(getCat) {
+		listCat := cat.GetCategories(0)
+		collection.Categories = listCat.Categories
+	}
+*/
 
 }
 
@@ -73,8 +80,10 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			err = os.Mkdir("GolangBlog/files/"+folder, 0777)
 			checkErr(err)
-			folder := &Folder{FolderName: folder, ParentID: 0}
-			folder.create()
+			folderPath := "files/"+folder
+			folder := &Folder{FolderName: folder, ParentID: 0, Path: folderPath}
+			err  = folder.create()
+			checkErr(err)
 		} else {
 			fmt.Println("Folder already exists")
 		}
@@ -136,7 +145,7 @@ func (f *File) insertRows() error {
 	fmt.Println("Size: ", f.Size, " MB")
 	fmt.Println("Type: ",f.Type)
 
-	db, err := sql.Open("mysql", cfg.DB)
+	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 
 	stmt, err := db.Prepare("INSERT INTO files (name,type,file_name,date,path) VALUES(?,?,?,FORMAT(Now(),'MM-DD-YYYY'),?)")

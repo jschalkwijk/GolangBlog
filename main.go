@@ -80,6 +80,7 @@ func main() {
 		r.HandleFunc("/admin/files", files.Index)
 		f := r.PathPrefix("/admin/files").Subrouter()
 		f.HandleFunc("/upload-file", files.Upload)
+		f.HandleFunc("/{id:[0-9]+}/{foldername}", files.Folder)
 
 
 	http.Handle("/", r)
