@@ -1,6 +1,7 @@
 {{ define "files" }}
     {{ $currentAlbum := "" }}
     {{ $A := .Albums }}
+    {{ $files := .Files }}
     <div class="container medium">
         <p>
             {{ range $key, $value := .Messages }}
@@ -32,5 +33,15 @@
             {{ end }}
             <button type="submit" name="submit_file">Add File('s)</button>
         </form>
+    </div>
+
+    <div class="container large">
+        <table>
+            <thead><th>ID</th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
+        {{ range $key, $value := $files }}
+            <tr><td>{{ .FileID }}</td><td>{{ .Name }}</td><td>{{ .FileName }}</td><td>{{ .FileType }}</td><td>{{ .Size }}</td></tr>
+            <img src="{{ .FilePath }}"/>
+        {{ end }}
+        </table>
     </div>
 {{ end }}

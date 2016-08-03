@@ -12,9 +12,9 @@ func Index(w http.ResponseWriter, r *http.Request){
 	if (!session.Logged) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
-	data := new(files.Data)
+	f := files.Files()
 
-	files.RenderTemplate(w,"files",data)
+	files.RenderTemplate(w,"files",f)
 }
 
 func Upload(w http.ResponseWriter, r *http.Request){

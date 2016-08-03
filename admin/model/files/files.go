@@ -3,7 +3,7 @@ package files
 import (
 	"net/http"
 	"html/template"
-	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"time"
 	"fmt"
 	"os"
@@ -11,26 +11,27 @@ import (
 	"github.com/nu7hatch/gouuid"
 	"strconv"
 	"strings"
-//	"database/sql"
-//	_"database/sql/driver"
+	"database/sql"
+	_"database/sql/driver"
 )
 
 type File struct {
 	FileID int
 	Name string
 	FileName string
-	Ext string
-	Location string
-	Approved int
-	Trashed int
-	Date time.Time
-	AlbumID int
+	FileType string
+	Size string
+	FilePath string
+	//Location string
+	//Approved int
+	//Trashed int
+	//Date time.Time
+	//AlbumID int
 }
 
 type Album struct {
 	AlbumID int
 	AlbumName string
-	Ext string
 	Location string
 	Approved int
 	Trashed int
@@ -45,8 +46,15 @@ type Data struct {
 	Messages []string
 }
 
+var file_id int
+var name string
+var fileName string
+var fileType string
+var size string
+var filePath string
+
 func RenderTemplate(w http.ResponseWriter, name string, f *Data){
-	t, err := template.ParseFiles(cfg.Templates+"/"+"header.html",cfg.Templates+"/"+"nav.html",cfg.View + "/" + name + ".html",cfg.Templates+"/"+"footer.html")
+	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,17 +70,43 @@ func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 	}
 }
 
-func Files(){
+func Files() *Data {
+	db, err := sql.Open("mysql", config.DB)
+	checkErr(err)
+	fmt.Println("Connection with database Established")
+	defer db.Close()
+	defer fmt.Println("Connection with database Closed")
 
+	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path FROM files")
+	checkErr(err)
+
+	data:= new(Data)
+
+	for rows.Next() {
+		err = rows.Scan(&file_id, &name, &fileName,&fileType, &size, &filePath)
+		checkErr(err)
+		// convert string to HTML markdown
+		file := File{file_id,name,fileName,fileType,size,filePath}
+		data.Files = append(data.Files , file)
+	}
+	println(data.Files)
+	return data
 }
 
-func insertRows(name string,fileName string,fileSize string,fileType string){
+func insertRows(name string,fileName string,fileSize string,fileType string,filePath string) error {
 	fmt.Println("Name: ",name)
 	fmt.Println("Filename: ",fileName)
 	fmt.Println("Size: ", fileSize, " MB")
 	fmt.Println("Type: ",fileType)
-
-//	db, err := sql.Open("mysql", cfg.DB)
+	fmt.Println("Type: ",filePath)
+	db, err := sql.Open("mysql", config.DB)
+	defer db.Close()
+	stmt, err := db.Prepare("INSERT INTO files (name,file_name,size,type,path) VALUES(?,?,?,?,?)")
+	fmt.Println(stmt)
+	checkErr(err)
+	_, err = stmt.Exec(name,fileName,fileSize,fileType,filePath)
+	checkErr(err)
+	return err
 }
 func Upload(w http.ResponseWriter, r *http.Request) {
 	data := new(Data)
@@ -85,21 +119,22 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	m := r.MultipartForm
 	// Access file headers
 	files := m.File["uploadfile"]
-//	file, handler, err := r.FormFile("uploadfile")
-//	checkErr(err)
+	//	file, handler, err := r.FormFile("uploadfile")
+	//	checkErr(err)
 	for i, _ := range files {
 		// For eah file header, get the handle to each file
 		file, err := files[i].Open()
 		defer file.Close()
 		checkErr(err)
 
-//		fmt.Fprintf(w, "%v", handler.Header)
+		//		fmt.Fprintf(w, "%v", handler.Header)
 
 		// Get the name, type and create a unique name to store in filesystem.
-		name := files[i].Filename
+		fname := files[i].Filename
 		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
-		fileType := stripType[1]
-		fileName := newName()
+		fType := stripType[1]
+		fName := newName()
+		fPath:= "/files/" + fName + "." + fType
 
 		// Check if files folder exists
 		// if not create it.
@@ -110,7 +145,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/files/" + fileName + "." + fileType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("GolangBlog/files/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
 		defer f.Close()
 		/*
@@ -119,18 +154,18 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		*/
 		// Copy the uploaded file src to the new empty file on the filesystem.
 		io.Copy(f, file)
-		// Get the filesize of the file and convert to MB
-		fileInfo, err := os.Stat("GolangBlog/files/" + fileName + "." + fileType)
+		// Get the filesize of the file and convert to MB.
+		// Stat returns a FileInfo structure describing the named file.
+		fileInfo, err := os.Stat("GolangBlog"+fPath)
 		// bytes to MB. 1024 bytes = 1KB.
-		fileSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
+		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
 		checkErr(err)
 
 		// Insert into Database.
-		insertRows(name, fileName, fileSize, fileType)
+		insertRows(fname, fName, fSize, fType,fPath)
 		data.Messages = append(data.Messages,name+" succesfully added to database.")
 	}
 	RenderTemplate(w,"files",data)
-
 }
 
 func newName() string {
@@ -144,7 +179,7 @@ func newName() string {
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Println("OOPS something went wrong, you better fix it!", err)
+		fmt.Println("OOPS something went wrong in the files model, you better fix it!", err)
 		return
 	}
 }
