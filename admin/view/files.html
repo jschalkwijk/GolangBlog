@@ -10,7 +10,7 @@
         </p>
     </div>
     <div class="container medium">
-        <form class="small" enctype="multipart/form-data" method="post" action="/admin/files/upload-file">
+        <form class="small" enctype="multipart/form-data" method="post" action="files/upload-file">
             <input type="hidden" name="MAX_FILE_SIZE" value="43500000" />
             <label for="uploadfile">Choose File(max size: 3.5 MB): </label><br />
             <input type="file" name="uploadfile" id="uploadfile" multiple="multiple" /><br />
@@ -36,12 +36,20 @@
     </div>
 
     <div class="container large">
-        <table>
-            <thead><th>ID</th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
+        <table class="files-table">
+            <thead><th>File</th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
+            <tbody>
         {{ range $key, $value := $files }}
-            <tr><td>{{ .FileID }}</td><td>{{ .Name }}</td><td>{{ .FileName }}</td><td>{{ .FileType }}</td><td>{{ .Size }}</td></tr>
-            <img src="{{ .FilePath }}"/>
+            <tr class="meta">
+                <td><a href="{{ .FilePath }}"><img class="media" src="{{ .FilePath }}"/></a></td>
+                <td>{{ .Name }}</td><td>{{ .FileName }}</td>
+                <td>{{ .FileType }}</td><td>{{ .Size }}</td>
+                <td>
+                    <a class="downloadLink" href="{{ .FilePath }}" download="{{ .Name }}"><img class="glyph-small" src="/admin/images/download.png"></a>
+                </td>
+            </tr>
         {{ end }}
+            </tbody>
         </table>
     </div>
 {{ end }}

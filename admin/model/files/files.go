@@ -134,18 +134,18 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
 		fType := stripType[1]
 		fName := newName()
-		fPath:= "/files/" + fName + "." + fType
+		fPath:= "/file/" + fName + "." + fType
 
 		// Check if files folder exists
 		// if not create it.
-		_, err = os.Stat("GolangBlog/files")
+		_, err = os.Stat("GolangBlog/static/files")
 		if err != nil {
-			err = os.Mkdir("GolangBlog/files", 0777)
+			err = os.Mkdir("GolangBlog/static/files", 0777)
 			checkErr(err)
 		}
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/files/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("GolangBlog/static/files/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
 		defer f.Close()
 		/*
@@ -156,7 +156,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		io.Copy(f, file)
 		// Get the filesize of the file and convert to MB.
 		// Stat returns a FileInfo structure describing the named file.
-		fileInfo, err := os.Stat("GolangBlog"+fPath)
+		fileInfo, err := os.Stat("GolangBlog/static/files/" + fName + "." + fType)
 		// bytes to MB. 1024 bytes = 1KB.
 		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
 		checkErr(err)

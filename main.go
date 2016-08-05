@@ -77,9 +77,10 @@ func main() {
 		l.HandleFunc("/auth", login.Auth)
 		l.HandleFunc("/logout", login.Logout)
 	//Files
-		r.HandleFunc("/admin/files", files.Index)
+	r.HandleFunc("/admin/files", files.Index)
 		f := r.PathPrefix("/admin/files").Subrouter()
 		f.HandleFunc("/upload-file", files.Upload)
+		f.HandleFunc("/test", files.Index)
 
 
 	http.Handle("/", r)
@@ -99,8 +100,9 @@ func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 		"/images/": staticDirectory + "/images/",
 		"/scripts/": staticDirectory + "/scripts/",
 		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",
-		// The file folder is in the main Dir not the static Dir so we dont need to add the prefix.
-		"/files/": "/files/",
+		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
+		//
+		"/file/": staticDirectory + "/files/",
 	}
 	for pathPrefix, pathValue := range staticPaths {
 		router.PathPrefix(admin+pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,
