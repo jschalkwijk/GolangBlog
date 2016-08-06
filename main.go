@@ -101,7 +101,7 @@ func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 		"/scripts/": staticDirectory + "/scripts/",
 		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
-		//
+		// Also it only works if the files folder is inside another folder also due to the conflict.
 		"/file/": staticDirectory + "/files/",
 	}
 	for pathPrefix, pathValue := range staticPaths {

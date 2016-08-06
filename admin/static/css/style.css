@@ -68,7 +68,6 @@
 .title {
 	font-family: Helvetica,Arial,Sans Serif;
 	font-size: 16px;
-	background-color: none;
 	color:#333;
 	width: 100%;
 	padding:5px;
@@ -84,7 +83,6 @@
 .post {
 	font-family: Helvetica,Arial,Sans Serif;
 	font-size: 12px;
-	background-color: none;
 	color:black;
 	width: 100%;
 	padding:0px;
@@ -123,7 +121,7 @@
 }
 
 .backend-table button {
-	background-color: none;
+	background-color: transparent;
 }
 
 .td-title, .td-author, .td-category {
@@ -197,11 +195,13 @@ a {
 	color: #ea6a1b;
 }
 
-input=['submit']
+input=['submit'] {
+
+}
 
 
 
-h1, h2, h3, h4, h5, h6, h7, h8 {
+h1, h2, h3, h4, h5, h6 {
 	color: #333333;
 }
 button {
@@ -671,7 +671,6 @@ article {
 	color: #2d2520;
 	width: 100%;
 	height: auto;
-	background-color: none;
 	margin: 0px;
 	padding: 11px 5px 11px 5px;
 	border-bottom: 1px dotted #d2d2d2;
@@ -680,7 +679,6 @@ article {
 .widget-content {
 	width: 100%;
 	height: auto;
-	background-color: none;
 	margin: 0px;
 	padding: 3px;
 	/* wordt in WP widget wrpper ul*/
@@ -710,7 +708,7 @@ footer img {
 
 /* Flexible Images/Video etc. */
 
-img, video, canvas, url {
+img, video, canvas {
   max-width: 100%;
   height: auto;
 }

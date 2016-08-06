@@ -29,19 +29,9 @@ type File struct {
 	//AlbumID int
 }
 
-type Album struct {
-	AlbumID int
-	AlbumName string
-	Location string
-	Approved int
-	Trashed int
-	Date time.Time
-	ParentID int
-}
-
 type Data struct {
 	Files []File
-	Albums []Album
+	Folders []Folder
 	Deleted bool
 	Messages []string
 }
@@ -89,25 +79,29 @@ func Files() *Data {
 		file := File{file_id,name,fileName,fileType,size,filePath}
 		data.Files = append(data.Files , file)
 	}
+	 data.Folders = Folders()
+
 	println(data.Files)
+	println(data.Folders)
 	return data
 }
 
-func insertRows(name string,fileName string,fileSize string,fileType string,filePath string) error {
-	fmt.Println("Name: ",name)
-	fmt.Println("Filename: ",fileName)
-	fmt.Println("Size: ", fileSize, " MB")
-	fmt.Println("Type: ",fileType)
-	fmt.Println("Type: ",filePath)
+func (f *File) insertRows() error {
+	fmt.Println("Name: ",f.Name)
+	fmt.Println("Filename: ",f.FileName)
+	fmt.Println("Size: ", f.Size, " MB")
+	fmt.Println("Type: ",f.FileType)
+	fmt.Println("Type: ",f.FilePath)
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO files (name,file_name,size,type,path) VALUES(?,?,?,?,?)")
 	fmt.Println(stmt)
 	checkErr(err)
-	_, err = stmt.Exec(name,fileName,fileSize,fileType,filePath)
+	_, err = stmt.Exec(f.Name, f.FileName,f.Size,f.FileType,f.FilePath)
 	checkErr(err)
 	return err
 }
+
 func Upload(w http.ResponseWriter, r *http.Request) {
 	data := new(Data)
 	// fmt.Println("method:", r.Method)
@@ -121,6 +115,12 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	files := m.File["uploadfile"]
 	//	file, handler, err := r.FormFile("uploadfile")
 	//	checkErr(err)
+	folder := r.FormValue("new_folder_name")
+	println("Folder: "+folder)
+	if (folder != "") {
+		Create(folder)
+	}
+
 	for i, _ := range files {
 		// For eah file header, get the handle to each file
 		file, err := files[i].Open()
@@ -134,6 +134,9 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
 		fType := stripType[1]
 		fName := newName()
+		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
+		// Also it only works if the files folder is inside another folder also due to the conflict.
+		// see main.go.
 		fPath:= "/file/" + fName + "." + fType
 
 		// Check if files folder exists
@@ -158,11 +161,14 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		// Stat returns a FileInfo structure describing the named file.
 		fileInfo, err := os.Stat("GolangBlog/static/files/" + fName + "." + fType)
 		// bytes to MB. 1024 bytes = 1KB.
-		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1000)
+		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1024)
 		checkErr(err)
 
+		media := &File{ Name: fname,FileName: fName,Size: fSize,FileType: fType,FilePath: fPath }
 		// Insert into Database.
-		insertRows(fname, fName, fSize, fType,fPath)
+		err = media.insertRows()
+		checkErr(err)
+
 		data.Messages = append(data.Messages,name+" succesfully added to database.")
 	}
 	RenderTemplate(w,"files",data)
