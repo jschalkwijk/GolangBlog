@@ -60,29 +60,26 @@ func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 	}
 }
 
-func Files() *Data {
+func Files(id string,folderName string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path FROM files")
+	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path FROM files WHERE folder_id = ? ORDER BY file_id DESC",id)
 	checkErr(err)
 
-	data:= new(Data)
+	data := new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&file_id, &name, &fileName,&fileType, &size, &filePath)
 		checkErr(err)
-		// convert string to HTML markdown
-		file := File{file_id,name,fileName,fileType,size,filePath}
-		data.Files = append(data.Files , file)
+		file := File{file_id, name, fileName, fileType, size, filePath}
+		data.Files = append(data.Files, file)
 	}
 	 data.Folders = Folders()
 
-	println(data.Files)
-	println(data.Folders)
 	return data
 }
 

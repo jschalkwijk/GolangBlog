@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	_"database/sql/driver"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
+	"path/filepath"
 )
 type Folder struct {
 	FolderID int
@@ -17,6 +18,7 @@ type Folder struct {
 	ParentID int
 	FolderPath string
 	Date string
+	FolderSize string
 }
 
 var folderID int
@@ -34,7 +36,7 @@ func Folders() []Folder {
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-	rows, err := db.Query("SELECT * FROM folders")
+	rows, err := db.Query("SELECT * FROM folders ORDER BY folder_id DESC")
 	checkErr(err)
 
 	var folders []Folder
@@ -44,16 +46,16 @@ func Folders() []Folder {
 
 		// calculate folder size. path.WALK functie proberen, hij moet de grote van alle bestanden bij elkaar optellen
 		// dat gebeurd nu niet. check http://stackoverflow.com/questions/32482673/golang-how-to-get-directory-total-size
-		info, err := os.Lstat("GolangBlog/static/"+folderPath)
+		size,err := DirSize("GolangBlog/static/"+folderPath)
 		checkErr(err)
-		println("Folder-Size",info.Size())
-		sizeMB := fmt.Sprintf("%0.2f", (float64(info.Size()) / 1024) / 1024)
-		println(sizeMB)
-		//
 
-		folder := Folder{folderID, folderName,description,author,parentID,folderPath,date}
+		sizeMB := fmt.Sprintf("%0.2f",float64((size / 1024) / 1024))
+		fmt.Println(sizeMB)
+		folder := Folder{folderID, folderName,description,author,parentID,folderPath,date,sizeMB}
 		folders = append(folders, folder)
 	}
+
+
 	return folders
 }
 
@@ -85,5 +87,20 @@ func Create(folder string) error {
 	err = newFolder.save();
 	checkErr(err)
 	return err;
+}
+
+func DirSize(path string)(int64, error){
+	var size int64
+	//Walk walks the file tree from the given filepath or root
+	// Using a closure we can get the fileinfo and size of each file which will be appended to the size var.
+	// returns the size in bites and a error message.
+	err := filepath.Walk("GolangBlog/static/"+folderPath, func(_ string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			size += info.Size()
+			fmt.Println(size)
+		}
+		return err
+	})
+	return size,err
 }
 

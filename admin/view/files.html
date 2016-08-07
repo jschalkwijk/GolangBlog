@@ -37,6 +37,24 @@
 
     <div class="container large">
         <table class="files-table">
+            <thead><th></th><th>Name</th><th>Size(MB)</th></thead>
+            <tbody>
+            {{ range $key, $value := $folders }}
+            <tr class="meta">
+                <td><a href="/admin/files/folder/{{ .FolderID }}/{{.FolderName }}"><img class="glyph-medium" src="/admin/images/files.png"/></a></td>
+                <td>{{ .FolderName }}</td>
+                <td>{{ .FolderSize }}</td>
+                <td>
+                    <a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>
+                </td>
+            </tr>
+            {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container large">
+        <table class="files-table">
             <thead><th></th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
             <tbody>
         {{ range $key, $value := $files }}
@@ -52,20 +70,5 @@
             </tbody>
         </table>
     </div>
-    <div class="container large">
-        <table class="files-table">
-            <thead><th></th><th>Name</th></thead>
-            <tbody>
-            {{ range $key, $value := $folders }}
-            <tr class="meta">
-                <td><a href="/admin/files/folder/{{ .FolderID }}/{{.FolderName }}"><img class="glyph-medium" src="/admin/images/files.png"/></a></td>
-                <td>{{ .FolderName }}</td>
-                <td>
-                    <a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>
-                </td>
-            </tr>
-            {{ end }}
-            </tbody>
-        </table>
-    </div>
+
 {{ end }}
