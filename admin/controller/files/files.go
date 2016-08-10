@@ -5,6 +5,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"net/http"
 	"github.com/gorilla/mux"
+	"strconv"
 
 )
 func Index(w http.ResponseWriter, r *http.Request){
@@ -37,7 +38,11 @@ func Folder(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	folderName := vars["foldername"]
+
 	f := files.Files(id,folderName)
+	idINT, _ := strconv.Atoi(id)
+
+	f.CurrentFolder = idINT
 
 	files.RenderTemplate(w,"files",f)
 }

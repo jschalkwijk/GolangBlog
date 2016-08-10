@@ -1,5 +1,5 @@
 {{ define "files" }}
-    {{ $currentFolder := "" }}
+    {{ $currentFolder := .CurrentFolder }}
     {{ $folders := .Folders }}
     {{ $files := .Files }}
     <div class="container medium">
@@ -10,23 +10,24 @@
         </p>
     </div>
     <div class="container medium">
-        <form class="small" enctype="multipart/form-data" method="post" action="files/upload-file">
+        <form class="small" enctype="multipart/form-data" method="post" action="/admin/files/upload-file">
             <input type="hidden" name="MAX_FILE_SIZE" value="43500000" />
             <label for="uploadfile">Choose File(max size: 3.5 MB): </label><br />
             <input type="file" name="uploadfile" id="uploadfile" multiple="multiple" /><br />
-            <select id="Folders" name="Folder_name">
-
-            {{ if ne $currentFolder "" }}
-                <option name="{{ $currentFolder }}" value="{{ $currentFolder }}">{{ $currentFolder }}</option>
-            {{ else }}
-                <option name="none" value="None">None</option>
-            {{ end }}
-            {{ range $key, $value := .Folders }}
-                <option value="{{ .FolderName }}">{{ .FolderName }}</option>
-            {{ end }}
+            <select id="Folders" name="folder_name">
+                {{ if eq $currentFolder 0}}
+                    <option name="None" value="0">None</option>
+                {{ end }}
+                {{ range $key, $value := .Folders }}
+                    {{ if eq $currentFolder .FolderID }}
+                    <option name="{{ .FolderName }}" value="{{ .FolderID }}" selected="selected">{{ .FolderName }}</option>
+                    {{ else }}
+                    <option name="{{ .FolderName }}" value="{{ .FolderID }}">{{ .FolderName }}</option>
+                    {{ end }}
+                {{ end }}
             </select>
             <label for="select">Folders</label>
-            {{ if ne $currentFolder "" }}
+            {{ if $currentFolder }}
                 <input type="text" name="new_folder_name" placeholder="Create New Sub Folder" maxlength="60"/>
             {{ else }}
                 <input type="text" name="new_folder_name" placeholder="Create New Folder" maxlength="60"/>
@@ -39,16 +40,16 @@
         <table class="files-table">
             <thead><th></th><th>Name</th><th>Size(MB)</th></thead>
             <tbody>
-            {{ range $key, $value := $folders }}
-            <tr class="meta">
-                <td><a href="/admin/files/folder/{{ .FolderID }}/{{.FolderName }}"><img class="glyph-medium" src="/admin/images/files.png"/></a></td>
-                <td>{{ .FolderName }}</td>
-                <td>{{ .FolderSize }}</td>
-                <td>
-                    <a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>
-                </td>
-            </tr>
-            {{ end }}
+                {{ range $key, $value := $folders }}
+                    <tr class="meta">
+                        <td><a href="/admin/files/folder/{{ .FolderID }}/{{.FolderName }}"><img class="glyph-medium" src="/admin/images/files.png"/></a></td>
+                        <td>{{ .FolderName }}</td>
+                        <td>{{ .FolderSize }}</td>
+                        <td>
+                            <a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>
+                        </td>
+                    </tr>
+                {{ end }}
             </tbody>
         </table>
     </div>
@@ -57,16 +58,16 @@
         <table class="files-table">
             <thead><th></th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
             <tbody>
-        {{ range $key, $value := $files }}
-            <tr class="meta">
-                <td><a href="{{ .FilePath }}"><img class="media" src="{{ .FilePath }}"/></a></td>
-                <td>{{ .Name }}</td><td>{{ .FileName }}</td>
-                <td>{{ .FileType }}</td><td>{{ .Size }}</td>
-                <td>
-                    <a class="downloadLink" href="{{ .FilePath }}" download="{{ .Name }}"><img class="glyph-small" src="/admin/images/download.png"></a>
-                </td>
-            </tr>
-        {{ end }}
+                {{ range $key, $value := $files }}
+                    <tr class="meta">
+                        <td><a href="{{ .FilePath }}"><img class="media" src="{{ .FilePath }}"/></a></td>
+                        <td>{{ .Name }}</td><td>{{ .FileName }}</td>
+                        <td>{{ .FileType }}</td><td>{{ .Size }}</td>
+                        <td>
+                            <a class="downloadLink" href="{{ .FilePath }}" download="{{ .Name }}"><img class="glyph-small" src="/admin/images/download.png"></a>
+                        </td>
+                    </tr>
+                {{ end }}
             </tbody>
         </table>
     </div>

@@ -26,12 +26,13 @@ type File struct {
 	//Approved int
 	//Trashed int
 	//Date time.Time
-	//AlbumID int
+	FolderID int
 }
 
 type Data struct {
 	Files []File
 	Folders []Folder
+	CurrentFolder int
 	Deleted bool
 	Messages []string
 }
@@ -42,7 +43,7 @@ var fileName string
 var fileType string
 var size string
 var filePath string
-
+var fID int
 func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
@@ -60,25 +61,27 @@ func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 	}
 }
 
-func Files(id string,folderName string) *Data {
+func Files(folderID string,folderName string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path FROM files WHERE folder_id = ? ORDER BY file_id DESC",id)
+	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path,folder_id FROM files WHERE folder_id = ? ORDER BY file_id DESC",folderID)
 	checkErr(err)
 
 	data := new(Data)
 
 	for rows.Next() {
-		err = rows.Scan(&file_id, &name, &fileName,&fileType, &size, &filePath)
+		err = rows.Scan(&file_id, &name, &fileName,&fileType, &size, &filePath,&fID)
 		checkErr(err)
-		file := File{file_id, name, fileName, fileType, size, filePath}
+		//fID,err = strconv.Atoi(fID)
+		//checkErr(err)
+		file := File{file_id, name, fileName, fileType, size, filePath, fID}
 		data.Files = append(data.Files, file)
 	}
-	 data.Folders = Folders()
+	 data.Folders = Folders(folderID)
 
 	return data
 }
@@ -88,13 +91,14 @@ func (f *File) insertRows() error {
 	fmt.Println("Filename: ",f.FileName)
 	fmt.Println("Size: ", f.Size, " MB")
 	fmt.Println("Type: ",f.FileType)
-	fmt.Println("Type: ",f.FilePath)
+	fmt.Println("Path: ",f.FilePath)
+	fmt.Println("FolderID: ",f.FolderID)
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
-	stmt, err := db.Prepare("INSERT INTO files (name,file_name,size,type,path) VALUES(?,?,?,?,?)")
+	stmt, err := db.Prepare("INSERT INTO files (name,file_name,size,type,path,folder_id) VALUES(?,?,?,?,?,?)")
 	fmt.Println(stmt)
 	checkErr(err)
-	_, err = stmt.Exec(f.Name, f.FileName,f.Size,f.FileType,f.FilePath)
+	_, err = stmt.Exec(f.Name, f.FileName,f.Size,f.FileType,f.FilePath,f.FolderID)
 	checkErr(err)
 	return err
 }
@@ -113,10 +117,14 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	//	file, handler, err := r.FormFile("uploadfile")
 	//	checkErr(err)
 	folder := r.FormValue("new_folder_name")
-	println("Folder: "+folder)
+	parentID := r.FormValue("folder_name")
+	var lastID int = 0
 	if (folder != "") {
-		Create(folder)
+		lastID, err = Create(folder,parentID)
+		checkErr(err)
 	}
+
+	fmt.Println("LastID: ", lastID)
 
 	for i, _ := range files {
 		// For eah file header, get the handle to each file
@@ -161,7 +169,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1024)
 		checkErr(err)
 
-		media := &File{ Name: fname,FileName: fName,Size: fSize,FileType: fType,FilePath: fPath }
+		media := &File{ Name: fname,FileName: fName,Size: fSize,FileType: fType,FilePath: fPath,FolderID:lastID }
 		// Insert into Database.
 		err = media.insertRows()
 		checkErr(err)
