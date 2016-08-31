@@ -7,7 +7,6 @@ import (
 	_"database/sql/driver"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"path/filepath"
-	"strconv"
 )
 type Folder struct {
 	FolderID int
@@ -80,33 +79,33 @@ func (folder *Folder) save() (int, error){
 	return int(lastID),err
 }
 
-func Create(folder string,parentID string) (int,error) {
+func Create(folder string,parentID int) (int,string,error) {
 	// Check if files folder exists
 	// if not create it.
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	id,err := strconv.Atoi(parentID)
+
 	checkErr(err)
 	var path string
 	var row *sql.Row
-	if(parentID != "0") {
-		row = db.QueryRow("SELECT path FROM folders WHERE folder_id = ?", id)
+	if(parentID != 0) {
+		row = db.QueryRow("SELECT path FROM folders WHERE folder_id = ?", parentID)
 		row.Scan(&path)
 		path = path+"/"+folder
 	} else {
 		path = folder
 	}
 
-	_, err = os.Stat("GolangBlog/static/"+path)
+	_, err = os.Stat("GolangBlog/static/files/"+path)
 	if err != nil {
-		err = os.Mkdir("GolangBlog/static/"+path, 0777)
+		err = os.Mkdir("GolangBlog/static/files/"+path, 0777)
 		checkErr(err)
 	}
 
-	newFolder := Folder{FolderName: folder,FolderPath: "files/"+path,ParentID: id}
+	newFolder := Folder{FolderName: folder,FolderPath: "files/"+path,ParentID: parentID}
 	lastID, err := newFolder.save();
 	checkErr(err)
-	return lastID, err;
+	return lastID, path, err;
 }
 
 //this should be done only when the folder changes and then store into the DB

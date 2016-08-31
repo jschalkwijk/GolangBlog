@@ -95,7 +95,7 @@ CREATE TABLE `folders` (
   `parent_id` int(255) DEFAULT '0',
   `path` varchar(1000) NOT NULL,
   `date` date NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `folders`
@@ -221,7 +221,7 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT for table `folders`
 --
 ALTER TABLE `folders`
-  MODIFY `folder_id` int(255) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10;
+  MODIFY `folder_id` int(255) NOT NULL AUTO_INCREMEN;
 --
 -- AUTO_INCREMENT for table `posts`
 --

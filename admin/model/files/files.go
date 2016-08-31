@@ -117,14 +117,19 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	//	file, handler, err := r.FormFile("uploadfile")
 	//	checkErr(err)
 	folder := r.FormValue("new_folder_name")
-	parentID := r.FormValue("folder_name")
+	parentID,err := strconv.Atoi(r.FormValue("folder_name"))
+	checkErr(err)
 	var lastID int = 0
-	if (folder != "") {
-		lastID, err = Create(folder,parentID)
-		checkErr(err)
-	}
+	var folderPath string
 
-	fmt.Println("LastID: ", lastID)
+	// Creating newfolder and return the new folder_id or the folder_id is
+	// the selected folder from the formvalue. We use the name lastID because of the query use.
+	if (folder != "") {
+		lastID, folderPath, err = Create(folder,parentID)
+		checkErr(err)
+	} else if(folder == "" && parentID != 0){
+		lastID = parentID;
+	}
 
 	for i, _ := range files {
 		// For eah file header, get the handle to each file
@@ -142,7 +147,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
 		// Also it only works if the files folder is inside another folder also due to the conflict.
 		// see main.go.
-		fPath:= "/file/" + fName + "." + fType
+		fPath:= "/file/" + folderPath + "/" + fName + "." + fType
 
 		// Check if files folder exists
 		// if not create it.
@@ -153,7 +158,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/static/files/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("GolangBlog/static/files/" + folderPath + "/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
 		defer f.Close()
 		/*
@@ -164,7 +169,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		io.Copy(f, file)
 		// Get the filesize of the file and convert to MB.
 		// Stat returns a FileInfo structure describing the named file.
-		fileInfo, err := os.Stat("GolangBlog/static/files/" + fName + "." + fType)
+		fileInfo, err := os.Stat("GolangBlog/static/files/" + folderPath + "/" + fName + "." + fType)
 		// bytes to MB. 1024 bytes = 1KB.
 		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1024)
 		checkErr(err)
