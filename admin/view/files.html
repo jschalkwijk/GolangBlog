@@ -45,9 +45,10 @@
                         <td><a href="/admin/files/folder/{{ .FolderID }}/{{.FolderName }}"><img class="glyph-medium" src="/admin/images/files.png"/></a></td>
                         <td>{{ .FolderName }}</td>
                         <td>{{ .FolderSize }}</td>
-                        <td>
-                            <a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>
-                        </td>
+                        <!--<td>-->
+                            <!--<a class="downloadLink" href="{{ .FolderPath }}" download="{{ .FolderName }}"><img class="glyph-small" src="/admin/images/download.png"></a>-->
+                        <!--</td>-->
+                        <td><input type="checkbox" value="{{ .FolderID }}"/></td>
                     </tr>
                 {{ end }}
             </tbody>
@@ -55,21 +56,27 @@
     </div>
 
     <div class="container large">
-        <table class="files-table">
-            <thead><th></th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
-            <tbody>
-                {{ range $key, $value := $files }}
-                    <tr class="meta">
-                        <td><a href="{{ .FilePath }}"><img class="media" src="{{ .FilePath }}"/></a></td>
-                        <td>{{ .Name }}</td><td>{{ .FileName }}</td>
-                        <td>{{ .FileType }}</td><td>{{ .Size }}</td>
-                        <td>
-                            <a class="downloadLink" href="{{ .FilePath }}" download="{{ .Name }}"><img class="glyph-small" src="/admin/images/download.png"></a>
-                        </td>
-                    </tr>
-                {{ end }}
-            </tbody>
-        </table>
+        <form id="check-files" method="post" action="/admin/files">
+            <table class="files-table">
+                <thead><th></th><th>Name</th><th>File Name</th><th>Type</th><th>Size</th></thead>
+                <tbody>
+                    {{ range $key, $value := $files }}
+                        <tr class="meta">
+                            <td><a href="{{ .FilePath }}"><img class="media" src="{{ .FilePath }}"/></a></td>
+                            <td>{{ .Name }}</td><td>{{ .FileName }}</td>
+                            <td>{{ .FileType }}</td><td>{{ .Size }}</td>
+                            <td>
+                                <a class="downloadLink" href="{{ .FilePath }}" download="{{ .Name }}"><img class="glyph-small" src="/admin/images/download.png"></a>
+                            </td>
+                            <td><input type="checkbox" name="checkbox" value="{{ .FileID }}"/></td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+            <button type="submit" name="action" value="trash">Trash</button>
+            <button type="submit" name="action" value="restore">Restore</button>
+            <button type="submit" name="action" value="delete">Delete</button>
+        </form>
     </div>
 
 {{ end }}

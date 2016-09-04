@@ -1,12 +1,12 @@
 package files
 
 import (
-	"github.com/jschalkwijk/GolangBlog/admin/model/files"
-	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"net/http"
 	"github.com/gorilla/mux"
 	"strconv"
-
+	"github.com/jschalkwijk/GolangBlog/admin/model/files"
+	"github.com/jschalkwijk/GolangBlog/admin/model/login"
+	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 )
 func Index(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
@@ -15,6 +15,19 @@ func Index(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 	f := files.Files("","")
+
+	if r.PostFormValue("action") == "trash" {
+		// Form submitted
+		a.Trash(w,r,"files")
+	}
+	if r.PostFormValue("action") == "restore" {
+		// Form submitted
+		a.Restore(w,r,"files")
+	}
+	if r.PostFormValue("action") == "delete" {
+		// Form submitted
+		a.Delete(w,r,"files")
+	}
 
 	files.RenderTemplate(w,"files",f)
 }
@@ -46,4 +59,3 @@ func Folder(w http.ResponseWriter, r *http.Request){
 
 	files.RenderTemplate(w,"files",f)
 }
-

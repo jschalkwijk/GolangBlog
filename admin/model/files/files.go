@@ -44,6 +44,7 @@ var fileType string
 var size string
 var filePath string
 var fID int
+
 func RenderTemplate(w http.ResponseWriter, name string, f *Data){
 	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
@@ -129,6 +130,13 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		checkErr(err)
 	} else if(folder == "" && parentID != 0){
 		lastID = parentID;
+		// Get the path from
+		db, err := sql.Open("mysql", config.DB)
+		checkErr(err)
+		defer db.Close()
+
+		row := db.QueryRow("SELECT path FROM folders WHERE folder_id = ?",lastID)
+		row.Scan(&folderPath)
 	}
 
 	for i, _ := range files {
@@ -144,10 +152,20 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		stripType := strings.Split(files[i].Header.Get("Content-Type"), "/")
 		fType := stripType[1]
 		fName := newName()
+		var fPath string
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
 		// Also it only works if the files folder is inside another folder also due to the conflict.
 		// see main.go.
-		fPath:= "/file/" + folderPath + "/" + fName + "." + fType
+
+		// !! we do this folderPath[6:len(folderPath)] for the above reason.
+		// if the folder path is fetched from the db it will state files/some/folder/path
+		// we need to remove that to give the staic file the correct path to work with the static file server.
+		// to serve the file we need to change the path to /file/ instead of files/
+		if(strings.Contains(folderPath,"files/")){
+			fPath = "/file/" + folderPath[6:len(folderPath)] + "/" + fName + "." + fType
+		} else {
+			fPath = "/file/" + folderPath + "/" + fName + "." + fType
+		}
 
 		// Check if files folder exists
 		// if not create it.
@@ -158,7 +176,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/static/files/" + folderPath + "/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("GolangBlog/static/" + folderPath + "/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
 		defer f.Close()
 		/*
@@ -169,7 +187,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		io.Copy(f, file)
 		// Get the filesize of the file and convert to MB.
 		// Stat returns a FileInfo structure describing the named file.
-		fileInfo, err := os.Stat("GolangBlog/static/files/" + folderPath + "/" + fName + "." + fType)
+		fileInfo, err := os.Stat("GolangBlog/static/" + folderPath + "/" + fName + "." + fType)
 		// bytes to MB. 1024 bytes = 1KB.
 		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1024)
 		checkErr(err)

@@ -54,7 +54,7 @@ func Folders(id string) []Folder {
 		size,err := DirSize("GolangBlog/static/"+folderPath)
 		checkErr(err)
 
-		sizeMB := fmt.Sprintf("%0.2f",float64((size / 1024) / 1024))
+		sizeMB := fmt.Sprintf("%0.2f",size)
 		fmt.Println(sizeMB)
 		folder := Folder{folderID, folderName,description,author,parentID,folderPath,date,sizeMB}
 		folders = append(folders, folder)
@@ -93,16 +93,17 @@ func Create(folder string,parentID int) (int,string,error) {
 		row.Scan(&path)
 		path = path+"/"+folder
 	} else {
-		path = folder
+		// with no parent folder we need to add the files/ prefix
+		path = "files/"+folder
 	}
 
-	_, err = os.Stat("GolangBlog/static/files/"+path)
+	_, err = os.Stat("GolangBlog/static/"+path)
 	if err != nil {
-		err = os.Mkdir("GolangBlog/static/files/"+path, 0777)
+		err = os.Mkdir("GolangBlog/static/"+path, 0777)
 		checkErr(err)
 	}
 
-	newFolder := Folder{FolderName: folder,FolderPath: "files/"+path,ParentID: parentID}
+	newFolder := Folder{FolderName: folder,FolderPath: path,ParentID: parentID}
 	lastID, err := newFolder.save();
 	checkErr(err)
 	return lastID, path, err;
@@ -110,15 +111,16 @@ func Create(folder string,parentID int) (int,string,error) {
 
 //this should be done only when the folder changes and then store into the DB
 // not everytime we load the page.
-func DirSize(path string)(int64, error){
-	var size int64
+func DirSize(path string)(float64, error){
+	var size float64
 	//Walk walks the file tree from the given filepath or root
 	// Using a closure we can get the fileinfo and size of each file which will be appended to the size var.
 	// returns the size in bites and a error message.
 	err := filepath.Walk("GolangBlog/static/"+folderPath, func(_ string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			size += info.Size()
-			fmt.Println(size)
+			size += (float64(info.Size()) / 1024) / 1024
+
+			fmt.Println("foldersize: ",size)
 		}
 		return err
 	})
