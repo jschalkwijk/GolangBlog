@@ -46,6 +46,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,"posts")
 	}
+
 	p := posts.GetPosts(0)
 	posts.RenderTemplate(w,"posts", p)
 }
