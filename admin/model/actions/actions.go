@@ -113,10 +113,70 @@ func DeleteFiles(w http.ResponseWriter, r *http.Request, placeholder string,valu
 	}
 }
 
+func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []string){
+	//
+	// DeleteFiles(w,r,dbt,args)
+	var file_id int64
+	var path string
+	var folderPath string
+
+	db, err := sql.Open("mysql", config.DB)
+	checkErr(err)
+	// add the placeholders
+	checked := r.Form["checkbox"]
+	fmt.Println("checked folders: ", checked)
+
+	placeholder,values := Multiple(checked)
+	rows, err := db.Query("SELECT file_id,path FROM "+dbt+" WHERE folder_id IN("+placeholder+")",values...)
+	checkErr(err)
+	// removing files from filesystem
+	for rows.Next() {
+		err = rows.Scan(&file_id, &path)
+		checkErr(err)
+		// We use "/file/" as a prefix in the DB or else we get in conflict with the router which also use files,
+		// when we serve static files the /file/ will be chaged to files.
+
+		// if the folder path is fetched from the db it will state file/some/file/path
+		// to remove the file we need to change the path to /files/ instead of file/
+		// otherswise we use a incorrect filepath which will result in an error.
+
+		// !! we do this path[5:]for the above reason.
+		err = os.Remove("GolangBlog/static/files/"+path[5:])
+		checkErr(err)
+	}
+	//removing rows from database
+	query, err := db.Prepare("DELETE FROM "+dbt+" WHERE folder_id IN ("+placeholder+")")
+	checkErr(err)
+	_, err = query.Exec(values...)
+	checkErr(err)
+	//removing folder from filesystem
+	rows, err = db.Query("SELECT path FROM folders WHERE folder_id IN("+placeholder+")",values...)
+	checkErr(err)
+	for rows.Next() {
+		err = rows.Scan(&folderPath)
+		checkErr(err)
+		err := os.RemoveAll("GolangBlog/static/"+folderPath)
+		checkErr(err)
+		if (err == nil) {
+			msg = append(msg,folderPath + "is removed successfully")
+		} else {
+			msg = append(msg,folderPath + "The folder you want to delete doesn't exist")
+		}
+	}
+	//removing folder rows from database
+	query, err = db.Prepare("DELETE FROM folders WHERE folder_id IN ("+placeholder+")")
+	checkErr(err)
+	_, err = query.Exec(values...)
+	checkErr(err)
+
+	return msg
+}
+
 // Takes a slice of string ,[]string, which consist of the id's of the checked items in the form
 // of course other []string can be provided to create prepared statements with multiple values.
 func Multiple(multiple []string)(string,[]interface {}) {
 	var placeholder string
+	fmt.Println("multiple :", multiple)
 	// Creating a string with the amount of ? required for the Query string by using the length of the checkbox slice.
 	placeholder = strings.Repeat("?, ",len(multiple))
 	// delete the last 2 characters of the string which are ", ". Otherwise we have a error in the query.

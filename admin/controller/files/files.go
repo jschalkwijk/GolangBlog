@@ -28,6 +28,11 @@ func Index(w http.ResponseWriter, r *http.Request){
 		// Form submitted
 		a.Delete(w,r,"files")
 	}
+	if r.PostFormValue("action") == "delete-folder" {
+		// Form submitted
+		msg := a.DeleteFolders(w,r,"files")
+		f.Messages = msg
+	}
 
 	files.RenderTemplate(w,"files",f)
 }

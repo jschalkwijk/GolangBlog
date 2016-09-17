@@ -109,6 +109,19 @@ func Create(folder string,parentID int) (int,string,error) {
 	return lastID, path, err;
 }
 
+//func Remove (path string)(msg string){
+//	var msg string
+//	if(os.Stat(path)) {
+//		err := os.RemoveAll(path)
+//		checkErr(err)
+//		msg = path + "is removed successfully"
+//		return msg
+//	} else {
+//		msg = "The folder you want to delete doesn't exist"
+//		return msg
+//	}
+//}
+
 //this should be done only when the folder changes and then store into the DB
 // not everytime we load the page.
 func DirSize(path string)(float64, error){
