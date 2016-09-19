@@ -169,6 +169,8 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 	_, err = query.Exec(values...)
 	checkErr(err)
 
+	//removeRows(checked[0])
+
 	return msg
 }
 
@@ -191,6 +193,54 @@ func Multiple(multiple []string)(string,[]interface {}) {
 		values = append(values, v)
 	}
 	return placeholder,values
+}
+
+// must be called inside the deleteFolders function after removing the dirs.
+func removeRows(folderID string){
+	db, err := sql.Open("mysql",config.DB)
+	checkErr(err)
+	defer db.Close()
+
+	rows, err := db.Query("SELECT folder_id FROM folders WHERE parent_id = ?",folderID)
+	checkErr(err)
+	fmt.Println(err)
+	// adding the folder to be deleted to the slice of string, below we will check for children
+	// and if so, add them.
+	folders := []string{folderID}
+	// checks if the row from the db is not empty,
+	// if not, selects the id to the parent id,row[id], so we can get,
+	// all children from the top deleted album.
+	/* Example:
+	 * $id = 5 (Folder Users)
+	 * $row[album_id] = 24 ( user admin has parent_id 5, the folder Users)
+	 * Then again we check if there are folders with a parent_id of 24
+	 * if there is, add it to the array of folder_id's to delete.
+	 * In this case there is.
+	 * $row['album_id'] = 22 (admins contacts folder) has a parent_id of 24
+	 * This goes on until there are no folders left with a parent_id of 22 in this case.
+	*/
+
+	// wat als de parent folder meerdere children heeft? loopt hij dan vast?
+	// slaat hij ze over? worden ze wel verwijderd?
+	// DE FUNCTIE ZICHZELF LATEN aanroepen op het laatst, dan begint het steeds opnieuw.
+	// if err != nil {if err != nil {
+	for err == nil {
+		for rows.Next() {
+			err = rows.Scan(&folderID)
+			folders = append(folders, folderID)
+		}
+		rows, err = db.Query("SELECT folder_id FROM folders WHERE parent_id = ?", folderID);
+	}
+	fmt.Println("Folders slice: ", folders)
+	// because we now have a new row[folderID], we need to check again if its empty,
+	// if it is not, push it to the array.
+	//if it is, don't push it, en the loop will end with the while clause.
+	//if(!empty($row['album_id'])){
+	//$folders_id[] = $row['album_id'];
+	//}
+
+	// Create s string with all the album id's.
+	// deleting rows from database.
 }
 
 func checkErr(err error) {
