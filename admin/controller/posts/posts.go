@@ -5,10 +5,10 @@
  * 	They can call functions from an imported model.
  * 	If a func from a model returns data, it had to be assigned to a variable.
  *  The variable with the data must be passed to the models RenderTemplate func
- 	in order to render the template with the data.
+	in order to render the template with the data.
  *	In some cases you need to render a template without data. This is done by
- 	creating an empty data struct from the imported model and then pass it to the
- 	RenderTemplate func.
+	creating an empty data struct from the imported model and then pass it to the
+	RenderTemplate func.
  */
 
 package posts

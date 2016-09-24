@@ -124,7 +124,6 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 	checkErr(err)
 	// add the placeholders
 	checked := r.Form["checkbox"]
-	fmt.Println("checked folders: ", checked)
 
 	placeholder,values := Multiple(checked)
 	rows, err := db.Query("SELECT file_id,path FROM "+dbt+" WHERE folder_id IN("+placeholder+")",values...)
@@ -144,11 +143,7 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 		err = os.Remove("GolangBlog/static/files/"+path[5:])
 		checkErr(err)
 	}
-	//removing rows from database
-	query, err := db.Prepare("DELETE FROM "+dbt+" WHERE folder_id IN ("+placeholder+")")
-	checkErr(err)
-	_, err = query.Exec(values...)
-	checkErr(err)
+
 	//removing folder from filesystem
 	rows, err = db.Query("SELECT path FROM folders WHERE folder_id IN("+placeholder+")",values...)
 	checkErr(err)
@@ -158,18 +153,23 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 		err := os.RemoveAll("GolangBlog/static/"+folderPath)
 		checkErr(err)
 		if (err == nil) {
-			msg = append(msg,folderPath + "is removed successfully")
+			msg = append(msg,folderPath + " and al it's children are removed successfully")
 		} else {
 			msg = append(msg,folderPath + "The folder you want to delete doesn't exist")
 		}
 	}
-	//removing folder rows from database
-	query, err = db.Prepare("DELETE FROM folders WHERE folder_id IN ("+placeholder+")")
-	checkErr(err)
-	_, err = query.Exec(values...)
-	checkErr(err)
 
-	//removeRows(checked[0])
+	placeholders,folders := SelectRecursive(checked)
+	//removing file rows from database
+	query, err := db.Prepare("DELETE FROM "+dbt+" WHERE folder_id IN ("+placeholders+")")
+	checkErr(err)
+	_, err = query.Exec(folders...)
+	checkErr(err)
+	//removing folder rows from database
+	query, err = db.Prepare("DELETE FROM folders WHERE folder_id IN ("+placeholders+")")
+	checkErr(err)
+	_, err = query.Exec(folders...)
+	checkErr(err)
 
 	return msg
 }
@@ -196,51 +196,37 @@ func Multiple(multiple []string)(string,[]interface {}) {
 }
 
 // must be called inside the deleteFolders function after removing the dirs.
-func removeRows(folderID string){
+func SelectRecursive(parents []string)(string,[]interface {}){
 	db, err := sql.Open("mysql",config.DB)
 	checkErr(err)
 	defer db.Close()
-
-	rows, err := db.Query("SELECT folder_id FROM folders WHERE parent_id = ?",folderID)
-	checkErr(err)
-	fmt.Println(err)
 	// adding the folder to be deleted to the slice of string, below we will check for children
 	// and if so, add them.
-	folders := []string{folderID}
-	// checks if the row from the db is not empty,
-	// if not, selects the id to the parent id,row[id], so we can get,
-	// all children from the top deleted album.
-	/* Example:
-	 * $id = 5 (Folder Users)
-	 * $row[album_id] = 24 ( user admin has parent_id 5, the folder Users)
-	 * Then again we check if there are folders with a parent_id of 24
-	 * if there is, add it to the array of folder_id's to delete.
-	 * In this case there is.
-	 * $row['album_id'] = 22 (admins contacts folder) has a parent_id of 24
-	 * This goes on until there are no folders left with a parent_id of 22 in this case.
-	*/
+	var folder_id string
 
-	// wat als de parent folder meerdere children heeft? loopt hij dan vast?
-	// slaat hij ze over? worden ze wel verwijderd?
-	// DE FUNCTIE ZICHZELF LATEN aanroepen op het laatst, dan begint het steeds opnieuw.
-	// if err != nil {if err != nil {
-	for err == nil {
-		for rows.Next() {
-			err = rows.Scan(&folderID)
-			folders = append(folders, folderID)
-		}
-		rows, err = db.Query("SELECT folder_id FROM folders WHERE parent_id = ?", folderID);
+	folders := make([]string, 0,len(parents))
+	for _,v := range parents {
+	    folders = append(folders,v)
 	}
-	fmt.Println("Folders slice: ", folders)
-	// because we now have a new row[folderID], we need to check again if its empty,
-	// if it is not, push it to the array.
-	//if it is, don't push it, en the loop will end with the while clause.
-	//if(!empty($row['album_id'])){
-	//$folders_id[] = $row['album_id'];
-	//}
 
-	// Create s string with all the album id's.
-	// deleting rows from database.
+	for (len(parents) > 0) {
+		placeholders, values := Multiple(parents)
+		sql := "SELECT folder_id FROM folders WHERE parent_id IN (" + placeholders + ")"
+		rows, err := db.Query(sql,values...)
+		checkErr(err)
+		// because we now have a new row[album_id], we need to check again if its empty,
+		// if it is not, push it to the array.
+		//if it is, don't push it, en the loop will end with the while clause.
+		parents = nil;
+		for rows.Next() {
+			err = rows.Scan(&folder_id)
+			// For each rows doen! multiple albims ids might be returned
+			folders = append(folders, folder_id)
+			parents = append(parents, folder_id)
+		}
+	}
+	placeholders,values := Multiple(folders)
+	return placeholders,values
 }
 
 func checkErr(err error) {
