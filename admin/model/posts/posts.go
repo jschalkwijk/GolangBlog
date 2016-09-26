@@ -58,29 +58,6 @@ type Data struct {
 	Dashboard bool
 }
 
-
-/* RenderTemplate parses templates in cache before executing them. takes Response, content template name, and a Data struct
- * 	The function template.ParseFiles will read the contents of multiple "name".html files into cache.
- *	The method t.Execute executes the template, the string must correspond to the name giving to the template
- *	when defining them.
- *	After executing all the subtemplates, t.Execute will write the generated HTML to the http.ResponseWriter.
-*/
-func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	t.ExecuteTemplate(w,"header",nil)
-	t.ExecuteTemplate(w,"nav",nil)
-	t.ExecuteTemplate(w,name,p)
-	t.ExecuteTemplate(w,"footer",nil)
-	err = t.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
 /* -- Get all Posts --
  * 	Connects to the database and gets all posts rows.
  * 	Instantiate a new Data struct assigned to var collection
@@ -122,6 +99,39 @@ func GetPosts(trashed int) *Data {
 
 	return data
 }
+
+/** Example for interface implementation inside rendertemplate. **/
+//func (d Data) GetPosts(trashed int) *Data {
+//	db, err := sql.Open("mysql", config.DB)
+//	checkErr(err)
+//	fmt.Println("Connection with database Established")
+//	defer db.Close()
+//	defer fmt.Println("Connection with database Closed")
+//
+//	// Selects all rows from posts, and links the category_id row to the matching title.
+//	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
+//	checkErr(err)
+//
+//
+//	for rows.Next() {
+//		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
+//			&author,&date,&category_id,&trashed,&category)
+//		checkErr(err)
+//		// convert string to HTML markdown
+//		body := template.HTML(content)
+//		post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
+//		d.Posts = append(d.Posts , post)
+//		d.Dashboard = false
+//	}
+//
+//	if(trashed == 1) {
+//		d.Deleted = true
+//	} else {
+//		d.Deleted = false
+//	}
+//
+//	return d
+//}
 
 /* -- Get a single Post -- */
 /* GetSinglePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.

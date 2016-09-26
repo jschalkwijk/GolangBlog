@@ -3,15 +3,11 @@ package controller
 import (
 	"html/template"
 	"net/http"
-	"path/filepath"
-	"github.com/jschalkwijk/GolangBlog/model/data"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
 )
 
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/templates")
-
-func RenderTemplate(w http.ResponseWriter,name string, data *data.Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
+func RenderTemplate(w http.ResponseWriter, name string, data interface{}){
+	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -21,6 +17,7 @@ func RenderTemplate(w http.ResponseWriter,name string, data *data.Data) {
 	t.ExecuteTemplate(w,name,data)
 	t.ExecuteTemplate(w,"footer",nil)
 	err = t.Execute(w, nil)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

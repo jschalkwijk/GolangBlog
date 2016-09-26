@@ -20,6 +20,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
+	"github.com/jschalkwijk/GolangBlog/admin/controller"
 	"fmt"
 )
 
@@ -47,8 +48,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,"posts")
 	}
 
+	/** Example for interface implementation inside rendertemplate. **/
+	//d := new(posts.Data)
+	//p := d.GetPosts(0)
+
 	p := posts.GetPosts(0)
-	posts.RenderTemplate(w,"posts", p)
+	controller.RenderTemplate(w,"posts", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +70,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,"posts")
 	}
 	p := posts.GetPosts(1)
-	posts.RenderTemplate(w,"posts", p)
+	controller.RenderTemplate(w,"posts", p)
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
@@ -79,7 +84,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	post_title := vars["title"]
 	p := posts.GetSinglePost(id,post_title,false)
-	posts.RenderTemplate(w,"posts", p)
+	controller.RenderTemplate(w,"posts", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -90,7 +95,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	}
 
 	c := categories.GetCategories(0)
-	categories.RenderTemplate(w,"add-post", c)
+	controller.RenderTemplate(w,"add-post", c)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -104,7 +109,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	post_title := vars["title"]
 	p := posts.GetSinglePost(id,post_title, true)
-	posts.RenderTemplate(w,"edit-post", p)
+	controller.RenderTemplate(w,"edit-post", p)
 }
 func Save(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)

@@ -3,15 +3,28 @@ package controller
 import (
 	"html/template"
 	"net/http"
-	"path/filepath"
-	"github.com/jschalkwijk/GolangBlog/model/data"
+	"github.com/jschalkwijk/GolangBlog/admin/config"
+	"fmt"
 )
 
-var view, _ = filepath.Abs("../jschalkwijk/GolangBlog/view")
-var templates, _ = filepath.Abs("../jschalkwijk/GolangBlog/templates")
+/* -- RenderTemplate --
+ * 	The function template.ParseFiles will read the contents of multiple "name".html files into cache.
+ *	The method t.Execute executes the template, the string must correspond to the name giving to the template
+ *	when defining them.
+ *	After executing all the subtemplates, t.Execute will write the generated HTML to the http.ResponseWriter.
+ *  a declared empty interface can take in any type:
+ *  Ik kan de Data interface een method geven die elk Type dat wordt gevoerd aan de
+ * rendertemplate functie moet hebben als voorwaarde. Iets zoals PHP abstract class.
+ * http://go-book.appspot.com/interfaces.html
+*/
 
-func RenderTemplate(w http.ResponseWriter,name string, data *data.Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
+type Data interface {
+	// GetPost() error
+}
+
+func RenderTemplate(w http.ResponseWriter, name string, data Data){
+	fmt.Println(data)
+	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -21,6 +34,7 @@ func RenderTemplate(w http.ResponseWriter,name string, data *data.Data) {
 	t.ExecuteTemplate(w,name,data)
 	t.ExecuteTemplate(w,"footer",nil)
 	err = t.Execute(w, nil)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

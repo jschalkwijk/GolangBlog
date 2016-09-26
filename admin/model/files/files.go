@@ -2,7 +2,6 @@ package files
 
 import (
 	"net/http"
-	"html/template"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"time"
 	"fmt"
@@ -44,23 +43,6 @@ var fileType string
 var size string
 var filePath string
 var fID int
-
-func RenderTemplate(w http.ResponseWriter, name string, f *Data){
-	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	t.ExecuteTemplate(w,"header",nil)
-	t.ExecuteTemplate(w,"nav",nil)
-	t.ExecuteTemplate(w,name,f)
-	t.ExecuteTemplate(w,"footer",nil)
-	err = t.Execute(w, nil)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
 
 func Files(folderID string,folderName string) *Data {
 	db, err := sql.Open("mysql", config.DB)
@@ -199,7 +181,6 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 		data.Messages = append(data.Messages,name+" succesfully added to database.")
 	}
-	RenderTemplate(w,"files",data)
 }
 
 func newName() string {

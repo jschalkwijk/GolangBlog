@@ -7,6 +7,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/files"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
+	"github.com/jschalkwijk/GolangBlog/controller"
 )
 func Index(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
@@ -34,7 +35,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		f.Messages = msg
 	}
 
-	files.RenderTemplate(w,"files",f)
+	controller.RenderTemplate(w,"files",f)
 }
 
 func Upload(w http.ResponseWriter, r *http.Request){
@@ -45,6 +46,7 @@ func Upload(w http.ResponseWriter, r *http.Request){
 	}
 
 	files.Upload(w,r)
+	http.Redirect(w,r,"/admin/files",http.StatusFound);
 }
 
 func Folder(w http.ResponseWriter, r *http.Request){
@@ -62,5 +64,5 @@ func Folder(w http.ResponseWriter, r *http.Request){
 
 	f.CurrentFolder = idINT
 
-	files.RenderTemplate(w,"files",f)
+	controller.RenderTemplate(w,"files",f)
 }

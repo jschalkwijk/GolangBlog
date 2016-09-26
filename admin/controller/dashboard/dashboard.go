@@ -7,6 +7,7 @@ import(
 	"github.com/jschalkwijk/GolangBlog/admin/model/admin"
 	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/model/users"
+	"github.com/jschalkwijk/GolangBlog/admin/controller"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -29,5 +30,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	data.Posts = *posts.GetPosts(0)
 	data.Users = *users.GetUsers(0)
 	data.Dashboard = true
-	admin.RenderTemplate(w,"index", data)
+	controller.RenderTemplate(w,"index", data)
 }

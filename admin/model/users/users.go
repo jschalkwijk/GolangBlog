@@ -1,7 +1,6 @@
 package users
 
 import (
-	"html/template"
 	"net/http"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -10,9 +9,6 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var view = "GolangBlog/admin/view"
-var templates = "GolangBlog/admin/templates"
 
 type User struct {
 	UserID int
@@ -48,22 +44,6 @@ var function string
 var rights string
 var trashed int
 var approved int
-
-func RenderTemplate(w http.ResponseWriter,name string, p *Data) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	t.ExecuteTemplate(w,"header",nil)
-	t.ExecuteTemplate(w,"nav",nil)
-	t.ExecuteTemplate(w,name,p)
-	t.ExecuteTemplate(w,"footer",nil)
-	err = t.Execute(w, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
 
 /* -- Get all Users --
  * 	Connects to the database and gets all posts rows.

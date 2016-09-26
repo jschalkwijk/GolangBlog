@@ -15,6 +15,7 @@ package categories
 
 import (
 	"net/http"
+	"github.com/jschalkwijk/GolangBlog/admin/controller"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
@@ -40,7 +41,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,dbt)
 	}
 	p := categories.GetCategories(0)
-	categories.RenderTemplate(w,"categories", p)
+	controller.RenderTemplate(w,"categories", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +58,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,dbt)
 	}
 	p := categories.GetCategories(1)
-	categories.RenderTemplate(w,"categories", p)
+	controller.RenderTemplate(w,"categories", p)
 }
 func Single(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
@@ -70,7 +71,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	post_title := vars["title"]
 	p := categories.GetSingleCategory(id,post_title)
-	categories.RenderTemplate(w,"categories", p)
+	controller.RenderTemplate(w,"categories", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -82,7 +83,7 @@ func New(w http.ResponseWriter, r *http.Request){
 
 	collection := new(categories.Data)
 	p := collection
-	categories.RenderTemplate(w,"add-category", p)
+	controller.RenderTemplate(w,"add-category", p)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -96,7 +97,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	post_title := vars["title"]
 	p := categories.GetSingleCategory(id,post_title)
-	categories.RenderTemplate(w,"edit-category", p)
+	controller.RenderTemplate(w,"edit-category", p)
 }
 
 func Save(w http.ResponseWriter, r *http.Request){

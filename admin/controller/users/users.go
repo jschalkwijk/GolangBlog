@@ -6,6 +6,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/model/users"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"github.com/gorilla/mux"
+	"github.com/jschalkwijk/GolangBlog/admin/controller"
 
 )
 
@@ -28,7 +29,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,dbt)
 	}
 	u := users.GetUsers(0)
-	users.RenderTemplate(w,"users", u)
+	controller.RenderTemplate(w,"users", u)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +46,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,dbt)
 	}
 	p := users.GetUsers(1)
-	users.RenderTemplate(w,"users", p)
+	controller.RenderTemplate(w,"users", p)
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
@@ -59,7 +60,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	username := vars["username"]
 	p := users.GetSingleUser(id,username)
-	users.RenderTemplate(w,"users", p)
+	controller.RenderTemplate(w,"users", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -71,7 +72,7 @@ func New(w http.ResponseWriter, r *http.Request){
 
 	data := new(users.Data)
 	u := data
-	users.RenderTemplate(w,"add-user", u)
+	controller.RenderTemplate(w,"add-user", u)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -85,7 +86,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	username := vars["username"]
 	u := users.GetSingleUser(id,username)
-	users.RenderTemplate(w,"edit-user", u)
+	controller.RenderTemplate(w,"edit-user", u)
 }
 
 func Save(w http.ResponseWriter, r *http.Request){

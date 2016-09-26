@@ -8,7 +8,6 @@ import (
 	_"github.com/go-sql-driver/mysql"
 	"database/sql"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
@@ -49,30 +48,6 @@ var trashed int
 type Data struct {
 	Categories []Category
 	Deleted bool
-}
-
-/* -- RenderTemplate --
- * 	The function template.ParseFiles will read the contents of multiple "name".html files into cache.
- *	The method t.Execute executes the template, the string must correspond to the name giving to the template
- *	when defining them.
- *	After executing all the subtemplates, t.Execute will write the generated HTML to the http.ResponseWriter.
-*/
-
-func RenderTemplate(w http.ResponseWriter,name string,  c *Data) {
-	t, err := template.ParseFiles(cfg.Templates+"/"+"header.html",cfg.Templates+"/"+"nav.html",cfg.View + "/" + name + ".html",cfg.Templates+"/"+"footer.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	t.ExecuteTemplate(w,"header",nil)
-	t.ExecuteTemplate(w,"nav",nil)
-	t.ExecuteTemplate(w,name,c)
-	t.ExecuteTemplate(w,"footer",nil)
-	err = t.Execute(w, nil)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
 }
 
 /* -- Get all categories --
