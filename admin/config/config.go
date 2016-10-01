@@ -2,7 +2,7 @@ package config
 
 // Declare database variables
 var user string = "root"
-var password string= ""
+var password string= "root"
 var host string = "localhost"
 var name string = "golangblog"
 var port string = "3306"

@@ -49,10 +49,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/** Example for interface implementation inside rendertemplate. **/
-	//d := new(posts.Data)
-	//p := d.GetPosts(0)
+	d := new(posts.Data)
+	p := d.Get(0)
 
-	p := posts.GetPosts(0)
+	//p := posts.GetPosts(0)
 	controller.RenderTemplate(w,"posts", p)
 }
 
@@ -69,7 +69,8 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("delete-selected") != ""){
 		a.Delete(w,r,"posts")
 	}
-	p := posts.GetPosts(1)
+	d := new(posts.Data)
+	p := d.Get(0)
 	controller.RenderTemplate(w,"posts", p)
 }
 

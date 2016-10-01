@@ -15,7 +15,9 @@ func Index(w http.ResponseWriter, r *http.Request){
 	if (!session.Logged) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
-	f := files.Files("","")
+
+	files := new(files.Data)
+	f := files.Get("","")
 
 	if r.PostFormValue("action") == "trash" {
 		// Form submitted
@@ -59,7 +61,9 @@ func Folder(w http.ResponseWriter, r *http.Request){
 	id := vars["id"]
 	folderName := vars["foldername"]
 
-	f := files.Files(id,folderName)
+	files := new(files.Data)
+	f := files.Get(id,folderName)
+
 	idINT, _ := strconv.Atoi(id)
 
 	f.CurrentFolder = idINT

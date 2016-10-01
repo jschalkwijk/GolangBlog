@@ -19,7 +19,7 @@ import (
 */
 
 type Data interface {
-	// GetPost() error
+	Get(int) struct{}
 }
 
 func RenderTemplate(w http.ResponseWriter, name string, data Data){

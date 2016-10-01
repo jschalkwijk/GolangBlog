@@ -44,7 +44,7 @@ var size string
 var filePath string
 var fID int
 
-func Files(folderID string,folderName string) *Data {
+func (data Data) Get(folderID string,folderName string) Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
@@ -53,8 +53,6 @@ func Files(folderID string,folderName string) *Data {
 
 	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path,folder_id FROM files WHERE folder_id = ? ORDER BY file_id DESC",folderID)
 	checkErr(err)
-
-	data := new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&file_id, &name, &fileName,&fileType, &size, &filePath,&fID)
@@ -121,7 +119,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		row.Scan(&folderPath)
 	}
 
-	for i, _ := range files {
+	for i := range files {
 		// For eah file header, get the handle to each file
 		file, err := files[i].Open()
 		defer file.Close()

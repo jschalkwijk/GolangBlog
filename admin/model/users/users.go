@@ -54,7 +54,7 @@ var approved int
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetUsers(trashed int) *Data {
+func (data Data)Get(trashed int) Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
@@ -64,8 +64,6 @@ func GetUsers(trashed int) *Data {
 	// Selects all rows from posts, and links the category_id row to the matching title.
 	rows, err := db.Query("SELECT * FROM users WHERE trashed = ? ORDER BY user_id DESC",trashed)
 	checkErr(err)
-
-	data:= new(Data)
 
 	for rows.Next() {
 		err = rows.Scan(&userID, &username, &password, &firstName,&lastName,

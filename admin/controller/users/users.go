@@ -28,7 +28,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,dbt)
 	}
-	u := users.GetUsers(0)
+	d := new(users.Data)
+	u := d.Get(0)
 	controller.RenderTemplate(w,"users", u)
 }
 
@@ -45,8 +46,9 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("delete-selected") != ""){
 		a.Delete(w,r,dbt)
 	}
-	p := users.GetUsers(1)
-	controller.RenderTemplate(w,"users", p)
+	d := new(users.Data)
+	u := d.Get(0)
+	controller.RenderTemplate(w,"users", u)
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
