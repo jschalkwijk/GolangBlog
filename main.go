@@ -8,6 +8,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/model/home"
 	"github.com/jschalkwijk/GolangBlog/controller/blog"
 	cat "github.com/jschalkwijk/GolangBlog/controller/categories"
+	//"github.com/jschalkwijk/GolangBlog/controller/pages" page
 	//back-end controllers
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
@@ -15,13 +16,14 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/controller/login"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/dashboard"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/files"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/pages"
 )
 
 var static string = "/GolangBlog/static/"
 var adminStatic string = "/GolangBlog/admin/static/"
 
 func main() {
-	// With this funtion I can check if my filepath is working for serving static files such as CSS or Templates etc
+	// With this function I can check if my filepath is working for serving static files such as CSS or Templates etc
 	// IMPORTANT:I failed to add static files because Go will use the current Directory you are in as the App's ROOT.
 	// If I run it from GolangBlog, the root is /Users/jorn/Documents/Golang/src/github.com/jschalkwijk/GolangBlog
 	// If I run it from jschalkwijk
@@ -34,6 +36,8 @@ func main() {
 	//r.PathPrefix("/admin/css/").Handler(http.StripPrefix("/admin/css/", http.FileServer(http.Dir("."+adminCSS))))
 
 	r.HandleFunc("/", home.DashboardHandler)
+		i := r.PathPrefix("/").Subrouter()
+		i.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
 	// Blog
 	r.HandleFunc("/blog", blog.Index)
 		b := r.PathPrefix("/blog").Subrouter()
@@ -53,6 +57,12 @@ func main() {
 		aP.HandleFunc("/save/{id:[0-9]+}/{title}", posts.Save)
 		aP.HandleFunc("/add", posts.Add)
 		aP.HandleFunc("/trashed-posts", posts.Deleted)
+	// Admin Pages
+	r.HandleFunc("/admin/pages",pages.Index)
+		aPa := r.PathPrefix("/admin/pages/").Subrouter()
+		//pages.HandleFunc("/trashed-pages", pages.Deleted)
+		aPa.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
+
 	//Admin Categories
 	r.HandleFunc("/admin/categories", categories.Index)
 		aC := r.PathPrefix("/admin/categories").Subrouter()
@@ -84,7 +94,6 @@ func main() {
 
 	http.Handle("/", r)
 
-	fmt.Println("Succes!")
 	fmt.Println("GolangBlog running on port 8080. Don't forget to run MAMP or SQL server.")
 
 	http.ListenAndServe(":8080", nil)

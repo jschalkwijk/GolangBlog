@@ -19,17 +19,17 @@
             <input type="text" name="title" placeholder=" Title"/><br />
             <input type="text" name="description" placeholder="Post Description (max 160 characters)" value=""/><br />
                 <label for="select">Category</label>
-                <select id="categories" name="selected-category">
-                    <option name="none" value="None">None</option>
+                <select id="categories" name="category_id">
+                    <option name="none" value="0">None</option>
                     {{ range $key, $value := .Categories }}
                         <option value="{{ .Category_ID }}">{{ .Title }}</option>
                     {{ end }}
                 </select>
                 <br />
                 <input type="text" name="category" placeholder="Category"/><br />
-                <input type="hidden" name="cat_type" value="post"/><br />
-            <textarea name="content" rows="20" cols="80"></textarea><br />
-            <button type="submit" name="Save">Submit</button>
+                <!--<input type="hidden" name="cat_type" value="post"/><br />-->
+            <textarea name="Content" rows="20" cols="80"></textarea><br />
+            <button type="submit">Submit</button>
             </form>
         </form>
     </div>

@@ -1,0 +1,10 @@
+{{ define "pages" }}
+<h1>Hello</h1>
+{{ range $key, $value := .Pages }}
+
+{{.Title}}
+{{.Author}}
+{{.Date}}
+
+{{ end }}
+{{ end }}

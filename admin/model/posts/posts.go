@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
+	"github.com/gorilla/schema"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
@@ -21,17 +22,17 @@ var templates = "GolangBlog/admin/templates"
 
 /* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
-	Post_ID int
-	Title string
-	Description string
-	Content template.HTML
-	Keywords string
-	Approved int
-	Author string
-	Date string
-	Category_ID int
-	Category string
-	Trashed int
+	Post_ID int `schema:"-"`
+	Title string `schema:"title"`
+	Description string `schema:"description"`
+	Content template.HTML `schema:"content"`
+	Keywords string `schema:"-"`
+	Approved int `schema:"-"`
+	Author string `schema:"-"`
+	Date string `schema:"-"`
+	Category_ID int `schema:"category_id"`
+	Category string `schema:"category"`
+	Trashed int `schema:"-"`
 }
 
 /*
@@ -67,12 +68,10 @@ type Data struct {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetPosts(trashed int) *Data {
+func All(trashed int) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection with database Established")
 	defer db.Close()
-	defer fmt.Println("Connection with database Closed")
 
 	// Selects all rows from posts, and links the category_id row to the matching title.
 	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
@@ -110,12 +109,10 @@ func GetPosts(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetSinglePost(id string,post_title string, getCat bool) *Data {
+func Single(id string,post_title string, getCat bool) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection established")
 	defer db.Close()
-	defer fmt.Println("Connection Closed")
 
 	rows := db.QueryRow("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
 
@@ -152,7 +149,7 @@ func GetSinglePost(id string,post_title string, getCat bool) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Post) savePost() error {
+func (p *Post) save() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	checkErr(err)
@@ -182,7 +179,7 @@ func (p *Post) savePost() error {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Post) addPost() error {
+func (p *Post) add() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO posts (title,description,content,category_id) VALUES(?,?,?,?)")
@@ -204,7 +201,7 @@ func (p *Post) addPost() error {
    instantiate a separate one.
  * Call savePost, a method of the Post Struct, to update the DB
 */
-func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
+func Edit(w http.ResponseWriter, r *http.Request,id string,title string) {
 	title = r.FormValue("title")
 	description := r.FormValue("description")
 	category_id := r.FormValue("selected-category")
@@ -230,7 +227,7 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
 	body := template.HTML(content)
 	p := &Post{Post_ID: idINT, Title: title,Description: description,Category_ID: categoryINT, Content: body}
 	fmt.Println(p)
-	err := p.savePost()
+	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -245,10 +242,10 @@ func EditPost(w http.ResponseWriter, r *http.Request,id string,title string) {
  * Call addPost, a method of the Post Struct, to insert new post in the DB.
 */
 func NewPost(w http.ResponseWriter, r *http.Request) {
-	title := r.FormValue("title")
-	description := r.FormValue("description")
-	category_id := r.FormValue("selected-category")
-	content := r.FormValue("content")
+	//title := r.FormValue("title")
+	//description := r.FormValue("description")
+	category_id := r.FormValue("category_id")
+	//content := r.FormValue("content")
 	category := r.FormValue("category")
 	/* 	To add a new category from a add post form we need to create a new
 	 	category, and then get the new ID of that category to insert it into the Post struct.
@@ -259,14 +256,21 @@ func NewPost(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Println("empty string")
 	}
-	// Convert string to HTML
-	body := template.HTML(content)
-	// convert string values to INT before inserting into Struct and DB
-	categoryINT,error := strconv.Atoi(category_id)
-	checkErr(error)
-	p := &Post{Title: title ,Description: description, Content: body,Category_ID: categoryINT}
-	fmt.Println(p)
-	err := p.addPost()
+	//// Convert string to HTML
+	//body := template.HTML(content)
+	//// convert string values to INT before inserting into Struct and DB
+	categoryINT,_ := strconv.Atoi(category_id)
+	//checkErr(error)
+	//p := &Post{Title: title ,Description: description, Content: body,Category_ID: categoryINT}
+	err := r.ParseForm()
+
+	p := new(Post)
+	decoder := schema.NewDecoder()
+	err = decoder.Decode(p, r.PostForm)
+	p.Category_ID = categoryINT;
+	checkErr(err)
+	fmt.Println("Add Post struct",p)
+	err = p.add()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -286,9 +290,7 @@ func addCategoryFromForm (category string, category_id string) string {
 	checkErr(err)
 
 	db, err := sql.Open("mysql", config.DB)
-	fmt.Println("Connection with database Established")
 	defer db.Close()
-	defer fmt.Println("Connection with database Closed")
 	checkErr(err)
 
 	row := db.QueryRow("SELECT categorie_id FROM categories WHERE title = ? LIMIT 1",category)

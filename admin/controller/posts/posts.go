@@ -52,7 +52,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	//d := new(posts.Data)
 	//p := d.GetPosts(0)
 
-	p := posts.GetPosts(0)
+	p := posts.All(0)
 	controller.RenderTemplate(w,"posts", p)
 }
 
@@ -69,7 +69,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("delete-selected") != ""){
 		a.Delete(w,r,"posts")
 	}
-	p := posts.GetPosts(1)
+	p := posts.All(1)
 	controller.RenderTemplate(w,"posts", p)
 }
 
@@ -83,7 +83,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := posts.GetSinglePost(id,post_title,false)
+	p := posts.Single(id,post_title,false)
 	controller.RenderTemplate(w,"posts", p)
 }
 
@@ -108,7 +108,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := posts.GetSinglePost(id,post_title, true)
+	p := posts.Single(id,post_title, true)
 	controller.RenderTemplate(w,"edit-post", p)
 }
 func Save(w http.ResponseWriter, r *http.Request){
@@ -121,7 +121,7 @@ func Save(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	posts.EditPost(w,r,id,post_title)
+	posts.Edit(w,r,id,post_title)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){

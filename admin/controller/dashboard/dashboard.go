@@ -27,7 +27,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,"posts")
 	}
 	data := new(admin.Data)
-	data.Posts = *posts.GetPosts(0)
+	data.Posts = *posts.All(0)
 	data.Users = *users.GetUsers(0)
 	data.Dashboard = true
 	controller.RenderTemplate(w,"index", data)

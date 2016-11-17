@@ -1,0 +1,23 @@
+{{ define "pages/pages" }}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+            <form>
+                <table>
+                    {{ range $k, $v := .Pages }}
+                        <tr>
+                            <td class="td-title"><a href="/admin/pages/{{.Page_ID}}/{{.Title}}">{{.Title}}</a></td>
+                            <td class="td-author">{{.Author}}</td>
+                            <td class="td-date">{{.Date}}</td>
+                            <input type="hidden" name="id" value="{{.Page_ID}}" />
+                            <td class="td-btn"><a href="/admin/pages/edit/{{.Page_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                            <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                            <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.Page_ID}}"/></td>
+                        </tr>
+                    {{ end }}
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+{{ end }}
