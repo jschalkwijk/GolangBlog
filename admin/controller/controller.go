@@ -24,7 +24,7 @@ type Data interface {
 
 // Renders the specified files/template and can take in any type, the template file will define if it can use the given type.
 func RenderTemplate(w http.ResponseWriter, name string, data interface{}){
-	fmt.Println(data)
+	fmt.Println("cobtroller: data ",data)
 	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

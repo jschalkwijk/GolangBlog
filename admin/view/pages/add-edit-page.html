@@ -2,12 +2,15 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
-            {{ range $key, $value := .Pages }}
-            <form action="">
-                <input type="text">
-                <input type="text">
-                <input type="text">
-                <input type="text">
+            {{ .Message }}
+            {{ range $k, $v := .Pages }}
+            <form action="/admin/pages/new" method="POST">
+            <!--<form action="/admin/pages/edit/{{ .Page_ID }}/{{.Title}}" method="POST">-->
+                <input type="text" name="title" placeholder="Title" value="{{ .Title }}"/><br />
+                <input type="text" name="description" placeholder="Page Description (max 160 characters)" value="{{.Description}}"/><br />
+                <br />
+                <textarea name="content" rows="20" cols="80">{{.Content}}</textarea><br />
+                <button type="submit">Submit</button>
             </form>
             {{ end }}
         </div>
