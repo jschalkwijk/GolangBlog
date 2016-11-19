@@ -63,7 +63,7 @@ func main() {
 		//pages.HandleFunc("/trashed-pages", pages.Deleted)
 		aPa.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
 		aPa.HandleFunc("/new", pages.New)
-		aPa.HandleFunc("/edit/{id:[0-9]+}/{title}", pages.Edit)
+		aPa.HandleFunc("/edit/{id:[0-9]+}", pages.Edit)
 
 	//Admin Categories
 	r.HandleFunc("/admin/categories", categories.Index)

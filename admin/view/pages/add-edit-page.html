@@ -5,7 +5,7 @@
             {{ .Message }}
             {{ range $k, $v := .Pages }}
             <form action="/admin/pages/new" method="POST">
-            <!--<form action="/admin/pages/edit/{{ .Page_ID }}/{{.Title}}" method="POST">-->
+            <!--<form action="/admin/pages/edit/{{ .Page_ID }}" method="POST">-->
                 <input type="text" name="title" placeholder="Title" value="{{ .Title }}"/><br />
                 <input type="text" name="description" placeholder="Page Description (max 160 characters)" value="{{.Description}}"/><br />
                 <br />

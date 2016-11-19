@@ -44,11 +44,16 @@ func New(w http.ResponseWriter, r *http.Request){
 func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
+
 	p := pages.Single(id)
 
-	p,created := pages.Patch(p.Pages[0],r);
-	if(created){
-		http.Redirect(w, r, "/admin/pages", http.StatusFound)
+	if r.Method == "POST" {
+		p, created := p.Pages[0].Patch(r);
+		if (created) {
+			http.Redirect(w, r, "/admin/pages", http.StatusFound)
+		}  else {
+			controller.RenderTemplate(w,"pages/add-edit-page",p)
+		}
 	} else {
 		controller.RenderTemplate(w,"pages/add-edit-page",p)
 	}
