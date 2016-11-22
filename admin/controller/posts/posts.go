@@ -16,8 +16,8 @@ package posts
 import (
 	"net/http"
 	"github.com/jschalkwijk/GolangBlog/admin/model/posts"
-	"github.com/gorilla/mux"
 	"github.com/jschalkwijk/GolangBlog/admin/model/categories"
+	"github.com/gorilla/mux"
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"github.com/jschalkwijk/GolangBlog/admin/controller"
@@ -88,14 +88,14 @@ func Single(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
 
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	p,created := posts.Create(r);
+	p.Categories = categories.GetCategories(0).Categories
+	if(created){
+		http.Redirect(w, r, "/admin/posts", http.StatusFound)
+	} else {
+		controller.RenderTemplate(w,"posts/add-post",p)
 	}
-
-	c := categories.GetCategories(0)
-	controller.RenderTemplate(w,"add-post", c)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -111,27 +111,3 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	p := posts.Single(id,post_title, true)
 	controller.RenderTemplate(w,"edit-post", p)
 }
-func Save(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
-
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
-	}
-
-	vars := mux.Vars(r)
-	id := vars["id"]
-	post_title := vars["title"]
-	posts.Edit(w,r,id,post_title)
-}
-
-func Add(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
-
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
-	}
-
-	posts.NewPost(w, r)
-}
-
-

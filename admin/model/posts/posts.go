@@ -35,28 +35,13 @@ type Post struct {
 	Trashed int `schema:"-"`
 }
 
-/*
- * Declaring vars corresponding to the struct. When scanning data from the database, the
-   data will be stored on the memory address of these vars.
-*/
-var post_id int
-var title string
-var description string
-var content string
-var keywords string
-var approved int
-var author string
-var date string
-var category_id int
-var category string
-var trashed int
-
 /* Stores a single post, or multiple posts in a Slice which can be iterated over in the template */
 type Data struct {
-	Posts      []Post
+	Posts      []*Post
 	Categories []cat.Category
 	Deleted	bool
 	Dashboard bool
+	Message string
 }
 
 /* -- Get all Posts --
@@ -79,23 +64,38 @@ func All(trashed int) *Data {
 
 	data := new(Data)
 
+	var content string
 	for rows.Next() {
-		err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,
-			&author,&date,&category_id,&trashed,&category)
+		post := new(Post)
+		err = rows.Scan(
+			&post.Post_ID,
+			&post.Title,
+			&post.Description,
+			&content,
+			&post.Keywords,
+			&post.Approved,
+			&post.Author,
+			&post.Date,
+			&post.Category_ID,
+			&post.Trashed,
+			&post.Category,
+		)
 		checkErr(err)
 		// convert string to HTML markdown
-		body := template.HTML(content)
-		post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
+		post.Content = template.HTML(content)
+		fmt.Println(post.Post_ID,post.Title)
+		fmt.Println(post)
 		data.Posts = append(data.Posts , post)
 		data.Dashboard = false
 	}
-
+	for post := range data.Posts {
+		fmt.Println(post)
+	}
 	if(trashed == 1) {
 		data.Deleted = true
 	} else {
 		data.Deleted = false
 	}
-
 	return data
 }
 
@@ -116,15 +116,27 @@ func Single(id string,post_title string, getCat bool) *Data {
 
 	rows := db.QueryRow("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
 
-	collection := new(Data)
+	data := new(Data)
+	post := new(Post)
+	var content string
 
-	err = rows.Scan(&post_id, &title, &description, &content,&keywords,&approved,&author,&date,&category_id,&trashed,&category)
+	err = rows.Scan(
+		&post.Post_ID,
+		&post.Title,
+		&post.Description,
+		&content,
+		&post.Keywords,
+		&post.Keywords,
+		&post.Author,
+		&post.Date,
+		&post.Category_ID,
+		&post.Trashed,
+		&post.Category,
+	)
 	checkErr(err)
-
-	body := template.HTML(content)
-	post := Post{post_id,title,description,body,keywords,approved,author,date,category_id,category,trashed}
-
-	collection.Posts = append(collection.Posts , post)
+	// convert string to HTML markdown
+	post.Content = template.HTML(content)
+	data.Posts = append(data.Posts , post)
 	 /* When we need to edit or create a post, we need to get the categories in order to select them inside the html page.
 	  * since we already have a function inside the categories model, we will call that.
 	  * This returns a pointer to the Data struct of model/categories. We  set our
@@ -133,11 +145,11 @@ func Single(id string,post_title string, getCat bool) *Data {
 	 */
 	if(getCat) {
 		listCat := cat.GetCategories(0)
-		collection.Categories = listCat.Categories
+		data.Categories = listCat.Categories
 	}
 
-	fmt.Println(collection.Categories)
-	return collection
+	fmt.Println(data.Categories)
+	return data
 }
 
 /* -- Post Methods -- */
@@ -149,7 +161,7 @@ func Single(id string,post_title string, getCat bool) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Post) save() error {
+func (p *Post) update() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	checkErr(err)
@@ -163,12 +175,9 @@ func (p *Post) save() error {
 	 * a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
 	 * the content in html format on the page.
 	 */
-	res, err := stmt.Exec(p.Title,p.Description,p.Category_ID,[]byte(p.Content),p.Post_ID)
+	_, err = stmt.Exec(p.Title,p.Description,p.Category_ID,[]byte(p.Content),p.Post_ID)
 	checkErr(err)
-	//affect, err := res.RowsAffected()
-	//checkErr(err)
-	//fmt.Println(affect)
-	fmt.Println(res)
+
 	return err
 }
 
@@ -179,7 +188,7 @@ func (p *Post) save() error {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Post) add() error {
+func (p *Post) save() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO posts (title,description,content,category_id) VALUES(?,?,?,?)")
@@ -201,38 +210,43 @@ func (p *Post) add() error {
    instantiate a separate one.
  * Call savePost, a method of the Post Struct, to update the DB
 */
-func Edit(w http.ResponseWriter, r *http.Request,id string,title string) {
-	title = r.FormValue("title")
-	description := r.FormValue("description")
-	category_id := r.FormValue("selected-category")
-	content := r.FormValue("content")
+func (post *Post) Patch(r *http.Request) (*Data,bool) {
+	data := new(Data)
+	updated := false
 
-	category := r.FormValue("category")
+	if r.Method == "POST" {
+		category_id := r.FormValue("category_id")
+		category := r.FormValue("category")
+		/* 	To add a new category from a add post form we need to create a new
+			 category, and then get the new ID of that category to insert it into the Post struct.
+			 Also see addCategoryFromForm
+		 */
+		if (category != "") {
+			category_id = addCategoryFromForm(category, category_id);
+		} else {
+			fmt.Println("empty string")
+		}
+		//// convert string values to INT before inserting into Struct and DB
+		categoryINT, _ := strconv.Atoi(category_id)
+		err := r.ParseForm()
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(post, r.PostForm)
+		checkErr(err)
 
-	/* 	To add a new category from a edit post form we need to create a new
-	 	category, and then get the new ID of that category to insert it into the Post struct.
-	 	Also see addCategoryFromForm
-	 */
-	if (category != "") {
-		category_id = addCategoryFromForm(category,category_id);
+		post.Category_ID = categoryINT;
+		if post.Title == "" || post.Content == "" {
+			data.Posts = append(data.Posts , post)
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = post.update()
+			checkErr(err)
+			data.Posts = append(data.Posts , post)
+			updated = true
+		}
 	} else {
-		fmt.Println("empty string")
+		data.Posts = append(data.Posts , post)
 	}
-	// convert string to INT before inserting into Struct and DB
-	idINT,error := strconv.Atoi(id)
-	checkErr(error)
-	categoryINT,error := strconv.Atoi(category_id)
-	checkErr(error)
-	// Convert string to HTML
-	body := template.HTML(content)
-	p := &Post{Post_ID: idINT, Title: title,Description: description,Category_ID: categoryINT, Content: body}
-	fmt.Println(p)
-	err := p.save()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/admin/posts/"+id+"/"+title, http.StatusFound)
+	return data,updated
 }
 
 /* NewPost takes updated form values from the http.request to populate a Post and call the addPost method.
@@ -241,41 +255,46 @@ func Edit(w http.ResponseWriter, r *http.Request,id string,title string) {
    instantiate a separate one.
  * Call addPost, a method of the Post Struct, to insert new post in the DB.
 */
-func NewPost(w http.ResponseWriter, r *http.Request) {
-	//title := r.FormValue("title")
-	//description := r.FormValue("description")
-	category_id := r.FormValue("category_id")
-	//content := r.FormValue("content")
-	category := r.FormValue("category")
-	/* 	To add a new category from a add post form we need to create a new
-	 	category, and then get the new ID of that category to insert it into the Post struct.
-	 	Also see addCategoryFromForm
-	 */
-	if (category != "") {
-		category_id = addCategoryFromForm(category,category_id);
-	} else {
-		fmt.Println("empty string")
-	}
-	//// Convert string to HTML
-	//body := template.HTML(content)
-	//// convert string values to INT before inserting into Struct and DB
-	categoryINT,_ := strconv.Atoi(category_id)
-	//checkErr(error)
-	//p := &Post{Title: title ,Description: description, Content: body,Category_ID: categoryINT}
-	err := r.ParseForm()
+func Create(r *http.Request) (*Data,bool){
 
-	p := new(Post)
-	decoder := schema.NewDecoder()
-	err = decoder.Decode(p, r.PostForm)
-	p.Category_ID = categoryINT;
-	checkErr(err)
-	fmt.Println("Add Post struct",p)
-	err = p.add()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	data := new(Data)
+	post := new(Post)
+
+	created := false
+
+	if r.Method == "POST" {
+		category_id := r.FormValue("category_id")
+		category := r.FormValue("category")
+		/* 	To add a new category from a add post form we need to create a new
+			 category, and then get the new ID of that category to insert it into the Post struct.
+			 Also see addCategoryFromForm
+		 */
+		if (category != "") {
+			category_id = addCategoryFromForm(category, category_id);
+		} else {
+			fmt.Println("empty string")
+		}
+		//// convert string values to INT before inserting into Struct and DB
+		categoryINT, _ := strconv.Atoi(category_id)
+		err := r.ParseForm()
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(post, r.PostForm)
+		checkErr(err)
+
+		post.Category_ID = categoryINT;
+		if post.Title == "" || post.Content == "" {
+			data.Posts = append(data.Posts , post)
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = post.save()
+			checkErr(err)
+			data.Posts = append(data.Posts , post)
+			created = true
+		}
+	} else {
+		data.Posts = append(data.Posts , post)
 	}
-	http.Redirect(w, r, "/admin/posts", http.StatusFound)
+	return data,created
 }
 
 /* addCategoryFromForm uses cat.AddCategory to add a new category.

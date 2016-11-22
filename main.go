@@ -8,7 +8,6 @@ import (
 	"github.com/jschalkwijk/GolangBlog/model/home"
 	"github.com/jschalkwijk/GolangBlog/controller/blog"
 	cat "github.com/jschalkwijk/GolangBlog/controller/categories"
-	//"github.com/jschalkwijk/GolangBlog/controller/pages" page
 	//back-end controllers
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
@@ -54,8 +53,7 @@ func main() {
 		aP.HandleFunc("/{id:[0-9]+}/{title}", posts.Single)
 		aP.HandleFunc("/add-post", posts.New)
 		aP.HandleFunc("/edit/{id:[0-9]+}/{title}", posts.Edit)
-		aP.HandleFunc("/save/{id:[0-9]+}/{title}", posts.Save)
-		aP.HandleFunc("/add", posts.Add)
+		aP.HandleFunc("/new", posts.New)
 		aP.HandleFunc("/trashed-posts", posts.Deleted)
 	// Admin Pages
 	r.HandleFunc("/admin/pages",pages.Index)

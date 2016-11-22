@@ -47,6 +47,37 @@ func (p *Page) update() error {
 	return err
 }
 
+func (p *Page) Patch(r *http.Request) (*Data,bool){
+	data := new(Data)
+	updated := false
+
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		checkErr(err)
+		println(r.FormValue("title"))
+		// new schema to pass form values to the Page struct
+		schema.NewDecoder()
+		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
+		err = decoder.Decode(p, r.PostForm)
+		checkErr(err)
+		fmt.Println("schema: ",p)
+		if p.Title == "" || p.Description == "" || p.Content == "" {
+			data.Pages = append(data.Pages , p)
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = p.update()
+			checkErr(err)
+			data.Pages = append(data.Pages , p)
+			updated = true
+		}
+	} else {
+		data.Pages = append(data.Pages , p)
+	}
+
+	return data,updated
+}
+
 var content string
 
 type Data struct {
@@ -60,10 +91,10 @@ func All(trashed int) *Data {
 	defer db.Close()
 	rows, err := db.Query("SELECT * FROM pages WHERE trashed = ? ORDER BY page_id DESC",trashed)
 
-	page := new(Page)
 	data := new(Data)
 
 	for rows.Next() {
+		page := new(Page)
 		err = rows.Scan(&page.Page_ID,&page.Title,&page.Description,&content,&page.Keywords,&page.Approved,&page.Author,&page.Date,&page.Parent_ID,&page.Trashed)
 		checkErr(err)
 		page.Content = template.HTML(content)
@@ -119,38 +150,6 @@ func Create(r *http.Request) (*Data,bool){
 	}
 
 	return data,created
-}
-
-
-func (p *Page) Patch(r *http.Request) (*Data,bool){
-	data := new(Data)
-	updated := false
-
-	if r.Method == "POST" {
-		err := r.ParseForm()
-		checkErr(err)
-		println(r.FormValue("title"))
-		// new schema to pass form values to the Page struct
-		schema.NewDecoder()
-		decoder := schema.NewDecoder()
-		decoder.ZeroEmpty(true)
-		err = decoder.Decode(p, r.PostForm)
-		checkErr(err)
-		fmt.Println("schema: ",p)
-		if p.Title == "" || p.Description == "" || p.Content == "" {
-			data.Pages = append(data.Pages , p)
-			data.Message = "Please fill in all the required fields"
-		} else {
-			err = p.update()
-			checkErr(err)
-			data.Pages = append(data.Pages , p)
-			updated = true
-		}
-	} else {
-		data.Pages = append(data.Pages , p)
-	}
-
-	return data,updated
 }
 
 func checkErr(err error) {

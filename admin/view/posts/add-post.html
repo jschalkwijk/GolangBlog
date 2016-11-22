@@ -1,0 +1,41 @@
+{{ define "posts/add-post" }}
+<script src="/admin/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste",
+
+        ],
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+        paste_data_images: true
+    });
+</script>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+            {{ .Message }}
+            {{ $categories := .Categories}}
+            {{ range $k, $v := .Posts }}
+            <form id="addpost-form" action="/admin/posts/new" method="POST">
+                <input type="text" name="title" placeholder=" Title" value="{{ .Title }}"/><br />
+                <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{ .Description }}"/><br />
+                <label for="categories">Category</label>
+                <select id="categories" name="category_id">
+                    <option name="none" value="0">None</option>
+                    {{ range $key, $value := $categories}}
+                        <option value="{{ .Category_ID }}">{{ .Title }}</option>
+                    {{ end }}
+                </select>
+                <br />
+                <input type="text" name="category" placeholder="Category" value="{{ .Category }}"/><br />
+                <textarea name="content" rows="20" cols="80">{{ .Content }}</textarea><br />
+                <button type="submit">Submit</button>
+            </form>
+            {{ end }}
+        </div>
+    </div>
+</div>
+{{ end }}
