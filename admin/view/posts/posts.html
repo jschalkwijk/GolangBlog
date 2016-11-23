@@ -1,0 +1,72 @@
+{{define "posts/posts"}}
+<div class="container large">
+    <button><a href="/admin/posts/add-post">Add Post</a></button>
+    <button><a href="/admin/posts/trashed-posts">Trashed Posts</a></button>
+    <button> <a href="/admin/categories">Categories</a></button>
+    <button><a href="/admin/categories/add-category">Add Categorie</a></button>
+    <button><a href="/admin/categories/trashed-categories">Trashed Categories</a></button>
+</div>
+<button id="check-all">Check</button>
+<div class="top-margin">
+    <div class="container large">
+            {{ if .Deleted}}
+                <form class="backend-form" method="post" action="/admin/posts/trashed-posts">
+            {{ else }}
+                <form class="backend-form" method="post" action="/admin/posts">
+            {{ end }}
+                <table class="backend-table title">
+                    <tr><th>Title</th><th>Author</th><th>Category</th><th>Date</th><th>Edit</th><th>View</th><!-- <th>Remove</th> --></tr>
+                    {{ range $key, $value := .Posts }}
+                        <tr>
+                            <td class="td-title"><a href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></td>
+                            <td class="td-author">{{.Author}}</td>
+                            <td class="td-category">{{.Category}}</td>
+                            <td class="td-date">{{.Date}}</td>
+                            <input type="hidden" name="id" value="{{.Post_ID}}" />
+                            <td class="td-btn"><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                            <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                            <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.Post_ID}}"/></td>
+                        </tr>
+                    {{ end }}
+                </table>
+                <div class="container">
+                    <table>
+                        {{ if .Deleted }}
+                            <th>Restore</th><th>Remove</th></tr>
+                            <tr><button type="submit" name="restore-selected" id="restore-selected" value="restore"><img class="glyph-small" src="add-post.png"/></button></tr>
+                            <tr><button type="submit" name="delete-selected" id="delete-selected" value="delete"><img class="glyph-small" src="delete-post.png"/></button></tr>
+                        {{ else }}
+                            <tr><th>Trash</th><th>Show</th><th>Hide</th>
+                            <tr><button type="submit" name="trash-selected" id="trash-selected" value="trash"><img class="glyph-small" src="trash-post.png"/></button></tr>
+                            <tr><button type="submit" name="approve-selected" id="approve-selected" value="approve"><img class="glyph-small" src="show.png"/></button></tr>
+                            <tr><button type="submit" name="hide-selected" id="hide-selected" value="hide"><img class="glyph-small" src="hide.png"/></button></tr>
+                        {{ end }}
+                    </table>
+                </div>
+            </form>
+
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3 col-md-6 col-md-offset-3">
+            <form>
+                <table>
+                    {{ range $k, $v := .Posts }}
+                    <tr>
+                        <td class="td-title"><a href="/admin/posts/{{.Post_ID}}/{{.Title}}">{{.Title}}</a></td>
+                        <td class="td-author">{{.Author}}</td>
+                        <td class="td-category">{{.Category}}</td>
+                        <td class="td-date">{{.Date}}</td>
+                        <input type="hidden" name="id" value="{{.Post_ID}}" />
+                        <td class="td-btn"><a href="/admin/posts/edit/{{.Post_ID}}/{{.Title}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                        <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                        <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.Post_ID}}"/></td>
+                    </tr>
+                    {{ end }}
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}

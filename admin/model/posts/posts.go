@@ -109,7 +109,7 @@ func All(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func Single(id string,post_title string, getCat bool) *Data {
+func Single(id string, getCat bool) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()

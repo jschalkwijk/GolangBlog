@@ -53,7 +53,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	//p := d.GetPosts(0)
 
 	p := posts.All(0)
-	controller.RenderTemplate(w,"posts", p)
+	controller.RenderTemplate(w,"posts/posts", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +70,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,"posts")
 	}
 	p := posts.All(1)
-	controller.RenderTemplate(w,"posts", p)
+	controller.RenderTemplate(w,"posts/posts", p)
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
@@ -82,9 +82,8 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	post_title := vars["title"]
-	p := posts.Single(id,post_title,false)
-	controller.RenderTemplate(w,"posts", p)
+	p := posts.Single(id,false)
+	controller.RenderTemplate(w,"posts/posts", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -94,20 +93,23 @@ func New(w http.ResponseWriter, r *http.Request){
 	if(created){
 		http.Redirect(w, r, "/admin/posts", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"posts/add-post",p)
+		controller.RenderTemplate(w,"posts/add-edit-post",p)
 	}
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
-
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
-	}
-
 	vars := mux.Vars(r)
 	id := vars["id"]
-	post_title := vars["title"]
-	p := posts.Single(id,post_title, true)
-	controller.RenderTemplate(w,"edit-post", p)
+	p := posts.Single(id,true)
+
+	if r.Method == "POST" {
+		p, created := p.Posts[0].Patch(r);
+		if (created) {
+			http.Redirect(w, r, "/admin/posts", http.StatusFound)
+		}  else {
+			controller.RenderTemplate(w,"posts/add-edit-post",p)
+		}
+	} else {
+		controller.RenderTemplate(w,"posts/add-edit-post",p)
+	}
 }
