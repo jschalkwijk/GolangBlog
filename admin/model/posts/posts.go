@@ -14,6 +14,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	"github.com/gorilla/schema"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
@@ -22,6 +23,7 @@ var templates = "GolangBlog/admin/templates"
 
 /* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
+	Model.Model
 	Post_ID int `schema:"-"`
 	Title string `schema:"title"`
 	Description string `schema:"description"`
@@ -67,6 +69,10 @@ func All(trashed int) *Data {
 	var content string
 	for rows.Next() {
 		post := new(Post)
+		post.Table = "posts"
+		post.PrimaryKey = "post_id"
+		post.Rape(&post)
+		post.All()
 		err = rows.Scan(
 			&post.Post_ID,
 			&post.Title,
@@ -88,14 +94,15 @@ func All(trashed int) *Data {
 		data.Posts = append(data.Posts , post)
 		data.Dashboard = false
 	}
-	for post := range data.Posts {
-		fmt.Println(post)
-	}
+	//for post := range data.Posts {
+	//	fmt.Println(post)
+	//}
 	if(trashed == 1) {
 		data.Deleted = true
 	} else {
 		data.Deleted = false
 	}
+
 	return data
 }
 
