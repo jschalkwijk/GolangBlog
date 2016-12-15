@@ -1,21 +1,21 @@
 package main
 
 import (
-	"net/http"
-	"github.com/gorilla/mux"
 	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
 	//front-end controllers
-	"github.com/jschalkwijk/GolangBlog/model/home"
 	"github.com/jschalkwijk/GolangBlog/controller/blog"
 	cat "github.com/jschalkwijk/GolangBlog/controller/categories"
+	"github.com/jschalkwijk/GolangBlog/model/home"
 	//back-end controllers
-	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/categories"
-	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
-	"github.com/jschalkwijk/GolangBlog/admin/controller/login"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/dashboard"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/files"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/login"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/pages"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
 )
 
 var static string = "/GolangBlog/static/"
@@ -26,71 +26,71 @@ func main() {
 	// IMPORTANT:I failed to add static files because Go will use the current Directory you are in as the App's ROOT.
 	// If I run it from GolangBlog, the root is /Users/jorn/Documents/Golang/src/github.com/jschalkwijk/GolangBlog
 	// If I run it from jschalkwijk
-		// 	_, err := os.Stat(filepath.Join(".", "GolangBlog/static/css", "style.css"))
+	// 	_, err := os.Stat(filepath.Join(".", "GolangBlog/static/css", "style.css"))
 	//	checkErr(err)
 	fmt.Println("Starting GolangBlog..")
 	r := mux.NewRouter()
-	serveStatic(r,static,"")
-	serveStatic(r,adminStatic,"/admin")
+	serveStatic(r, static, "")
+	serveStatic(r, adminStatic, "/admin")
 	//r.PathPrefix("/admin/css/").Handler(http.StripPrefix("/admin/css/", http.FileServer(http.Dir("."+adminCSS))))
 
 	r.HandleFunc("/", home.DashboardHandler)
-		i := r.PathPrefix("/").Subrouter()
-		i.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
+	i := r.PathPrefix("/").Subrouter()
+	i.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
 	// Blog
 	r.HandleFunc("/blog", blog.Index)
-		b := r.PathPrefix("/blog").Subrouter()
-		b.HandleFunc("/{id:[0-9]+}/{title}", blog.Single)
+	b := r.PathPrefix("/blog").Subrouter()
+	b.HandleFunc("/{id:[0-9]+}/{title}", blog.Single)
 	// Categories
 	r.HandleFunc("/categories", cat.Index)
-		c := r.PathPrefix("/categories").Subrouter()
-		c.HandleFunc("/{id:[0-9]+}/{title}", cat.Single)
+	c := r.PathPrefix("/categories").Subrouter()
+	c.HandleFunc("/{id:[0-9]+}/{title}", cat.Single)
 	//Admin
 	r.HandleFunc("/admin", dashboard.Index)
 	//Admin Posts
 	r.HandleFunc("/admin/posts", posts.Index)
-		aP := r.PathPrefix("/admin/posts/").Subrouter()
-		aP.HandleFunc("/{id:[0-9]+}/{title}", posts.Single)
-		aP.HandleFunc("/add-post", posts.New)
-		aP.HandleFunc("/edit/{id:[0-9]+}/{title}", posts.Edit)
-		aP.HandleFunc("/new", posts.New)
-		aP.HandleFunc("/trashed-posts", posts.Deleted)
+	aP := r.PathPrefix("/admin/posts/").Subrouter()
+	aP.HandleFunc("/{id:[0-9]+}/{title}", posts.Single)
+	aP.HandleFunc("/add-post", posts.New)
+	aP.HandleFunc("/edit/{id:[0-9]+}/{title}", posts.Edit)
+	aP.HandleFunc("/new", posts.New)
+	aP.HandleFunc("/trashed-posts", posts.Deleted)
 	// Admin Pages
-	r.HandleFunc("/admin/pages",pages.Index)
-		aPa := r.PathPrefix("/admin/pages/").Subrouter()
-		//pages.HandleFunc("/trashed-pages", pages.Deleted)
-		aPa.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
-		aPa.HandleFunc("/new", pages.New)
-		aPa.HandleFunc("/edit/{id:[0-9]+}", pages.Edit)
+	r.HandleFunc("/admin/pages", pages.Index)
+	aPa := r.PathPrefix("/admin/pages/").Subrouter()
+	//pages.HandleFunc("/trashed-pages", pages.Deleted)
+	aPa.HandleFunc("/{id:[0-9]+}/{title}", pages.Single)
+	aPa.HandleFunc("/new", pages.New)
+	aPa.HandleFunc("/edit/{id:[0-9]+}", pages.Edit)
 
 	//Admin Categories
 	r.HandleFunc("/admin/categories", categories.Index)
-		aC := r.PathPrefix("/admin/categories").Subrouter()
-		aC.HandleFunc("/{id:[0-9]+}/{title}", categories.Single)
-		aC.HandleFunc("/add-category", categories.New)
-		aC.HandleFunc("/edit/{id:[0-9]+}/{title}", categories.Edit)
-		aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
-		aC.HandleFunc("/add", categories.Add)
-		aC.HandleFunc("/trashed-categories", categories.Deleted)
+	aC := r.PathPrefix("/admin/categories").Subrouter()
+	aC.HandleFunc("/{id:[0-9]+}/{title}", categories.Single)
+	aC.HandleFunc("/add-category", categories.New)
+	aC.HandleFunc("/edit/{id:[0-9]+}/{title}", categories.Edit)
+	aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
+	aC.HandleFunc("/add", categories.Add)
+	aC.HandleFunc("/trashed-categories", categories.Deleted)
 	// Users
 	r.HandleFunc("/admin/users", users.Index)
-		u := r.PathPrefix("/admin/users").Subrouter()
-		u.HandleFunc("/{id:[0-9]+}/{username}", users.Single)
-		u.HandleFunc("/add-user", users.New)
-		u.HandleFunc("/add", users.Add)
-		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
-		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
-		u.HandleFunc("/trashed-users", users.Deleted)
+	u := r.PathPrefix("/admin/users").Subrouter()
+	u.HandleFunc("/{id:[0-9]+}/{username}", users.Single)
+	u.HandleFunc("/add-user", users.New)
+	u.HandleFunc("/add", users.Add)
+	u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
+	u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
+	u.HandleFunc("/trashed-users", users.Deleted)
 	// Login
 	r.HandleFunc("/admin/login", login.Index)
-		l := r.PathPrefix("/admin/login").Subrouter()
-		l.HandleFunc("/auth", login.Auth)
-		l.HandleFunc("/logout", login.Logout)
+	l := r.PathPrefix("/admin/login").Subrouter()
+	l.HandleFunc("/auth", login.Auth)
+	l.HandleFunc("/logout", login.Logout)
 	//Files
 	r.HandleFunc("/admin/files", files.Index)
-		f := r.PathPrefix("/admin/files").Subrouter()
-		f.HandleFunc("/upload-file", files.Upload)
-		f.HandleFunc("/folder/{id:[0-9]+}/{foldername}", files.Folder)
+	f := r.PathPrefix("/admin/files").Subrouter()
+	f.HandleFunc("/upload-file", files.Upload)
+	f.HandleFunc("/folder/{id:[0-9]+}/{foldername}", files.Folder)
 
 	http.Handle("/", r)
 
@@ -99,21 +99,20 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-
 // load all static directories: Source: http://www.shakedos.com/2014/Feb/08/serving-static-files-with-go.html
 func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 	staticPaths := map[string]string{
-		"/css/": staticDirectory + "/css/",
-		"/test/": staticDirectory + "/test/",
-		"/images/": staticDirectory + "/images/",
+		"/css/":     staticDirectory + "/css/",
+		"/test/":    staticDirectory + "/test/",
+		"/images/":  staticDirectory + "/images/",
 		"/scripts/": staticDirectory + "/scripts/",
-		"/tinymce/" : staticDirectory + "/scripts/tinymce/js/tinymce/",
+		"/tinymce/": staticDirectory + "/scripts/tinymce/js/tinymce/",
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
 		// Also it only works if the files folder is inside another folder also due to the conflict.
 		"/file/": staticDirectory + "/files/",
 	}
 	for pathPrefix, pathValue := range staticPaths {
-		router.PathPrefix(admin+pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,
+		router.PathPrefix(admin + pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,
 			http.FileServer(http.Dir("."+pathValue))))
 	}
 }

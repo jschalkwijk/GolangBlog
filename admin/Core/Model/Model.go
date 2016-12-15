@@ -7,6 +7,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"reflect"
 	"fmt"
+	"log"
 )
 
 type Model struct{
@@ -136,7 +137,7 @@ func (m *Model) OrderBy() string{
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 

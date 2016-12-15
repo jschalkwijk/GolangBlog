@@ -9,6 +9,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"github.com/gorilla/sessions"
 	"github.com/nu7hatch/gouuid"
+	"log"
 )
 
 var view = "GolangBlog/admin/view"
@@ -112,6 +113,6 @@ func compareHash(hashedPassword []byte,password []byte) error{
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

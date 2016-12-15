@@ -15,6 +15,7 @@ import (
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	"github.com/gorilla/schema"
 	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
+	"log"
 )
 
 // here we define the absolute path to the view folder it takes the go root until the github folder.
@@ -328,6 +329,6 @@ func addCategoryFromForm (category string, category_id string) string {
 }
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"database/sql"
 	_"database/sql/driver"
+	"log"
 )
 
 type File struct {
@@ -194,7 +195,7 @@ func newName() string {
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Println("OOPS something went wrong in the files model, you better fix it!", err)
+		log.Println("OOPS something went wrong in the files model, you better fix it!", err)
 		return
 	}
 }

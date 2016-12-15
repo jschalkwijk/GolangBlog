@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 type User struct {
@@ -255,6 +256,6 @@ func compareHash(hashedPassword []byte) error{
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"os"
+	"log"
 )
 
 func Trash(w http.ResponseWriter, r *http.Request, dbt string){
@@ -231,6 +232,6 @@ func SelectRecursive(parents []string)(string,[]interface {}){
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

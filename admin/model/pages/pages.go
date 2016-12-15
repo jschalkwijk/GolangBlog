@@ -8,6 +8,7 @@ import(
 	"net/http"
 	"github.com/gorilla/schema"
 	"fmt"
+	"log"
 )
 
 type Page struct {
@@ -154,6 +155,6 @@ func Create(r *http.Request) (*Data,bool){
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

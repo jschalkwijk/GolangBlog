@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
+	"log"
 )
 
 /* Category struct will hold data about a category and can be added to the Data struct */
@@ -217,7 +218,7 @@ func NewCategory(w http.ResponseWriter, r *http.Request) {
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 
