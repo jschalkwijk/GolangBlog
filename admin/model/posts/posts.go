@@ -14,7 +14,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	"github.com/gorilla/schema"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
 	"log"
 )
 
@@ -24,17 +24,17 @@ var templates = "GolangBlog/admin/templates"
 
 /* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
-	Model.Model
+	QueryBuilder.Query
 	Post_ID int `schema:"-"`
-	Title string `schema:"title"`
-	Description string `schema:"description"`
-	Content template.HTML `schema:"content"`
+	Title string
+	Description string
+	Content template.HTML
 	Keywords string `schema:"-"`
 	Approved int `schema:"-"`
 	Author string `schema:"-"`
 	Date string `schema:"-"`
-	Category_ID int `schema:"category_id"`
-	Category string `schema:"category"`
+	Category_ID int
+	Category string
 	Trashed int `schema:"-"`
 }
 
@@ -72,8 +72,6 @@ func All(trashed int) *Data {
 		post := new(Post)
 		post.Table = "posts"
 		post.PrimaryKey = "post_id"
-		post.Rape(&post)
-		post.All()
 		err = rows.Scan(
 			&post.Post_ID,
 			&post.Title,
@@ -90,8 +88,8 @@ func All(trashed int) *Data {
 		checkErr(err)
 		// convert string to HTML markdown
 		post.Content = template.HTML(content)
-		fmt.Println(post.Post_ID,post.Title)
-		fmt.Println(post)
+		//fmt.Println(post.Post_ID,post.Title)
+		//fmt.Println(post)
 		data.Posts = append(data.Posts , post)
 		data.Dashboard = false
 	}
@@ -203,8 +201,6 @@ func (p *Post) save() error {
 	fmt.Println(stmt)
 	checkErr(err)
 	res, err := stmt.Exec(p.Title,p.Description,[]byte(p.Content),p.Category_ID)
-	affect, err := res.RowsAffected()
-	fmt.Println(affect)
 	fmt.Println(res)
 	checkErr(err)
 	return err
@@ -223,8 +219,8 @@ func (post *Post) Patch(r *http.Request) (*Data,bool) {
 	updated := false
 
 	if r.Method == "POST" {
-		category_id := r.FormValue("category_id")
-		category := r.FormValue("category")
+		category_id := r.FormValue("Category_ID")
+		category := r.FormValue("Category")
 		/* 	To add a new category from a add post form we need to create a new
 			 category, and then get the new ID of that category to insert it into the Post struct.
 			 Also see addCategoryFromForm
@@ -271,8 +267,8 @@ func Create(r *http.Request) (*Data,bool){
 	created := false
 
 	if r.Method == "POST" {
-		category_id := r.FormValue("category_id")
-		category := r.FormValue("category")
+		category_id := r.FormValue("Category_ID")
+		category := r.FormValue("Category")
 		/* 	To add a new category from a add post form we need to create a new
 			 category, and then get the new ID of that category to insert it into the Post struct.
 			 Also see addCategoryFromForm
@@ -306,7 +302,7 @@ func Create(r *http.Request) (*Data,bool){
 }
 
 /* addCategoryFromForm uses cat.AddCategory to add a new category.
- * Because a new categpry is created it is needed to get the ID from the database
+ * Because a new category is created it is needed to get the ID from the database
   after creation so it can be added to returned and added inside a new or existing post.
 */
 func addCategoryFromForm (category string, category_id string) string {

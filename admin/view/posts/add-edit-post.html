@@ -24,18 +24,18 @@
                 {{ else }}
                     <form id="addpost-form" action="/admin/posts/new" method="POST">
                 {{ end }}
-                        <input type="text" name="title" placeholder=" Title" value="{{ .Title }}"/><br />
-                        <input type="text" name="description" placeholder="Post Description (max 160 characters)" value="{{ .Description }}"/><br />
+                        <input type="text" name="Title" placeholder=" Title" value="{{ .Title }}"/><br />
+                        <input type="text" name="Description" placeholder="Post Description (max 160 characters)" value="{{ .Description }}"/><br />
                         <label for="categories">Category</label>
-                        <select id="categories" name="category_id">
+                        <select id="categories" name="Category_ID">
                             <option name="none" value="0">None</option>
                             {{ range $key, $value := $categories}}
                                 <option value="{{ .Category_ID }}">{{ .Title }}</option>
                             {{ end }}
                         </select>
                         <br />
-                        <input type="text" name="category" placeholder="Category" value="{{ .Category }}"/><br />
-                        <textarea name="content" rows="20" cols="80">{{ .Content }}</textarea><br />
+                        <input type="text" name="Category" placeholder="Category" value="{{ .Category }}"/><br />
+                        <textarea name="Content" rows="20" cols="80">{{ .Content }}</textarea><br />
                         <button type="submit">Submit</button>
                     </form>
             {{ end }}
