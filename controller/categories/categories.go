@@ -16,7 +16,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
-	post_title := vars["title"]
-	p := cat.Single(id,post_title)
+	p := cat.Single(id)
 	categories.RenderTemplate(w,"categories", p)
 }

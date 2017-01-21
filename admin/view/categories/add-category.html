@@ -14,6 +14,7 @@
     });
 </script>
     <div class="container medium"> <h1>Create new Category</h1>
+        {{.Message}}
         <form id="addpost-form" action="/admin/categories/add" method="POST">
             <input type="text" name="Title" placeholder=" Title"/><br />
             <input type="text" name="Description" placeholder="Category Description (max 160 characters)" value=""/><br />

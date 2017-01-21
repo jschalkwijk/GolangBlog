@@ -69,9 +69,13 @@ func New(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 
-	data := new(users.Data)
-	u := data
-	controller.RenderTemplate(w,"users/add-user", u)
+	u,created := users.Create(r)
+
+	if(created){
+		http.Redirect(w, r, "/admin/users", http.StatusFound)
+	} else {
+		controller.RenderTemplate(w,"users/add-user",u)
+	}
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -84,27 +88,14 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	u := users.Single(id)
-	controller.RenderTemplate(w,"users/edit-user", u)
-}
-
-func Save(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
-
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
-	}
-
-	vars := mux.Vars(r)
-	id := vars["id"]
-	u := users.Single(id)
 
 	if r.Method == "POST" {
-		_, created := u.Users[0].Patch(r);
-		if (created) {
+		_, updated := u.Users[0].Patch(r);
+		if (updated) {
 			http.Redirect(w, r, "/admin/users", http.StatusFound)
 		}
 	}
-	controller.RenderTemplate(w,"users/edit-post",u)
+	controller.RenderTemplate(w,"users/edit-user",u)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){

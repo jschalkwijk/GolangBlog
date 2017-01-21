@@ -69,7 +69,6 @@ func main() {
 		aC.HandleFunc("/{id:[0-9]+}/{title}", categories.Single)
 		aC.HandleFunc("/add-category", categories.New)
 		aC.HandleFunc("/edit/{id:[0-9]+}/{title}", categories.Edit)
-		aC.HandleFunc("/save/{id:[0-9]+}/{title}", categories.Save)
 		aC.HandleFunc("/add", categories.Add)
 		aC.HandleFunc("/trashed-categories", categories.Deleted)
 	// Users
@@ -79,7 +78,6 @@ func main() {
 		u.HandleFunc("/add-user", users.New)
 		u.HandleFunc("/add", users.Add)
 		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
-		u.HandleFunc("/save/{id:[0-9]+}/{username}", users.Save)
 		u.HandleFunc("/trashed-users", users.Deleted)
 	// Login
 	r.HandleFunc("/admin/login", login.Index)

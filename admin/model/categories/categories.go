@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"strconv"
 	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
 	"github.com/gorilla/schema"
@@ -38,6 +37,7 @@ type Category struct {
 /* Stores a single category, or multiple categories in a Slice which can be iterated over in the template */
 type Data struct {
 	Categories []*Category
+	Message string
 	Deleted bool
 }
 
@@ -61,8 +61,9 @@ func All(trashed int) *Data {
 	checkErr(err)
 
 	data := new(Data)
-	c := new(Category)
+
 	for rows.Next() {
+		c := new(Category)
 		err = rows.Scan(
 			&c.Category_ID,
 			&c.Title,
@@ -99,14 +100,13 @@ func All(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func Single(id string,category_title string) *Data {
+func Single(id string) *Data {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
-	fmt.Println("Connection established")
-	defer db.Close()
-	defer fmt.Println("Connection Closed")
 
-	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? AND title=? LIMIT 1", id,category_title)
+	defer db.Close()
+
+	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? LIMIT 1", id)
 
 	data := new(Data)
 	c := new(Category)
@@ -142,7 +142,7 @@ func Single(id string,category_title string) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Category) save() error {
+func (c *Category) update() error {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 
@@ -151,12 +151,9 @@ func (p *Category) save() error {
 	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE categorie_id=?")
 	fmt.Println(stmt)
 	checkErr(err)
-	res, err := stmt.Exec(p.Title,p.Description,p.Category_ID)
-	affect, err := res.RowsAffected()
+	_, err = stmt.Exec(c.Title,c.Description,c.Category_ID)
 	checkErr(err)
 
-	fmt.Println(affect)
-	fmt.Println(res)
 	return err
 }
 
@@ -167,16 +164,14 @@ func (p *Category) save() error {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Category) Store() error {
+func (c *Category) Store() error {
 	db, err := sql.Open("mysql", cfg.DB)
 	defer db.Close()
+
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
-	fmt.Println(stmt)
 	checkErr(err)
-	res, err := stmt.Exec(p.Title,p.Description)
-	affect, err := res.RowsAffected()
-	fmt.Println(affect)
-	fmt.Println(res)
+	_, err = stmt.Exec(c.Title,c.Description)
+
 	checkErr(err)
 	return err
 }
@@ -189,20 +184,28 @@ func (p *Category) Store() error {
    instantiate a separate one.
  * Call saveCategory, a method of the Category Struct, to update the DB
 */
-func Edit(w http.ResponseWriter, r *http.Request,id string) {
-	title := r.FormValue("title")
-	description := r.FormValue("description")
-	id_string := r.FormValue("category_id")
-	category_id,error := strconv.Atoi(id_string)
-	checkErr(error)
-	p := &Category{Category_ID: category_id, Title: title,Description: description}
-	fmt.Println(p)
-	err := p.save()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func (c *Category) Patch(r *http.Request) (*Data,bool) {
+	data:= new(Data)
+	updated := false
+
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
+		err = decoder.Decode(c,r.PostForm)
+		checkErr(err)
+		if c.Title == "" {
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = c.update()
+			checkErr(err)
+			updated = true
+		}
 	}
-	http.Redirect(w, r, "/admin/categories/"+id+"/"+title, http.StatusFound)
+
+	data.Categories = append(data.Categories,c)
+
+	return data,updated
 }
 
 /* NewCategory takes updated form values from the http.request to populate a Category and call the AddCategory method.
@@ -215,14 +218,23 @@ func Create(r *http.Request) (*Data,bool) {
 	c := new(Category)
 	data := new(Data)
 	created := false
+
 	if r.Method == "POST"{
 		err := r.ParseForm()
 		checkErr(err)
 		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
 		err = decoder.Decode(c,r.PostForm)
 		checkErr(err)
-		err = c.Store()
-		checkErr(err)
+		if c.Title == "" {
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = c.Store()
+			checkErr(err)
+			created = true
+		}
+		data.Categories = append(data.Categories , c)
+
 	} else{
 		data.Categories = append(data.Categories,c)
 	}

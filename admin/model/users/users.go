@@ -181,6 +181,7 @@ func (user *User) Patch(r *http.Request) (*Data,bool) {
 	if r.Method == "POST" {
 		err := r.ParseForm()
 		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
 		err = decoder.Decode(user, r.PostForm)
 		checkErr(err)
 
@@ -223,6 +224,7 @@ func Create(r *http.Request) (*Data,bool) {
 	if r.Method == "POST" {
 		err := r.ParseForm()
 		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
 		err = decoder.Decode(user, r.PostForm)
 		checkErr(err)
 

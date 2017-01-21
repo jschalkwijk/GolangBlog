@@ -69,8 +69,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	post_title := vars["title"]
-	p := categories.Single(id,post_title)
+	p := categories.Single(id)
 	controller.RenderTemplate(w,"categories/categories", p)
 }
 
@@ -95,21 +94,15 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	post_title := vars["title"]
-	p := categories.Single(id,post_title)
-	controller.RenderTemplate(w,"categories/edit-category", p)
-}
+	c := categories.Single(id)
 
-func Save(w http.ResponseWriter, r *http.Request){
-	session := login.GetSession(r)
-
-	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	if r.Method == "POST" {
+		_, updated := c.Categories[0].Patch(r);
+		if (updated) {
+			http.Redirect(w, r, "/admin/categories", http.StatusFound)
+		}
 	}
-
-	vars := mux.Vars(r)
-	id := vars["id"]
-	categories.Edit(w,r,id)
+	controller.RenderTemplate(w,"categories/edit-category",c)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
@@ -124,6 +117,6 @@ func Add(w http.ResponseWriter, r *http.Request){
 	if(created){
 		http.Redirect(w, r, "/admin/categories", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"users/add-category",u)
+		controller.RenderTemplate(w,"categories/add-category",u)
 	}
 }

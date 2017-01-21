@@ -1,10 +1,11 @@
 {{define "categories/edit-category"}}
     <h1>Edit Category</h1>
+    {{.Message}}
     {{ range $key, $value := .Categories}}
-        <form class="backend-form" action="/admin/categories/save/{{.Category_ID}}/{{.Title}}" method="POST">
+        <form class="backend-form" action="/admin/categories/edit/{{.Category_ID}}/{{.Title}}" method="POST">
             <input type="text" name="Title" placeholder=" Title" value="{{.Title}}"/><br />
             <input type="text" name="Description" placeholder="Category Description (max 160 characters)" value="{{.Description}}"/><br />
-            <input type="hidden" name="Category_id" value="{{.Category_ID}}">
+            <input type="hidden" name="Category_ID" value="{{.Category_ID}}">
             <input type="submit" value="Save">
         </form>
         </form>

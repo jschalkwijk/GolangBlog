@@ -234,7 +234,9 @@ func (post *Post) Patch(r *http.Request) (*Data,bool) {
 		categoryINT, _ := strconv.Atoi(category_id)
 		err := r.ParseForm()
 		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
 		err = decoder.Decode(post, r.PostForm)
+
 		checkErr(err)
 
 		post.Category_ID = categoryINT;
@@ -282,6 +284,7 @@ func Create(r *http.Request) (*Data,bool){
 		categoryINT, _ := strconv.Atoi(category_id)
 		err := r.ParseForm()
 		decoder := schema.NewDecoder()
+		decoder.ZeroEmpty(true)
 		err = decoder.Decode(post, r.PostForm)
 		checkErr(err)
 

@@ -14,9 +14,9 @@
     });
 </script>
 <div class="container medium"> <h1>Add User</h1>
-    {{ .Message }}
+
     {{ range $k,$v := .Users}}
-        <form id="add-user" method="post" action="/admin/users/add">
+        <form id="add-user" method="post" action="/admin/users/new">
             <input type="text" name="UserName" placeholder="Username" value="{{.UserName }}"/><br />
             <input type="password" name="Password" placeholder="New Password"/><br />
             <input type="password" name="Password-again" placeholder="New Password Again"/><br />
