@@ -1,4 +1,4 @@
-{{define "edit-user"}}
+{{define "users/edit-user"}}
 <script src="/admin/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
     tinymce.init({
@@ -18,14 +18,13 @@
     {{ range $key, $value := .Users}}
         {{ $rights := .Rights }}
         <form id="add-user" class="container" method="post" action="/admin/users/save/{{.UserID}}/{{.UserName}}">
-            <input type="hidden" name="id" value="{{ .UserID}}"/>
             <input type="text" name="username" placeholder="Username" value="{{ .UserName}}"/><br />
-            <input type="password" name="new-password" placeholder="New Password"/><br />
-            <input type="password" name="new-password-again" placeholder="New Password Again"/><br />
-            <input type="text" name="first-name" placeholder="First name" value="{{ .FirstName}}"/> <br />
-            <input type="text" name="last-name" placeholder="Last name" value="{{ .LastName }}"/> <br />
-            <input type="text" name="email" placeholder="Email" value="{{ .Email}}"/> <br />
-            <input type="text" name="function" placeholder="Function" value="{{ .Function }}"/> <br />
+            <input type="password" name="Password" placeholder="New Password"/><br />
+            <input type="password" name="Password-again" placeholder="New Password Again"/><br />
+            <input type="text" name="FirstName" placeholder="First name" value="{{ .FirstName}}"/> <br />
+            <input type="text" name="LastName" placeholder="Last name" value="{{ .LastName }}"/> <br />
+            <input type="text" name="Email" placeholder="Email" value="{{ .Email}}"/> <br />
+            <input type="text" name="Function" placeholder="Function" value="{{ .Function }}"/> <br />
             <p>Rights</p>
 
             <p>Are you sure you want to edit this user?</p>

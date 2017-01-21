@@ -28,8 +28,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,dbt)
 	}
-	u := users.GetUsers(0)
-	controller.RenderTemplate(w,"users", u)
+	u := users.All(0)
+	controller.RenderTemplate(w,"users/users", u)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -45,8 +45,8 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("delete-selected") != ""){
 		a.Delete(w,r,dbt)
 	}
-	p := users.GetUsers(1)
-	controller.RenderTemplate(w,"users", p)
+	p := users.All(1)
+	controller.RenderTemplate(w,"users/users", p)
 }
 
 func Single(w http.ResponseWriter, r *http.Request){
@@ -58,9 +58,8 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	username := vars["username"]
-	p := users.GetSingleUser(id,username)
-	controller.RenderTemplate(w,"users", p)
+	p := users.Single(id)
+	controller.RenderTemplate(w,"users/users", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -72,7 +71,7 @@ func New(w http.ResponseWriter, r *http.Request){
 
 	data := new(users.Data)
 	u := data
-	controller.RenderTemplate(w,"add-user", u)
+	controller.RenderTemplate(w,"users/add-user", u)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -84,9 +83,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	username := vars["username"]
-	u := users.GetSingleUser(id,username)
-	controller.RenderTemplate(w,"edit-user", u)
+	u := users.Single(id)
+	controller.RenderTemplate(w,"users/edit-user", u)
 }
 
 func Save(w http.ResponseWriter, r *http.Request){
@@ -98,8 +96,15 @@ func Save(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	username := vars["username"]
-	users.EditUser(w,r,id,username)
+	u := users.Single(id)
+
+	if r.Method == "POST" {
+		_, created := u.Users[0].Patch(r);
+		if (created) {
+			http.Redirect(w, r, "/admin/users", http.StatusFound)
+		}
+	}
+	controller.RenderTemplate(w,"users/edit-post",u)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
@@ -109,5 +114,11 @@ func Add(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 
-	users.NewUser(w, r)
+	u,created := users.Create(r)
+
+	if(created){
+		http.Redirect(w, r, "/admin/users", http.StatusFound)
+	} else {
+		controller.RenderTemplate(w,"users/add-user",u)
+	}
 }

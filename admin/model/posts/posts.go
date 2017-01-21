@@ -41,7 +41,7 @@ type Post struct {
 /* Stores a single post, or multiple posts in a Slice which can be iterated over in the template */
 type Data struct {
 	Posts      []*Post
-	Categories []cat.Category
+	Categories []*cat.Category
 	Deleted	bool
 	Dashboard bool
 	Message string
@@ -150,7 +150,7 @@ func Single(id string, getCat bool) *Data {
 	  * They are accessible inside the template now.
 	 */
 	if(getCat) {
-		listCat := cat.GetCategories(0)
+		listCat := cat.All(0)
 		data.Categories = listCat.Categories
 	}
 
@@ -309,7 +309,7 @@ func addCategoryFromForm (category string, category_id string) string {
 	//fmt.Print(category)
 	c := &cat.Category{Title: category}
 	fmt.Println(c)
-	err := c.AddCategory()
+	err := c.Store()
 	checkErr(err)
 
 	db, err := sql.Open("mysql", config.DB)

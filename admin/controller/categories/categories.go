@@ -40,8 +40,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("hide-selected") != ""){
 		a.Hide(w,r,dbt)
 	}
-	p := categories.GetCategories(0)
-	controller.RenderTemplate(w,"categories", p)
+	p := categories.All(0)
+	controller.RenderTemplate(w,"categories/categories", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +57,8 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	if (r.PostFormValue("delete-selected") != ""){
 		a.Delete(w,r,dbt)
 	}
-	p := categories.GetCategories(1)
-	controller.RenderTemplate(w,"categories", p)
+	p := categories.All(1)
+	controller.RenderTemplate(w,"categories/categories", p)
 }
 func Single(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
@@ -70,8 +70,8 @@ func Single(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := categories.GetSingleCategory(id,post_title)
-	controller.RenderTemplate(w,"categories", p)
+	p := categories.Single(id,post_title)
+	controller.RenderTemplate(w,"categories/categories", p)
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -83,7 +83,7 @@ func New(w http.ResponseWriter, r *http.Request){
 
 	collection := new(categories.Data)
 	p := collection
-	controller.RenderTemplate(w,"add-category", p)
+	controller.RenderTemplate(w,"categories/add-category", p)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -96,8 +96,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 	post_title := vars["title"]
-	p := categories.GetSingleCategory(id,post_title)
-	controller.RenderTemplate(w,"edit-category", p)
+	p := categories.Single(id,post_title)
+	controller.RenderTemplate(w,"categories/edit-category", p)
 }
 
 func Save(w http.ResponseWriter, r *http.Request){
@@ -109,7 +109,7 @@ func Save(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	categories.EditCategory(w,r,id)
+	categories.Edit(w,r,id)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
@@ -119,5 +119,11 @@ func Add(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 
-	categories.NewCategory(w, r)
+	u,created := categories.Create(r)
+
+	if(created){
+		http.Redirect(w, r, "/admin/categories", http.StatusFound)
+	} else {
+		controller.RenderTemplate(w,"users/add-category",u)
+	}
 }

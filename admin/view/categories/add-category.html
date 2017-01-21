@@ -1,0 +1,23 @@
+{{define "categories/add-category"}}
+<script src="/admin/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+    tinymce.init({
+        selector: "textarea",
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table contextmenu paste",
+
+        ],
+        toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+        paste_data_images: true
+    });
+</script>
+    <div class="container medium"> <h1>Create new Category</h1>
+        <form id="addpost-form" action="/admin/categories/add" method="POST">
+            <input type="text" name="Title" placeholder=" Title"/><br />
+            <input type="text" name="Description" placeholder="Category Description (max 160 characters)" value=""/><br />
+            <button type="submit" name="Save">Submit</button>
+        </form>
+   </div>
+{{end}}

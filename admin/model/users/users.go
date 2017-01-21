@@ -4,15 +4,15 @@ import (
 	"net/http"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"strconv"
 	"fmt"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"github.com/gorilla/schema"
 )
 
 type User struct {
-	UserID int
+	UserID int `schema:"-"`
 	UserName string
 	Password string
 	FirstName string
@@ -26,25 +26,10 @@ type User struct {
 }
 
 type Data struct {
-	Users []User
+	Users []*User
 	Deleted	bool
+	Message string
 }
-
-/*
- * Declaring vars corresponding to the struct. When scanning data from the database, the
-   data will be stored on the memory address of these vars.
-*/
-var userID int
-var username string
-var password string
-var firstName string
-var lastName string
-var email string
-var dob string
-var function string
-var rights string
-var trashed int
-var approved int
 
 /* -- Get all Users --
  * 	Connects to the database and gets all posts rows.
@@ -55,7 +40,7 @@ var approved int
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetUsers(trashed int) *Data {
+func All(trashed int) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
@@ -66,15 +51,25 @@ func GetUsers(trashed int) *Data {
 	rows, err := db.Query("SELECT * FROM users WHERE trashed = ? ORDER BY user_id DESC",trashed)
 	checkErr(err)
 
-	data:= new(Data)
+	data := new(Data)
 
 	for rows.Next() {
-		err = rows.Scan(&userID, &username, &password, &firstName,&lastName,
-			&dob,&email,&function,&rights,&trashed,&approved)
+		user := new(User)
+		err = rows.Scan(
+			&user.UserID,
+			&user.UserName,
+			&user.Password,
+			&user.FirstName,
+			&user.LastName,
+			&user.DOB,
+			&user.Email,
+			&user.Function,
+			&user.Rights,
+			&user.Trashed,
+			&user.Approved,
+		)
 		checkErr(err)
-		// convert string to HTML markdown
-		user := User{userID, username, password, firstName,lastName,dob,email,
-			function,rights,trashed,approved}
+
 		data.Users = append(data.Users, user)
 	}
 
@@ -97,27 +92,34 @@ func GetUsers(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetSingleUser(id string,post_title string) *Data {
+func Single(id string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection established")
 	defer db.Close()
-	defer fmt.Println("Connection Closed")
 
 	rows := db.QueryRow("SELECT * FROM users WHERE user_id = ?", id)
 
 	data := new(Data)
 
-	err = rows.Scan(&userID, &username, &password, &firstName,&lastName,&email,
-		&dob,&function,&rights,&trashed,&approved)
-	checkErr(err)
+	user := new(User)
 
-	user := User{userID, username, password, firstName,lastName,email,
-		dob,function,rights,trashed,approved}
+	err = rows.Scan(
+		&user.UserID,
+		&user.UserName,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.DOB,
+		&user.Email,
+		&user.Function,
+		&user.Rights,
+		&user.Trashed,
+		&user.Approved,
+	)
+	checkErr(err)
 
 	data.Users = append(data.Users , user)
-	err = compareHash([]byte(user.Password))
-	checkErr(err)
+
 	return data
 }
 
@@ -130,7 +132,7 @@ func GetSingleUser(id string,post_title string) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (u *User) saveUser() error {
+func (u *User) update() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	checkErr(err)
@@ -157,7 +159,7 @@ func (u *User) saveUser() error {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (u *User) addUser() error {
+func (u *User) store() error {
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO users (username,password, first_name, last_name, dob, email, function, rights) VALUES(?,?,?,?,?,?,?,?)")
@@ -172,33 +174,38 @@ func (u *User) addUser() error {
 }
 // End User methods
 
-func EditUser(w http.ResponseWriter, r *http.Request,id string,username string) {
-	username = r.FormValue("username")
-	newPassword := r.FormValue("new-password")
-	checkPassword := r.FormValue("new-password-again")
-	firstName := r.FormValue("first-name")
-	lastName := r.FormValue("last-name")
-	dob := r.FormValue("dob")
-	email := r.FormValue("email")
-	function := r.FormValue("function")
-	rights := r.FormValue("rights")
+func (user *User) Patch(r *http.Request) (*Data,bool) {
+	data := new(Data)
+	updated := false
 
-	var password string
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(user, r.PostForm)
+		checkErr(err)
 
-	if (newPassword == checkPassword){
-		password = newPassword
+		passwordCheck := r.FormValue("Password-again");
+		if (user.Password == passwordCheck ){
+			user.Password = hashPassword([]byte(passwordCheck))
+		} else {
+			fmt.Println("Password not set")
+		}
+		fmt.Println(user)
+
+		if user.UserName == "" || user.Email == "" {
+			data.Users = append(data.Users , user)
+			data.Message = "Please fill in all the required fields"
+		} else {
+			err = user.update()
+			checkErr(err)
+			data.Users = append(data.Users , user)
+			updated = true
+		}
+	} else {
+		data.Users = append(data.Users , user)
 	}
-	// convert string to INT before inserting into Struct and DB
-	idINT,error := strconv.Atoi(id)
-	checkErr(error)
-	u:= &User{UserID: idINT,UserName: username,Password: password, FirstName: firstName,LastName: lastName,DOB: dob,Email: email,Function: function,Rights: rights}
-	fmt.Println(u)
-	err := u.saveUser()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/admin/users/"+id+"/"+username, http.StatusFound)
+
+	return data,updated
 }
 
 /* NewUser takes updated form values from the http.request to populate a User strut and call the addUser method.
@@ -207,33 +214,37 @@ func EditUser(w http.ResponseWriter, r *http.Request,id string,username string) 
    instantiate a separate one.
  * Call addUser, a method of the User Struct, to insert new user in the DB.
 */
-func NewUser(w http.ResponseWriter, r *http.Request) {
-	username = r.FormValue("username")
-	newPassword := r.FormValue("new-password")
-	checkPassword := r.FormValue("new-password-again")
-	firstName := r.FormValue("first-name")
-	lastName := r.FormValue("last-name")
-	dob := r.FormValue("dob")
-	email := r.FormValue("email")
-	function := r.FormValue("function")
-	rights := r.FormValue("rights")
+func Create(r *http.Request) (*Data,bool) {
+	user := new(User)
+	data := new(Data)
 
-	var password string
+	created := false
 
-	if (newPassword == checkPassword){
-		password = hashPassword([]byte(newPassword))
+	if r.Method == "POST" {
+		err := r.ParseForm()
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(user, r.PostForm)
+		checkErr(err)
+
+		if user.UserName == "" || user.Email == "" || user.Password == "" || r.FormValue("Password-again") == "" {
+			data.Users = append(data.Users , user)
+			data.Message = "Please fill in all the required fields"
+		} else {
+			passwordCheck := r.FormValue("Password-again");
+			if (user.Password == passwordCheck ){
+				user.Password = hashPassword([]byte(passwordCheck))
+			} else {
+				fmt.Println("Password not set")
+			}
+			fmt.Println(user)
+			err = user.store()
+			data.Users = append(data.Users , user)
+			created = true
+		}
 	} else {
-		fmt.Println("Password not set")
+		data.Users = append(data.Users , user)
 	}
-	u := &User{UserName: username,Password: password, FirstName: firstName,LastName: lastName,DOB: dob,Email: email,Function: function,Rights: rights}
-	fmt.Println(u)
-	err := u.addUser()
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.Redirect(w, r, "/admin/users", http.StatusFound)
+	return data,created
 }
 
 func hashPassword(password []byte) (string){
@@ -245,13 +256,6 @@ func hashPassword(password []byte) (string){
 	}
 	fmt.Println(string(hashedPassword))
 	return string(hashedPassword)
-}
-
-func compareHash(hashedPassword []byte) error{
-		password := []byte("root")
-		// Comparing the password with the hash
-		err := bcrypt.CompareHashAndPassword(hashedPassword, password)
-		return err
 }
 
 func checkErr(err error) {

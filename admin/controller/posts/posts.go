@@ -21,7 +21,6 @@ import (
 	a "github.com/jschalkwijk/GolangBlog/admin/model/actions"
 	"github.com/jschalkwijk/GolangBlog/admin/model/login"
 	"github.com/jschalkwijk/GolangBlog/admin/controller"
-	"fmt"
 )
 
 
@@ -32,11 +31,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
 	}
 
-	fmt.Print(session.Username)
-	fmt.Print(session.FirstName)
-	fmt.Print(session.LastName)
-	fmt.Print(session.Rights)
-	fmt.Print(session.Logged)
+	//fmt.Print(session.Username)
+	//fmt.Print(session.FirstName)
+	//fmt.Print(session.LastName)
+	//fmt.Print(session.Rights)
+	//fmt.Print(session.Logged)
 
 	if (r.PostFormValue("approve-selected") != ""){
 		a.Approve(w,r,"posts")
@@ -89,7 +88,7 @@ func Single(w http.ResponseWriter, r *http.Request){
 func New(w http.ResponseWriter, r *http.Request){
 
 	p,created := posts.Create(r);
-	p.Categories = categories.GetCategories(0).Categories
+	p.Categories = categories.All(0).Categories
 	if(created){
 		http.Redirect(w, r, "/admin/posts", http.StatusFound)
 	} else {
@@ -103,13 +102,10 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	p := posts.Single(id,true)
 
 	if r.Method == "POST" {
-		p, created := p.Posts[0].Patch(r);
+		_, created := p.Posts[0].Patch(r);
 		if (created) {
 			http.Redirect(w, r, "/admin/posts", http.StatusFound)
-		}  else {
-			controller.RenderTemplate(w,"posts/add-edit-post",p)
 		}
-	} else {
-		controller.RenderTemplate(w,"posts/add-edit-post",p)
 	}
+	controller.RenderTemplate(w,"posts/add-edit-post",p)
 }

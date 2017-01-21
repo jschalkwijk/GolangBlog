@@ -1,0 +1,43 @@
+{{define "users/users"}}
+<div class="container large">
+    <button><a href="/admin/users/add-user">Add User</a></button>
+    <button><a href="/admin/users/trashed-users">Trashed Users</a></button>
+</div>
+<div class="top-margin">
+    <div class="container large">
+        <table class="backend-table title">
+            <tr><th>User</th><th>Rights</th><th>Edit</th><th>View</th></tr>
+            {{ if .Deleted}}
+                <form class="backend-form" method="post" action="/admin/users/trashed-users">
+            {{ else }}
+                <form class="backend-form" method="post" action="/admin/users">
+            {{ end }}
+            {{ range $key, $value := .Users}}
+                <tr>
+                    <td class="td-title"><a href="/admin/users/{{.UserID}}/{{.UserName}}">{{.UserName}}</a></td>
+                    <td class="td-author">{{.Rights}}</td>
+                    <input type="hidden" name="id" value="{{.UserID}}" />
+                    <td class="td-btn"><a href="/admin/users/edit/{{.UserID}}/{{.UserName}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>
+                    <td class="td-btn"><img class="glyph-small" src="/images/show.png"/></td>
+                    <td class="td-btn"><input type="checkbox" name="checkbox" value="{{.UserID}}"/></td>
+                </tr>
+            {{ end }}
+                <div class="container">
+                    <table>
+                        {{ if .Deleted }}
+                        <th>Restore</th><th>Remove</th></tr>
+                        <tr><button type="submit" name="restore-selected" id="restore-selected" value="restore"><img class="glyph-small" src="add-post.png"/></button></tr>
+                        <tr><button type="submit" name="delete-selected" id="delete-selected" value="delete"><img class="glyph-small" src="delete-post.png"/></button></tr>
+                        {{ else }}
+                        <tr><th>Trash</th><th>Show</th><th>Hide</th>
+                        <tr><button type="submit" name="trash-selected" id="trash-selected" value="trash"><img class="glyph-small" src="trash-post.png"/></button></tr>
+                        <tr><button type="submit" name="approve-selected" id="approve-selected" value="approve"><img class="glyph-small" src="show.png"/></button></tr>
+                        <tr><button type="submit" name="hide-selected" id="hide-selected" value="hide"><img class="glyph-small" src="hide.png"/></button></tr>
+                        {{ end }}
+                    </table>
+                </div>
+            </form>
+        </table>
+    </div>
+</div>
+{{end}}

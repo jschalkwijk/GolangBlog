@@ -12,11 +12,12 @@ import (
 	"strconv"
 	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
+	"github.com/gorilla/schema"
 )
 
 /* Category struct will hold data about a category and can be added to the Data struct */
 type Category struct {
-	Category_ID int
+	Category_ID int `schema:"-"`
 	Title string
 	Description string
 	Content string
@@ -33,21 +34,10 @@ type Category struct {
  * Declaring vars corresponding to the struct. When scanning data from the database, the
    data will be stored on the memory address of these vars.
 */
-var category_id int
-var title string
-var description string
-var content string
-var keywords string
-var approved int
-var author string
-var cat_type string
-var date string
-var parent_id int
-var trashed int
 
 /* Stores a single category, or multiple categories in a Slice which can be iterated over in the template */
 type Data struct {
-	Categories []Category
+	Categories []*Category
 	Deleted bool
 }
 
@@ -60,7 +50,7 @@ type Data struct {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetCategories(trashed int) *Data {
+func All(trashed int) *Data {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
@@ -71,15 +61,23 @@ func GetCategories(trashed int) *Data {
 	checkErr(err)
 
 	data := new(Data)
-
+	c := new(Category)
 	for rows.Next() {
-		err = rows.Scan(&category_id, &title, &description, &content,&keywords,&approved,
-		&author,&cat_type,&date,&parent_id,&trashed)
+		err = rows.Scan(
+			&c.Category_ID,
+			&c.Title,
+			&c.Description,
+			&c.Content,
+			&c.Keywords,
+			&c.Approved,
+			&c.Author,
+			&c.Cat_Type,
+			&c.Date,
+			&c.Parent_ID,
+			&c.Trashed,
+		)
 		checkErr(err)
-
-		category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
-
-		data.Categories = append(data.Categories , category)
+		data.Categories = append(data.Categories , c)
 	}
 
 	if(trashed == 1) {
@@ -101,7 +99,7 @@ func GetCategories(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func GetSingleCategory(id string,category_title string) *Data {
+func Single(id string,category_title string) *Data {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection established")
@@ -111,14 +109,25 @@ func GetSingleCategory(id string,category_title string) *Data {
 	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? AND title=? LIMIT 1", id,category_title)
 
 	data := new(Data)
+	c := new(Category)
 
-	err = rows.Scan(&category_id, &title, &description, &content,&keywords,&approved,
-	&author,&cat_type,&date,&parent_id,&trashed)
+	err = rows.Scan(
+		&c.Category_ID,
+		&c.Title,
+		&c.Description,
+		&c.Content,
+		&c.Keywords,
+		&c.Approved,
+		&c.Author,
+		&c.Cat_Type,
+		&c.Date,
+		&c.Parent_ID,
+		&c.Trashed,
+	)
+
 	checkErr(err)
 
-	category := Category{category_id,title,description,content,keywords,approved,author,cat_type,date,parent_id,trashed}
-
-	data.Categories = append(data.Categories , category)
+	data.Categories = append(data.Categories , c)
 
 	//fmt.Println(collection.categories)
 	return data
@@ -133,7 +142,7 @@ func GetSingleCategory(id string,category_title string) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Category) saveCategory() error {
+func (p *Category) save() error {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 
@@ -158,7 +167,7 @@ func (p *Category) saveCategory() error {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (p *Category) AddCategory() error {
+func (p *Category) Store() error {
 	db, err := sql.Open("mysql", cfg.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO categories (title,description) VALUES(?,?) ")
@@ -180,7 +189,7 @@ func (p *Category) AddCategory() error {
    instantiate a separate one.
  * Call saveCategory, a method of the Category Struct, to update the DB
 */
-func EditCategory(w http.ResponseWriter, r *http.Request,id string) {
+func Edit(w http.ResponseWriter, r *http.Request,id string) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
 	id_string := r.FormValue("category_id")
@@ -188,7 +197,7 @@ func EditCategory(w http.ResponseWriter, r *http.Request,id string) {
 	checkErr(error)
 	p := &Category{Category_ID: category_id, Title: title,Description: description}
 	fmt.Println(p)
-	err := p.saveCategory()
+	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -202,18 +211,23 @@ func EditCategory(w http.ResponseWriter, r *http.Request,id string) {
    instantiate a separate one.
  * Call AddCategory, a method of the Category Struct, to insert new category in the DB.
 */
-func NewCategory(w http.ResponseWriter, r *http.Request) {
-	title := r.FormValue("title")
-	description := r.FormValue("description")
-
-	p := &Category{Title: title ,Description: description}
-	fmt.Println(p)
-	err := p.AddCategory()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func Create(r *http.Request) (*Data,bool) {
+	c := new(Category)
+	data := new(Data)
+	created := false
+	if r.Method == "POST"{
+		err := r.ParseForm()
+		checkErr(err)
+		decoder := schema.NewDecoder()
+		err = decoder.Decode(c,r.PostForm)
+		checkErr(err)
+		err = c.Store()
+		checkErr(err)
+	} else{
+		data.Categories = append(data.Categories,c)
 	}
-	http.Redirect(w, r, "/admin/categories/", http.StatusFound)
+
+	return data,created
 }
 
 func checkErr(err error) {
