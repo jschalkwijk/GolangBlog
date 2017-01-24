@@ -16,10 +16,10 @@ func Index(w http.ResponseWriter, r *http.Request){
 	}
 
 	p := pages.All(0)
-	controller.RenderTemplate(w,"pages/pages",p)
+	controller.View(w,"pages/pages",p)
 }
 
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -27,34 +27,33 @@ func Single(w http.ResponseWriter, r *http.Request){
 	}
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := pages.Single(id)
-	controller.RenderTemplate(w,"pages/pages",p)
+	p := pages.One(id)
+	controller.View(w,"pages/pages",p)
 }
 
-func New(w http.ResponseWriter, r *http.Request){
+func Create(w http.ResponseWriter, r *http.Request){
 
 	p,created := pages.Create(r);
 	if(created){
 		http.Redirect(w, r, "/admin/pages", http.StatusFound)
-	} else {
-		controller.RenderTemplate(w,"pages/add-edit-page",p)
 	}
+
+	controller.View(w,"pages/add-edit-page",p)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	p := pages.Single(id)
+	p := pages.One(id)
 
 	if r.Method == "POST" {
-		p, created := p.Pages[0].Patch(r);
+		data, created := p.Pages[0].Patch(r);
 		if (created) {
 			http.Redirect(w, r, "/admin/pages", http.StatusFound)
 		}  else {
-			controller.RenderTemplate(w,"pages/add-edit-page",p)
+			p = data
 		}
-	} else {
-		controller.RenderTemplate(w,"pages/add-edit-page",p)
 	}
+	controller.View(w,"pages/add-edit-page",p)
 }

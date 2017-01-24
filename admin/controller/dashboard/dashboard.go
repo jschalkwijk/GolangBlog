@@ -30,5 +30,5 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	data.Posts = *posts.All(0)
 	data.Users = *users.All(0)
 	data.Dashboard = true
-	controller.RenderTemplate(w,"index", data)
+	controller.View(w,"index", data)
 }

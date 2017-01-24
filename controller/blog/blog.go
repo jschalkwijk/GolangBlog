@@ -12,13 +12,13 @@ import (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	p := posts.All(0)
-	blog.RenderTemplate(w,"blog", p)
+	blog.View(w,"blog", p)
 }
 
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := posts.Single(id,false)
-	blog.RenderTemplate(w,"blog", p)
+	p := posts.One(id,false)
+	blog.View(w,"blog", p)
 }
 

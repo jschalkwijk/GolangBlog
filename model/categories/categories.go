@@ -18,7 +18,7 @@ var templates = "GolangBlog/templates"
 */
 
 
-func RenderTemplate(w http.ResponseWriter,name string, p *cat.Data) {
+func View(w http.ResponseWriter,name string, p *cat.Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -9,7 +9,7 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	login.RenderTemplate(w,"login")
+	login.View(w,"login")
 }
 
 func Auth(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +18,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 		login.SetSession(w,r)
 		http.Redirect(w, r, "/admin", http.StatusFound)
 	} else {
-		login.RenderTemplate(w,"login")
+		login.View(w,"login")
 	}
 }
 

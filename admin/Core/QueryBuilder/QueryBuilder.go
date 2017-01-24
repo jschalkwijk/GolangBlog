@@ -9,6 +9,13 @@ import (
 	"fmt"
 )
 
+/*
+	TODO:
+	Een interface die refreeerd naar alle common functions die elke model moet hebben
+	De hoof model functie neemt dan elke model aan,het model dat doorgegeven wordt
+	moet de table name hebben etc, zo kan ik mischien general functies maken voor
+	crud functionaliteiten.
+*/
 type Query struct{
 	PrimaryKey string
 	Table string

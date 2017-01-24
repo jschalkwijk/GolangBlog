@@ -105,7 +105,7 @@ func All(trashed int) *Data {
 	return data
 }
 
-func Single(id string) *Data {
+func One(id string) *Data {
 	db, err := sql.Open("mysql",config.DB)
 	checkErr(err)
 	defer db.Close()

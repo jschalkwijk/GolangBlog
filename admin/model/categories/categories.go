@@ -91,7 +91,7 @@ func All(trashed int) *Data {
 }
 
 /* -- Get a single categories -- */
-/* GetSingleCategory gets a category from the DB and returns a pointer to the Struct. It takes a id and category_title.
+/* GetOneCategory gets a category from the DB and returns a pointer to the Struct. It takes a id and category_title.
  * 	Connects to the database and gets all category rows.
  * 	Instantiate a new Data struct assigned to var collection
  * 	Get a single row from the DB and get the values and set the values to the memory address of the named variable.
@@ -100,7 +100,7 @@ func All(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func Single(id string) *Data {
+func One(id string) *Data {
 	db, err := sql.Open("mysql", cfg.DB)
 	checkErr(err)
 
@@ -158,7 +158,7 @@ func (c *Category) update() error {
 }
 
 /* AddCategory saves the values of a new category to the database and is a method to Category.
- * Called by NewCategory
+ * Called by CreateCategory
  * Connect to the DB and prepares query.
  * Execute query with the inserted values and replaces the ? in the query string.
  * Checks how many rows are affected.

@@ -29,7 +29,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,dbt)
 	}
 	u := users.All(0)
-	controller.RenderTemplate(w,"users/users", u)
+	controller.View(w,"users/users", u)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -46,10 +46,10 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,dbt)
 	}
 	p := users.All(1)
-	controller.RenderTemplate(w,"users/users", p)
+	controller.View(w,"users/users", p)
 }
 
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -58,11 +58,11 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := users.Single(id)
-	controller.RenderTemplate(w,"users/users", p)
+	p := users.One(id)
+	controller.View(w,"users/users", p)
 }
 
-func New(w http.ResponseWriter, r *http.Request){
+func Create(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -74,7 +74,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	if(created){
 		http.Redirect(w, r, "/admin/users", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"users/add-user",u)
+		controller.View(w,"users/add-user",u)
 	}
 }
 
@@ -87,15 +87,17 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	u := users.Single(id)
+	u := users.One(id)
 
 	if r.Method == "POST" {
-		_, updated := u.Users[0].Patch(r);
+		data, updated := u.Users[0].Patch(r);
 		if (updated) {
 			http.Redirect(w, r, "/admin/users", http.StatusFound)
+		} else {
+			u = data
 		}
 	}
-	controller.RenderTemplate(w,"users/edit-user",u)
+	controller.View(w,"users/edit-user",u)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
@@ -110,6 +112,6 @@ func Add(w http.ResponseWriter, r *http.Request){
 	if(created){
 		http.Redirect(w, r, "/admin/users", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"users/add-user",u)
+		controller.View(w,"users/add-user",u)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 )
 
-func RenderTemplate(w http.ResponseWriter, name string, data interface{}){
+func View(w http.ResponseWriter, name string, data interface{}){
 	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

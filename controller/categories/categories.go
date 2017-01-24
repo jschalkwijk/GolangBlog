@@ -10,12 +10,12 @@ import (
 
 func Index(w http.ResponseWriter, r *http.Request) {
 	p := cat.All(0)
-	categories.RenderTemplate(w,"categories", p)
+	categories.View(w,"categories", p)
 }
 
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := cat.Single(id)
-	categories.RenderTemplate(w,"categories", p)
+	p := cat.One(id)
+	categories.View(w,"categories", p)
 }

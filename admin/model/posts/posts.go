@@ -106,7 +106,7 @@ func All(trashed int) *Data {
 }
 
 /* -- Get a single Post -- */
-/* GetSinglePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.
+/* GetOnePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.
  * 	Connects to the database and gets all post rows.
  * 	Instantiate a new Data struct assigned to var collection
  * 	Get a single row from the DB and get the values and set the values to the memory address of the named variable.
@@ -115,7 +115,7 @@ func All(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func Single(id string, getCat bool) *Data {
+func One(id string, getCat bool) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
@@ -188,7 +188,7 @@ func (p *Post) update() error {
 }
 
 /* addPost saves the values of a new category to the database and is a method to Post.
- * Called by NewPost
+ * Called by CreatePost
  * Connect to the DB and prepares query.
  * Execute query with the inserted values and replaces the ? in the query string.
  * Checks how many rows are affected.
@@ -241,8 +241,10 @@ func (post *Post) Patch(r *http.Request) (*Data,bool) {
 
 		post.Category_ID = categoryINT;
 		if post.Title == "" || post.Content == "" {
+			fmt.Println("I got here! ")
 			data.Posts = append(data.Posts , post)
 			data.Message = "Please fill in all the required fields"
+			fmt.Println(data.Message)
 		} else {
 			err = post.update()
 			checkErr(err)
@@ -289,6 +291,7 @@ func Create(r *http.Request) (*Data,bool){
 		checkErr(err)
 
 		post.Category_ID = categoryINT;
+		fmt.Printf("%v",post.Title)
 		if post.Title == "" || post.Content == "" {
 			data.Posts = append(data.Posts , post)
 			data.Message = "Please fill in all the required fields"

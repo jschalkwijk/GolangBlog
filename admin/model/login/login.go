@@ -29,7 +29,7 @@ var firstName string
 var lastName string
 var rights string
 
-func RenderTemplate(w http.ResponseWriter,name string) {
+func View(w http.ResponseWriter,name string) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",view + "/" + name + ".html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -4,11 +4,11 @@
  *  If specified in main we can take URL parameters using the Gorrila Mux tool.
  * 	They can call functions from an imported model.
  * 	If a func from a model returns data, it had to be assigned to a variable.
- *  The variable with the data must be passed to the models RenderTemplate func
+ *  The variable with the data must be passed to the models View func
 	in order to render the template with the data.
  *	In some cases you need to render a template without data. This is done by
 	creating an empty data struct from the imported model and then pass it to the
-	RenderTemplate func.
+	View func.
  */
 
 package posts
@@ -52,7 +52,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	//p := d.GetPosts(0)
 
 	p := posts.All(0)
-	controller.RenderTemplate(w,"posts/posts", p)
+	controller.View(w,"posts/posts", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -69,10 +69,10 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,"posts")
 	}
 	p := posts.All(1)
-	controller.RenderTemplate(w,"posts/posts", p)
+	controller.View(w,"posts/posts", p)
 }
 
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -81,31 +81,33 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := posts.Single(id,false)
-	controller.RenderTemplate(w,"posts/posts", p)
+	p := posts.One(id,false)
+	controller.View(w,"posts/posts", p)
 }
 
-func New(w http.ResponseWriter, r *http.Request){
+func Create(w http.ResponseWriter, r *http.Request){
 
 	p,created := posts.Create(r);
 	p.Categories = categories.All(0).Categories
 	if(created){
 		http.Redirect(w, r, "/admin/posts", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"posts/add-edit-post",p)
+		controller.View(w,"posts/add-edit-post",p)
 	}
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := posts.Single(id,true)
+	p := posts.One(id,true)
 
 	if r.Method == "POST" {
-		_, created := p.Posts[0].Patch(r);
-		if (created) {
+		data, updated := p.Posts[0].Patch(r);
+		if (updated) {
 			http.Redirect(w, r, "/admin/posts", http.StatusFound)
+		} else {
+			p = data
 		}
 	}
-	controller.RenderTemplate(w,"posts/add-edit-post",p)
+	controller.View(w,"posts/add-edit-post",p)
 }

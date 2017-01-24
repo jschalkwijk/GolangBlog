@@ -83,7 +83,7 @@ func All(trashed int) *Data {
 }
 
 /* -- Get a single User -- */
-/* GetSingleUser gets a user from the DB and returns a pointer to the Struct. It takes a id and username.
+/* GetOneUser gets a user from the DB and returns a pointer to the Struct. It takes a id and username.
  * 	Connects to the database and gets all post rows.
  * 	Instantiate a new Data struct assigned to var collection
  * 	Get a single row from the DB and get the values and set the values to the memory address of the named variable.
@@ -92,7 +92,7 @@ func All(trashed int) *Data {
  *	Returns the Data Struct after the loop is completed. This Struct can be used
   	inside a template.
  */
-func Single(id string) *Data {
+func One(id string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()

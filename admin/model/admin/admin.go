@@ -16,7 +16,7 @@ type Data struct {
 	Dashboard bool
 }
 
-func RenderTemplate(w http.ResponseWriter,name string, data *Data) {
+func View(w http.ResponseWriter,name string, data *Data) {
 	t, err := template.ParseFiles(templates+"/"+"header.html",templates+"/"+"nav.html",view + "/" + name + ".html",templates+"/"+"footer.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

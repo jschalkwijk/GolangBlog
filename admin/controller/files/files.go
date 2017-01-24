@@ -35,7 +35,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		f.Messages = msg
 	}
 
-	controller.RenderTemplate(w,"files",f)
+	controller.View(w,"files",f)
 }
 
 func Upload(w http.ResponseWriter, r *http.Request){
@@ -64,5 +64,5 @@ func Folder(w http.ResponseWriter, r *http.Request){
 
 	f.CurrentFolder = idINT
 
-	controller.RenderTemplate(w,"files",f)
+	controller.View(w,"files",f)
 }

@@ -4,11 +4,11 @@
  *  If specified in main we can take URL parameters using the Gorrila Mux tool.
  * 	They can call functions from an imported model.
  * 	If a func from a model returns data, it had to be assigned to a variable.
- *  The variable with the data must be passed to the models RenderTemplate func
+ *  The variable with the data must be passed to the models View func
  	in order to render the template with the data.
  *	In some cases you need to render a template without data. This is done by
  	creating an empty data struct from the imported model and then pass it to the
- 	RenderTemplate func.
+ 	View func.
  */
 
 package categories
@@ -41,7 +41,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		a.Hide(w,r,dbt)
 	}
 	p := categories.All(0)
-	controller.RenderTemplate(w,"categories/categories", p)
+	controller.View(w,"categories/categories", p)
 }
 
 func Deleted(w http.ResponseWriter, r *http.Request) {
@@ -58,9 +58,9 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 		a.Delete(w,r,dbt)
 	}
 	p := categories.All(1)
-	controller.RenderTemplate(w,"categories/categories", p)
+	controller.View(w,"categories/categories", p)
 }
-func Single(w http.ResponseWriter, r *http.Request){
+func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -69,11 +69,11 @@ func Single(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	p := categories.Single(id)
-	controller.RenderTemplate(w,"categories/categories", p)
+	p := categories.One(id)
+	controller.View(w,"categories/categories", p)
 }
 
-func New(w http.ResponseWriter, r *http.Request){
+func Create(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
@@ -82,7 +82,7 @@ func New(w http.ResponseWriter, r *http.Request){
 
 	collection := new(categories.Data)
 	p := collection
-	controller.RenderTemplate(w,"categories/add-category", p)
+	controller.View(w,"categories/add-category", p)
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -94,15 +94,17 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 	vars := mux.Vars(r)
 	id := vars["id"]
-	c := categories.Single(id)
+	c := categories.One(id)
 
 	if r.Method == "POST" {
-		_, updated := c.Categories[0].Patch(r);
+		data, updated := c.Categories[0].Patch(r);
 		if (updated) {
 			http.Redirect(w, r, "/admin/categories", http.StatusFound)
+		} else {
+			c = data
 		}
 	}
-	controller.RenderTemplate(w,"categories/edit-category",c)
+	controller.View(w,"categories/edit-category",c)
 }
 
 func Add(w http.ResponseWriter, r *http.Request){
@@ -117,6 +119,6 @@ func Add(w http.ResponseWriter, r *http.Request){
 	if(created){
 		http.Redirect(w, r, "/admin/categories", http.StatusFound)
 	} else {
-		controller.RenderTemplate(w,"categories/add-category",u)
+		controller.View(w,"categories/add-category",u)
 	}
 }
