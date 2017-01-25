@@ -23,16 +23,16 @@ type Data interface {
 
 // Renders the specified files/template and can take in any type, the template file will define if it can use the given type.
 func View(w http.ResponseWriter, name string, data interface{}){
-	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	t := template.Must(template.ParseFiles(config.Templates+"/"+"header.html",config.Templates+"/"+"nav.html",config.View + "/" + name + ".html",config.Templates+"/"+"footer.html"))
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusInternalServerError)
+	//	return
+	//}
 	t.ExecuteTemplate(w,"header",nil)
 	t.ExecuteTemplate(w,"nav",nil)
 	t.ExecuteTemplate(w,name,data)
 	t.ExecuteTemplate(w,"footer",nil)
-	err = t.Execute(w, nil)
+	err := t.Execute(w, nil)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

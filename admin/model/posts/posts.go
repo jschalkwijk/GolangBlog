@@ -14,17 +14,16 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	"github.com/gorilla/schema"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
+
 	"log"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
 )
 
-// here we define the absolute path to the view folder it takes the go root until the github folder.
-var view = "GolangBlog/admin/view"
-var templates = "GolangBlog/admin/templates"
-
+func init(){
+	Model.GetAll(&Post{Post_ID:1,Title:"Reflection Test"})
+}
 /* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
-	QueryBuilder.Query
 	Post_ID int `schema:"-"`
 	Title string
 	Description string
@@ -70,8 +69,8 @@ func All(trashed int) *Data {
 	var content string
 	for rows.Next() {
 		post := new(Post)
-		post.Table = "posts"
-		post.PrimaryKey = "post_id"
+		//post.Table = "posts"
+		//post.PrimaryKey = "post_id"
 		err = rows.Scan(
 			&post.Post_ID,
 			&post.Title,
@@ -105,6 +104,9 @@ func All(trashed int) *Data {
 	return data
 }
 
+func GetAll(){
+	Model.GetAll(Post{})
+}
 /* -- Get a single Post -- */
 /* GetOnePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.
  * 	Connects to the database and gets all post rows.
