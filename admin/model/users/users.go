@@ -9,14 +9,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"github.com/gorilla/schema"
+	"github.com/jmoiron/sqlx"
 )
 
 type User struct {
-	UserID int `schema:"-"`
+	User_ID int `schema:"-"`
 	UserName string
 	Password string
-	FirstName string
-	LastName string
+	First_Name string
+	Last_Name string
 	DOB string
 	Email string
 	Function string
@@ -41,32 +42,22 @@ type Data struct {
   	inside a template.
  */
 func All(trashed int) *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
 	// Selects all rows from posts, and links the category_id row to the matching title.
-	rows, err := db.Query("SELECT * FROM users WHERE trashed = ? ORDER BY user_id DESC",trashed)
+	rows, err := db.Queryx("SELECT * FROM users WHERE trashed = ? ORDER BY user_id DESC",trashed)
 	checkErr(err)
 
 	data := new(Data)
 
 	for rows.Next() {
 		user := new(User)
-		err = rows.Scan(
-			&user.UserID,
-			&user.UserName,
-			&user.Password,
-			&user.FirstName,
-			&user.LastName,
-			&user.DOB,
-			&user.Email,
-			&user.Function,
-			&user.Rights,
-			&user.Trashed,
-			&user.Approved,
+		err = rows.StructScan(
+			&user,
 		)
 		checkErr(err)
 
@@ -93,28 +84,18 @@ func All(trashed int) *Data {
   	inside a template.
  */
 func One(id string) *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
 
-	rows := db.QueryRow("SELECT * FROM users WHERE user_id = ?", id)
+	rows := db.QueryRowx("SELECT * FROM users WHERE user_id = ?", id)
 
 	data := new(Data)
 
 	user := new(User)
 
-	err = rows.Scan(
-		&user.UserID,
-		&user.UserName,
-		&user.Password,
-		&user.FirstName,
-		&user.LastName,
-		&user.DOB,
-		&user.Email,
-		&user.Function,
-		&user.Rights,
-		&user.Trashed,
-		&user.Approved,
+	err = rows.StructScan(
+		&user,
 	)
 	checkErr(err)
 
@@ -143,7 +124,7 @@ func (u *User) update() error {
 	fmt.Println(stmt)
 	checkErr(err)
 
-	res, err := stmt.Exec(u.UserName,u.Password,u.FirstName,u.LastName,u.DOB,u.Email,u.Function,u.Rights,u.UserID)
+	res, err := stmt.Exec(u.UserName,u.Password,u.First_Name,u.Last_Name,u.DOB,u.Email,u.Function,u.Rights,u.User_ID)
 	checkErr(err)
 	//affect, err := res.RowsAffected()
 	//checkErr(err)
@@ -165,7 +146,7 @@ func (u *User) store() error {
 	stmt, err := db.Prepare("INSERT INTO users (username,password, first_name, last_name, dob, email, function, rights) VALUES(?,?,?,?,?,?,?,?)")
 	fmt.Println(stmt)
 	checkErr(err)
-	res, err := stmt.Exec(u.UserName,u.Password,u.FirstName,u.LastName,u.DOB,u.Email,u.Function,u.Rights)
+	res, err := stmt.Exec(u.UserName,u.Password,u.First_Name,u.Last_Name,u.DOB,u.Email,u.Function,u.Rights)
 	affect, err := res.RowsAffected()
 	fmt.Println(affect)
 	fmt.Println(res)

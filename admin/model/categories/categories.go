@@ -12,6 +12,7 @@ import (
 	cfg "github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
 	"github.com/gorilla/schema"
+	"github.com/jmoiron/sqlx"
 )
 
 /* Category struct will hold data about a category and can be added to the Data struct */
@@ -23,7 +24,7 @@ type Category struct {
 	Keywords string
 	Approved int
 	Author string
-	Cat_Type string
+	Type string
 	Date string
 	Parent_ID int
 	Trashed int
@@ -51,31 +52,21 @@ type Data struct {
   	inside a template.
  */
 func All(trashed int) *Data {
-	db, err := sql.Open("mysql", cfg.DB)
+	db, err := sqlx.Connect("mysql", cfg.DB)
 	checkErr(err)
 	fmt.Println("Connection with database Established")
 	defer db.Close()
 	defer fmt.Println("Connection with database Closed")
 
-	rows, err := db.Query("SELECT * FROM categories WHERE trashed = ? ORDER BY categorie_id DESC", trashed)
+	rows, err := db.Queryx("SELECT * FROM categories WHERE trashed = ? ORDER BY category_id DESC", trashed)
 	checkErr(err)
 
 	data := new(Data)
 
 	for rows.Next() {
 		c := new(Category)
-		err = rows.Scan(
-			&c.Category_ID,
-			&c.Title,
-			&c.Description,
-			&c.Content,
-			&c.Keywords,
-			&c.Approved,
-			&c.Author,
-			&c.Cat_Type,
-			&c.Date,
-			&c.Parent_ID,
-			&c.Trashed,
+		err = rows.StructScan(
+			&c,
 		)
 		checkErr(err)
 		data.Categories = append(data.Categories , c)
@@ -101,28 +92,18 @@ func All(trashed int) *Data {
   	inside a template.
  */
 func One(id string) *Data {
-	db, err := sql.Open("mysql", cfg.DB)
+	db, err := sqlx.Connect("mysql", cfg.DB)
 	checkErr(err)
 
 	defer db.Close()
 
-	rows := db.QueryRow("SELECT * FROM categories WHERE categorie_id=? LIMIT 1", id)
+	rows := db.QueryRowx("SELECT * FROM categories WHERE category_id=? LIMIT 1", id)
 
 	data := new(Data)
 	c := new(Category)
 
-	err = rows.Scan(
-		&c.Category_ID,
-		&c.Title,
-		&c.Description,
-		&c.Content,
-		&c.Keywords,
-		&c.Approved,
-		&c.Author,
-		&c.Cat_Type,
-		&c.Date,
-		&c.Parent_ID,
-		&c.Trashed,
+	err = rows.StructScan(
+		&c,
 	)
 
 	checkErr(err)
@@ -148,7 +129,7 @@ func (c *Category) update() error {
 
 	defer db.Close()
 
-	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE categorie_id=?")
+	stmt, err := db.Prepare("UPDATE categories SET title=?, description=? WHERE category_id=?")
 	fmt.Println(stmt)
 	checkErr(err)
 	_, err = stmt.Exec(c.Title,c.Description,c.Category_ID)

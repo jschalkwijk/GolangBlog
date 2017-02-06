@@ -9,6 +9,7 @@ import(
 	"github.com/gorilla/schema"
 	"fmt"
 	"log"
+	"github.com/jmoiron/sqlx"
 )
 
 type Page struct {
@@ -87,16 +88,18 @@ type Data struct {
 }
 
 func All(trashed int) *Data {
-	db, err := sql.Open("mysql",config.DB)
+	db, err := sqlx.Connect("mysql",config.DB)
 	checkErr(err)
 	defer db.Close()
-	rows, err := db.Query("SELECT * FROM pages WHERE trashed = ? ORDER BY page_id DESC",trashed)
+	rows, err := db.Queryx("SELECT * FROM pages WHERE trashed = ? ORDER BY page_id DESC",trashed)
 
 	data := new(Data)
 
 	for rows.Next() {
 		page := new(Page)
-		err = rows.Scan(&page.Page_ID,&page.Title,&page.Description,&content,&page.Keywords,&page.Approved,&page.Author,&page.Date,&page.Parent_ID,&page.Trashed)
+		err = rows.StructScan(
+			&page,
+		)
 		checkErr(err)
 		page.Content = template.HTML(content)
 
@@ -106,15 +109,17 @@ func All(trashed int) *Data {
 }
 
 func One(id string) *Data {
-	db, err := sql.Open("mysql",config.DB)
+	db, err := sqlx.Connect("mysql",config.DB)
 	checkErr(err)
 	defer db.Close()
-	rows := db.QueryRow("SELECT * FROM pages WHERE page_id = ?",id)
+	rows := db.QueryRowx("SELECT * FROM pages WHERE page_id = ?",id)
 
 	page := new(Page)
 	data := new(Data)
 
-	err = rows.Scan(&page.Page_ID,&page.Title,&page.Description,&content,&page.Keywords,&page.Approved,&page.Author,&page.Date,&page.Parent_ID,&page.Trashed)
+	err = rows.StructScan(
+		&page,
+	)
 	checkErr(err)
 	page.Content = template.HTML(content)
 	data.Pages = append(data.Pages , page)

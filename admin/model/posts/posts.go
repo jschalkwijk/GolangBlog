@@ -14,14 +14,14 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	cat "github.com/jschalkwijk/GolangBlog/admin/model/categories"
 	"github.com/gorilla/schema"
-
+	"github.com/jmoiron/sqlx"
 	"log"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
 )
 
-func init(){
-	Model.GetAll(&Post{Post_ID:1,Title:"Reflection Test"})
-}
+//func init(){
+//	Model.GetAll(&Post{Post_ID:1,Title:"Reflection Test"})
+//}
+
 /* Post struct will hold data about a post and can be added to the Data struct */
 type Post struct {
 	Post_ID int `schema:"-"`
@@ -56,12 +56,12 @@ type Data struct {
   	inside a template.
  */
 func All(trashed int) *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
 
 	// Selects all rows from posts, and links the category_id row to the matching title.
-	rows, err := db.Query("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
+	rows, err := db.Queryx("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.category_id = posts.category_id WHERE posts.trashed = ? ORDER BY posts.post_id DESC",trashed)
 	checkErr(err)
 
 	data := new(Data)
@@ -71,18 +71,8 @@ func All(trashed int) *Data {
 		post := new(Post)
 		//post.Table = "posts"
 		//post.PrimaryKey = "post_id"
-		err = rows.Scan(
-			&post.Post_ID,
-			&post.Title,
-			&post.Description,
-			&content,
-			&post.Keywords,
-			&post.Approved,
-			&post.Author,
-			&post.Date,
-			&post.Category_ID,
-			&post.Trashed,
-			&post.Category,
+		err = rows.StructScan(
+			&post,
 		)
 		checkErr(err)
 		// convert string to HTML markdown
@@ -104,9 +94,6 @@ func All(trashed int) *Data {
 	return data
 }
 
-func GetAll(){
-	Model.GetAll(Post{})
-}
 /* -- Get a single Post -- */
 /* GetOnePost gets a post from the DB and returns a pointer to the Struct. It takes a id and post_title.
  * 	Connects to the database and gets all post rows.
@@ -118,28 +105,18 @@ func GetAll(){
   	inside a template.
  */
 func One(id string, getCat bool) *Data {
-	db, err := sql.Open("mysql", config.DB)
+	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
 
-	rows := db.QueryRow("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
+	rows := db.QueryRowx("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
 
 	data := new(Data)
 	post := new(Post)
 	var content string
 
-	err = rows.Scan(
-		&post.Post_ID,
-		&post.Title,
-		&post.Description,
-		&content,
-		&post.Keywords,
-		&post.Keywords,
-		&post.Author,
-		&post.Date,
-		&post.Category_ID,
-		&post.Trashed,
-		&post.Category,
+	err = rows.StructScan(
+		&post,
 	)
 	checkErr(err)
 	// convert string to HTML markdown
@@ -324,7 +301,7 @@ func addCategoryFromForm (category string, category_id string) string {
 	defer db.Close()
 	checkErr(err)
 
-	row := db.QueryRow("SELECT categorie_id FROM categories WHERE title = ? LIMIT 1",category)
+	row := db.QueryRow("SELECT category_id FROM categories WHERE title = ? LIMIT 1",category)
 	err = row.Scan(&category_id)
 	checkErr(err)
 	//fmt.Println("category_id: ",category_id)
