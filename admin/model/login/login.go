@@ -12,9 +12,6 @@ import (
 	"log"
 )
 
-var view = "GolangBlog/admin/view"
-var templates = "GolangBlog/admin/templates"
-
 type User struct {
 	Username string
 	FirstName string
@@ -30,7 +27,7 @@ var lastName string
 var rights string
 
 func View(w http.ResponseWriter,name string) {
-	t, err := template.ParseFiles(templates+"/"+"header.html",view + "/" + name + ".html")
+	t, err := template.ParseFiles(config.Templates+"/"+"header.html",config.View + "/" + name + ".html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

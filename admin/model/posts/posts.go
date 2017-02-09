@@ -78,7 +78,7 @@ func All(trashed int) *Data {
 		// convert string to HTML markdown
 		post.Content = template.HTML(content)
 		//fmt.Println(post.Post_ID,post.Title)
-		//fmt.Println(post)
+		fmt.Println(post)
 		data.Posts = append(data.Posts , post)
 		data.Dashboard = false
 	}
@@ -109,7 +109,7 @@ func One(id string, getCat bool) *Data {
 	checkErr(err)
 	defer db.Close()
 
-	rows := db.QueryRowx("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.categorie_id = posts.category_id WHERE post_id=? LIMIT  1", id)
+	rows := db.QueryRowx("SELECT posts.*, categories.title AS category FROM categories JOIN posts ON categories.category_id = posts.category_id WHERE post_id=? LIMIT  1", id)
 
 	data := new(Data)
 	post := new(Post)

@@ -2,7 +2,7 @@ package config
 
 // Declare database variables
 var user string = "root"
-var password string= "root"
+var password string= ""
 var host string = "localhost"
 var name string = "golangblog"
 var port string = "3306"
@@ -11,5 +11,5 @@ var port string = "3306"
 var DB string = user+":"+password+"@tcp("+host+":"+port+")/"+name+"?charset=utf8"
 
 /* Declaring folder paths */
-var View = "GolangBlog/admin/view"
-var Templates = "GolangBlog/admin/templates"
+var View = "admin/view"
+var Templates = "admin/templates"

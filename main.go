@@ -18,8 +18,8 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
 )
 
-var static string = "/GolangBlog/static/"
-var adminStatic string = "/GolangBlog/admin/static/"
+var static string = "/static/"
+var adminStatic string = "/admin/static/"
 
 func main() {
 	// With this function I can check if my filepath is working for serving static files such as CSS or Templates etc
@@ -79,16 +79,16 @@ func main() {
 		u.HandleFunc("/add", users.Add)
 		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
 		u.HandleFunc("/trashed-users", users.Deleted)
+	//Files
+	r.HandleFunc("/admin/files", files.Index)
+	f := r.PathPrefix("/admin/files/").Subrouter()
+	f.HandleFunc("/upload", files.Upload)
+	f.HandleFunc("/folder/{id:[0-9]+}/{foldername}", files.Folder)
 	// Login
 	r.HandleFunc("/admin/login", login.Index)
 		l := r.PathPrefix("/admin/login").Subrouter()
 		l.HandleFunc("/auth", login.Auth)
 		l.HandleFunc("/logout", login.Logout)
-	//Files
-	r.HandleFunc("/admin/files", files.Index)
-		f := r.PathPrefix("/admin/files").Subrouter()
-		f.HandleFunc("/upload-file", files.Upload)
-		f.HandleFunc("/folder/{id:[0-9]+}/{foldername}", files.Folder)
 
 	http.Handle("/", r)
 
@@ -107,7 +107,7 @@ func serveStatic(router *mux.Router, staticDirectory string, admin string) {
 		"/tinymce/": staticDirectory + "/scripts/tinymce/js/tinymce/",
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
 		// Also it only works if the files folder is inside another folder also due to the conflict.
-		"/file/": staticDirectory + "/files/",
+		"/uploads/": staticDirectory + "/uploads/",
 	}
 	for pathPrefix, pathValue := range staticPaths {
 		router.PathPrefix(admin + pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,

@@ -109,7 +109,7 @@ func DeleteFiles(w http.ResponseWriter, r *http.Request, placeholder string,valu
 		// otherswise we use a incorrect filepath which will result in an error.
 
 		// !! we do this path[5:]for the above reason.
-		err = os.Remove("GolangBlog/static/files/"+path[5:])
+		err = os.Remove("static/"+path)
 		checkErr(err)
 	}
 }

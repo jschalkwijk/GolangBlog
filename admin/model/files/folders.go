@@ -28,6 +28,7 @@ var author string
 var parentID int
 var folderPath string
 var date string
+var folderSize string
 
 func Folders(id string) []Folder {
 	db, err := sql.Open("mysql", config.DB)
@@ -46,17 +47,12 @@ func Folders(id string) []Folder {
 
 	var folders []Folder
 	for rows.Next() {
-		err = rows.Scan(&folderID, &folderName,&description,&author,&parentID,&folderPath,&date)
+		err = rows.Scan(&folderID, &folderName,&description,&author,&parentID,&folderPath,&date,&folderSize)
 		checkErr(err)
 
-		// calculate folder size. path.WALK functie proberen, hij moet de grote van alle bestanden bij elkaar optellen
-		// dat gebeurd nu niet. check http://stackoverflow.com/questions/32482673/golang-how-to-get-directory-total-size
-		size,err := DirSize("GolangBlog/static/"+folderPath)
-		checkErr(err)
-
-		sizeMB := fmt.Sprintf("%0.2f",size)
-		fmt.Println(sizeMB)
-		folder := Folder{folderID, folderName,description,author,parentID,folderPath,date,sizeMB}
+		//sizeMB := fmt.Sprintf("%0.2f",folderSize)
+		//fmt.Println(sizeMB)
+		folder := Folder{folderID, folderName,description,author,parentID,folderPath,date,folderSize}
 		folders = append(folders, folder)
 	}
 
@@ -65,14 +61,11 @@ func Folders(id string) []Folder {
 func (folder *Folder) save() (int, error){
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection with database Established")
 	defer db.Close()
-	defer fmt.Println("Connection with database Closed")
 
-	stmt, err := db.Prepare("INSERT INTO folders(folder_name,path,parent_id) VALUES(?,?,?)")
-	fmt.Println(stmt)
+	stmt, err := db.Prepare("INSERT INTO folders(folder_name,path,parent_id,size) VALUES(?,?,?,?)")
 	checkErr(err)
-	result, err := stmt.Exec(folder.FolderName, folder.FolderPath,folder.ParentID)
+	result, err := stmt.Exec(folder.FolderName, folder.FolderPath,folder.ParentID,folder.FolderSize)
 	checkErr(err)
 	lastID, err := result.LastInsertId()
 	checkErr(err)
@@ -85,7 +78,6 @@ func Create(folder string,parentID int) (int,string,error) {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 
-	checkErr(err)
 	var path string
 	var row *sql.Row
 	if(parentID != 0) {
@@ -94,16 +86,23 @@ func Create(folder string,parentID int) (int,string,error) {
 		path = path+"/"+folder
 	} else {
 		// with no parent folder we need to add the files/ prefix
-		path = "files/"+folder
+		path = "uploads/"+folder
 	}
 
-	_, err = os.Stat("GolangBlog/static/"+path)
+	_, err = os.Stat("static/"+path)
 	if err != nil {
-		err = os.Mkdir("GolangBlog/static/"+path, 0777)
+		err = os.Mkdir("static/"+path, 0777)
 		checkErr(err)
 	}
+	// calculate folder size.
 
-	newFolder := Folder{FolderName: folder,FolderPath: path,ParentID: parentID}
+	size,err := DirSize("static/"+folderPath)
+	checkErr(err)
+
+	sizeMB := fmt.Sprintf("%0.2f",size)
+	fmt.Println(sizeMB)
+
+	newFolder := Folder{FolderName: folder,FolderPath: path,ParentID: parentID,FolderSize: sizeMB}
 	lastID, err := newFolder.save();
 	checkErr(err)
 	return lastID, path, err;
@@ -122,18 +121,17 @@ func Create(folder string,parentID int) (int,string,error) {
 //	}
 //}
 
-//this should be done only when the folder changes and then store into the DB
-// not everytime we load the page.
 func DirSize(path string)(float64, error){
+	// check http://stackoverflow.com/questions/32482673/golang-how-to-get-directory-total-size
 	var size float64
 	//Walk walks the file tree from the given filepath or root
 	// Using a closure we can get the fileinfo and size of each file which will be appended to the size var.
 	// returns the size in bites and a error message.
-	err := filepath.Walk("GolangBlog/static/"+folderPath, func(_ string, info os.FileInfo, err error) error {
+	err := filepath.Walk("static/"+folderPath, func(_ string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			size += (float64(info.Size()) / 1024) / 1024
 
-			fmt.Println("foldersize: ",size)
+			//fmt.Println("foldersize: ",size)
 		}
 		return err
 	})

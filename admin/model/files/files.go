@@ -125,7 +125,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	for i, _ := range files {
 		// For eah file header, get the handle to each file
 		file, err := files[i].Open()
-		defer file.Close()
+
 		checkErr(err)
 
 		//		fmt.Fprintf(w, "%v", handler.Header)
@@ -140,28 +140,22 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		// Also it only works if the files folder is inside another folder also due to the conflict.
 		// see main.go.
 
-		// !! we do this folderPath[6:len(folderPath)] for the above reason.
-		// if the folder path is fetched from the db it will state files/some/folder/path
-		// we need to remove that to give the staic file the correct path to work with the static file server.
-		// to serve the file we need to change the path to /file/ instead of files/
-		if(strings.Contains(folderPath,"files/")){
-			fPath = "/file/" + folderPath[6:len(folderPath)] + "/" + fName + "." + fType
-		} else {
-			fPath = "/file/" + folderPath + "/" + fName + "." + fType
-		}
+		// !! we name the files folder uploads for the above reason.
+
+		fPath = "/"+folderPath + "/" + fName + "." + fType
 
 		// Check if files folder exists
 		// if not create it.
-		_, err = os.Stat("GolangBlog/static/files")
+		_, err = os.Stat("static/uploads")
 		if err != nil {
-			err = os.Mkdir("GolangBlog/static/files", 0777)
+			err = os.Mkdir("static/uploads", 0777)
 			checkErr(err)
 		}
 
 		// Open a new empty file at a existing path plus the new file name and correct file typ
-		f, err := os.OpenFile("GolangBlog/static/" + folderPath + "/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
+		f, err := os.OpenFile("static/" + folderPath + "/" + fName + "." + fType, os.O_WRONLY | os.O_CREATE, 0777)
 		checkErr(err)
-		defer f.Close()
+
 		/*
 			func Copy(dst Writer, src Reader) (written int64, err error)
 			Copy copies from src to dst
@@ -170,7 +164,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		io.Copy(f, file)
 		// Get the filesize of the file and convert to MB.
 		// Stat returns a FileInfo structure describing the named file.
-		fileInfo, err := os.Stat("GolangBlog/static/" + folderPath + "/" + fName + "." + fType)
+		fileInfo, err := os.Stat("static/" + folderPath + "/" + fName + "." + fType)
 		// bytes to MB. 1024 bytes = 1KB.
 		fSize := fmt.Sprintf("%0.2f", (float64(fileInfo.Size()) / 1024) / 1024)
 		checkErr(err)
@@ -181,7 +175,20 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		checkErr(err)
 
 		data.Messages = append(data.Messages,name+" succesfully added to database.")
+		file.Close()
+		f.Close()
 	}
+
+	// Update folder dirSize
+	dirSize,err := DirSize(folderPath)
+	db, err := sql.Open("mysql", config.DB)
+	defer db.Close()
+	checkErr(err)
+	stmt, err := db.Prepare("UPDATE folders SET size=? WHERE folder_id=?")
+	checkErr(err)
+	_, err = stmt.Exec(dirSize,lastID)
+	checkErr(err)
+
 }
 
 func newName() string {
