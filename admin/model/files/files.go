@@ -48,9 +48,7 @@ var fID int
 func Files(folderID string,folderName string) *Data {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection with database Established")
 	defer db.Close()
-	defer fmt.Println("Connection with database Closed")
 
 	rows, err := db.Query("SELECT file_id,name,file_name,type,size,path,folder_id FROM files WHERE folder_id = ? ORDER BY file_id DESC",folderID)
 	checkErr(err)
@@ -71,16 +69,15 @@ func Files(folderID string,folderName string) *Data {
 }
 
 func (f *File) insertRows() error {
-	fmt.Println("Name: ",f.Name)
-	fmt.Println("Filename: ",f.FileName)
-	fmt.Println("Size: ", f.Size, " MB")
-	fmt.Println("Type: ",f.FileType)
-	fmt.Println("Path: ",f.FilePath)
-	fmt.Println("FolderID: ",f.FolderID)
+	//fmt.Println("Name: ",f.Name)
+	//fmt.Println("Filename: ",f.FileName)
+	//fmt.Println("Size: ", f.Size, " MB")
+	//fmt.Println("Type: ",f.FileType)
+	//fmt.Println("Path: ",f.FilePath)
+	//fmt.Println("FolderID: ",f.FolderID)
 	db, err := sql.Open("mysql", config.DB)
 	defer db.Close()
 	stmt, err := db.Prepare("INSERT INTO files (name,file_name,size,type,path,folder_id) VALUES(?,?,?,?,?,?)")
-	fmt.Println(stmt)
 	checkErr(err)
 	_, err = stmt.Exec(f.Name, f.FileName,f.Size,f.FileType,f.FilePath,f.FolderID)
 	checkErr(err)
@@ -144,7 +141,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 
 		fPath = "/"+folderPath + "/" + fName + "." + fType
 
-		// Check if files folder exists
+		// Check if uploads folder exists
 		// if not create it.
 		_, err = os.Stat("static/uploads")
 		if err != nil {
@@ -178,17 +175,9 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		file.Close()
 		f.Close()
 	}
-
 	// Update folder dirSize
-	dirSize,err := DirSize(folderPath)
-	db, err := sql.Open("mysql", config.DB)
-	defer db.Close()
+	err = UpdateDirSize(folderPath,lastID)
 	checkErr(err)
-	stmt, err := db.Prepare("UPDATE folders SET size=? WHERE folder_id=?")
-	checkErr(err)
-	_, err = stmt.Exec(dirSize,lastID)
-	checkErr(err)
-
 }
 
 func newName() string {

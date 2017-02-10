@@ -33,9 +33,7 @@ var folderSize string
 func Folders(id string) []Folder {
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
-	fmt.Println("Connection with database Established")
 	defer db.Close()
-	defer fmt.Println("Connection with database Closed")
 
 	var rows *sql.Rows
 	if(id == "") {
@@ -96,7 +94,7 @@ func Create(folder string,parentID int) (int,string,error) {
 	}
 	// calculate folder size.
 
-	size,err := DirSize("static/"+folderPath)
+	size,err := DirSize(path)
 	checkErr(err)
 
 	sizeMB := fmt.Sprintf("%0.2f",size)
@@ -127,14 +125,26 @@ func DirSize(path string)(float64, error){
 	//Walk walks the file tree from the given filepath or root
 	// Using a closure we can get the fileinfo and size of each file which will be appended to the size var.
 	// returns the size in bites and a error message.
-	err := filepath.Walk("static/"+folderPath, func(_ string, info os.FileInfo, err error) error {
+	err := filepath.Walk("static/"+path, func(_ string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			size += (float64(info.Size()) / 1024) / 1024
-
 			//fmt.Println("foldersize: ",size)
 		}
 		return err
 	})
 	return size,err
+}
+
+func UpdateDirSize(path string,id int)(error){
+	dirSize,err := DirSize(path)
+	fmt.Println("Path: ",path,"Dirsize: ",dirSize," FolderID: ", id)
+	db, err := sql.Open("mysql", config.DB)
+	defer db.Close()
+	checkErr(err)
+	stmt, err := db.Prepare("UPDATE folders SET size=? WHERE folder_id=?")
+	checkErr(err)
+	_, err = stmt.Exec(fmt.Sprintf("%0.2f",dirSize),id)
+	checkErr(err)
+	return err
 }
 
