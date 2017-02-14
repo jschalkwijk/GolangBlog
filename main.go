@@ -98,16 +98,16 @@ func main() {
 }
 
 // load all static directories: Source: http://www.shakedos.com/2014/Feb/08/serving-static-files-with-go.html
-func serveStatic(router *mux.Router, staticDirectory string, admin string) {
+func serveStatic(router *mux.Router, staticDir string, admin string) {
 	staticPaths := map[string]string{
-		"/css/":     staticDirectory + "/css/",
-		"/test/":    staticDirectory + "/test/",
-		"/images/":  staticDirectory + "/images/",
-		"/scripts/": staticDirectory + "/scripts/",
-		"/tinymce/": staticDirectory + "/scripts/tinymce/js/tinymce/",
+		"/css/":     staticDir + "/css/",
+		"/test/":    staticDir+ "/test/",
+		"/images/":  staticDir+ "/images/",
+		"/scripts/": staticDir + "/scripts/",
+		"/tinymce/": staticDir + "/scripts/tinymce/js/tinymce/",
 		// If we use "/files/" as a prefix we get in conflict with the router which also use files.
 		// Also it only works if the files folder is inside another folder also due to the conflict.
-		"/uploads/": staticDirectory + "/uploads/",
+		"/uploads/": staticDir + "/uploads/",
 	}
 	for pathPrefix, pathValue := range staticPaths {
 		router.PathPrefix(admin + pathPrefix).Handler(http.StripPrefix(admin+pathPrefix,

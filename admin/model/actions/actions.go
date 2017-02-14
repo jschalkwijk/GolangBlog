@@ -9,6 +9,7 @@ import (
 	"strings"
 	"os"
 	"log"
+	"github.com/jschalkwijk/GolangBlog/admin/model/files"
 )
 
 func Trash(w http.ResponseWriter, r *http.Request, dbt string){
@@ -91,15 +92,17 @@ func Delete(w http.ResponseWriter, r *http.Request, dbt string ){
 func DeleteFiles(w http.ResponseWriter, r *http.Request, placeholder string,values []interface {}) {
 	var file_id int64
 	var path string
+	var folder_id int
+	var folderPath string
 
 	db, err := sql.Open("mysql", config.DB)
 	checkErr(err)
 	// add the placeholders
-	rows, err := db.Query("SELECT file_id,path FROM files WHERE file_id IN("+placeholder+")",values...)
+	rows, err := db.Query("SELECT file_id,folder_id,path FROM files WHERE file_id IN("+placeholder+")",values...)
 	checkErr(err)
 
 	for rows.Next() {
-		err = rows.Scan(&file_id, &path)
+		err = rows.Scan(&file_id,&folder_id, &path)
 		checkErr(err)
 		// We use "/file/" as a prefix in the DB or else we get in conflict with the router which also use files,
 		// when we serve static files the /file/ will be chaged to files.
@@ -109,9 +112,13 @@ func DeleteFiles(w http.ResponseWriter, r *http.Request, placeholder string,valu
 		// otherswise we use a incorrect filepath which will result in an error.
 
 		// !! we do this path[5:]for the above reason.
-		err = os.Remove("static/"+path)
+		err = os.Remove("static"+path)
 		checkErr(err)
 	}
+	err = db.QueryRow("SELECT path FROM folders WHERE folder_id = ?",folder_id).Scan(&folderPath)
+	checkErr(err)
+	err = files.UpdateDirSize(folderPath,folder_id)
+	checkErr(err)
 }
 
 func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []string){
@@ -133,15 +140,8 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 	for rows.Next() {
 		err = rows.Scan(&file_id, &path)
 		checkErr(err)
-		// We use "/file/" as a prefix in the DB or else we get in conflict with the router which also use files,
-		// when we serve static files the /file/ will be chaged to files.
-
-		// if the folder path is fetched from the db it will state file/some/file/path
-		// to remove the file we need to change the path to /files/ instead of file/
-		// otherswise we use a incorrect filepath which will result in an error.
-
 		// !! we do this path[5:]for the above reason.
-		err = os.Remove("GolangBlog/static/files/"+path[5:])
+		err = os.Remove("static"+path)
 		checkErr(err)
 	}
 
@@ -151,7 +151,7 @@ func DeleteFolders(w http.ResponseWriter, r *http.Request, dbt string)(msg []str
 	for rows.Next() {
 		err = rows.Scan(&folderPath)
 		checkErr(err)
-		err := os.RemoveAll("GolangBlog/static/"+folderPath)
+		err := os.RemoveAll("static/"+folderPath)
 		checkErr(err)
 		if (err == nil) {
 			msg = append(msg,folderPath + " and al it's children are removed successfully")
