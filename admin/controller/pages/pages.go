@@ -12,7 +12,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	p := pages.All(0)
@@ -23,7 +23,7 @@ func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -35,7 +35,7 @@ func Create(w http.ResponseWriter, r *http.Request){
 
 	p,created := pages.Create(r);
 	if(created){
-		http.Redirect(w, r, "/admin/pages", http.StatusFound)
+		http.Redirect(w, r, "/admin/pages", http.StatusSeeOther)
 	}
 
 	controller.View(w,"pages/add-edit-page",p)
@@ -50,7 +50,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	if r.Method == "POST" {
 		data, created := p.Pages[0].Patch(r);
 		if (created) {
-			http.Redirect(w, r, "/admin/pages", http.StatusFound)
+			http.Redirect(w, r, "/admin/pages", http.StatusSeeOther)
 		}  else {
 			p = data
 		}

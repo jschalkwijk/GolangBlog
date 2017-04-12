@@ -14,7 +14,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	if (r.PostFormValue("approve-selected") != ""){

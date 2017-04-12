@@ -58,7 +58,7 @@ func update(w http.ResponseWriter, r *http.Request, dbt string,row string,setTo 
 	_, err = query.Exec(args...)
 	checkErr(err)
 
-	http.Redirect(w, r, "/admin/"+dbt, http.StatusFound)
+	http.Redirect(w, r, "/admin/"+dbt, http.StatusSeeOther)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request, dbt string ){
@@ -86,7 +86,7 @@ func Delete(w http.ResponseWriter, r *http.Request, dbt string ){
 	_, err = query.Exec(args...)
 	checkErr(err)
 
-	http.Redirect(w, r, "/admin/"+dbt+"/trashed-"+dbt, http.StatusFound)
+	http.Redirect(w, r, "/admin/"+dbt+"/trashed-"+dbt, http.StatusSeeOther)
 }
 
 func DeleteFiles(w http.ResponseWriter, r *http.Request, placeholder string,values []interface {}) {

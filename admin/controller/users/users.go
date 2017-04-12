@@ -16,7 +16,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	if (r.PostFormValue("approve-selected") != ""){
@@ -36,7 +36,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	if (r.PostFormValue("restore-selected") != ""){
@@ -53,7 +53,7 @@ func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	vars := mux.Vars(r)
@@ -66,13 +66,13 @@ func Create(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	u,created := users.Create(r)
 
 	if(created){
-		http.Redirect(w, r, "/admin/users", http.StatusFound)
+		http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 	} else {
 		controller.View(w,"users/add-user",u)
 	}
@@ -82,7 +82,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	vars := mux.Vars(r)
@@ -92,7 +92,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	if r.Method == "POST" {
 		data, updated := u.Users[0].Patch(r);
 		if (updated) {
-			http.Redirect(w, r, "/admin/users", http.StatusFound)
+			http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 		} else {
 			u = data
 		}
@@ -104,13 +104,13 @@ func Add(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	u,created := users.Create(r)
 
 	if(created){
-		http.Redirect(w, r, "/admin/users", http.StatusFound)
+		http.Redirect(w, r, "/admin/users", http.StatusSeeOther)
 	} else {
 		controller.View(w,"users/add-user",u)
 	}

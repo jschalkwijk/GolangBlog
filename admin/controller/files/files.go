@@ -13,7 +13,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 	f := files.Files("","")
 
@@ -42,18 +42,18 @@ func Upload(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	files.Upload(w,r)
-	http.Redirect(w,r,"/admin/files",http.StatusFound);
+	http.Redirect(w,r,"/admin/files",http.StatusSeeOther);
 }
 
 func Folder(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w,r, "/admin/login", http.StatusFound)
+		http.Redirect(w,r, "/admin/login", http.StatusSeeOther)
 	}
 	vars := mux.Vars(r)
 	id := vars["id"]

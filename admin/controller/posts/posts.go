@@ -28,7 +28,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	//fmt.Print(session.Username)
@@ -59,7 +59,7 @@ func Deleted(w http.ResponseWriter, r *http.Request) {
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	if (r.PostFormValue("restore-selected") != ""){
@@ -76,7 +76,7 @@ func One(w http.ResponseWriter, r *http.Request){
 	session := login.GetSession(r)
 
 	if (!session.Logged) {
-		http.Redirect(w, r, "/admin/login", http.StatusFound)
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 	}
 
 	vars := mux.Vars(r)
@@ -90,7 +90,7 @@ func Create(w http.ResponseWriter, r *http.Request){
 	p,created := posts.Create(r);
 	p.Categories = categories.All(0).Categories
 	if(created){
-		http.Redirect(w, r, "/admin/posts", http.StatusFound)
+		http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 	} else {
 		controller.View(w,"posts/add-edit-post",p)
 	}
@@ -104,7 +104,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	if r.Method == "POST" {
 		data, updated := p.Posts[0].Patch(r);
 		if (updated) {
-			http.Redirect(w, r, "/admin/posts", http.StatusFound)
+			http.Redirect(w, r, "/admin/posts", http.StatusSeeOther)
 		} else {
 			p = data
 		}

@@ -16,7 +16,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 	auth := login.Login(w, r)
 	if (auth == nil) {
 		login.SetSession(w,r)
-		http.Redirect(w, r, "/admin", http.StatusFound)
+		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 	} else {
 		login.View(w,"login")
 	}
@@ -24,6 +24,6 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 
 func Logout(w http.ResponseWriter, r *http.Request){
 	login.Logout(w,r)
-	http.Redirect(w, r, "/admin/login", http.StatusFound)
+	http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 }
 
