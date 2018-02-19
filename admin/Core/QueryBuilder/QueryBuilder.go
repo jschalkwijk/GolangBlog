@@ -2,11 +2,12 @@ package QueryBuilder
 
 import (
 	"strings"
-	"database/sql"
 	_"github.com/go-sql-driver/mysql"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
+	"go/types"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 )
 
 /*
@@ -16,7 +17,15 @@ import (
 	moet de table name hebben etc, zo kan ik mischien general functies maken voor
 	crud functionaliteiten.
 */
+type Sql interface {
+	All()
+	Select(columns types.Slice) string
+	From() string
+	Where() string
+
+}
 type Query struct{
+	ID string
 	PrimaryKey string
 	Table string
 	Query string
@@ -25,37 +34,62 @@ type Query struct{
 	Values []string
 	Columns []string
 }
-
-func (m *Query) All() {
-	db, err := sql.Open("mysql", config.DB)
+func (q *Query) Execute(query string) (*sqlx.Rows,error){
+	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
-	query := m.Select()+m.From()+m.Where()+m.OrderBy();
 
-	fmt.Println("Query: ", query)
+	// Selects all rows from roles, and links the category_id row to the matching title.
+	rows, err := db.Queryx(query)
+	checkErr(err)
+
+	return rows,err
+}
+func (q *Query) All() (*sqlx.Rows,error) {
+	query := q.Select([]string{})+q.From()+q.OrderBy();
+	fmt.Println(query)
+	return q.Execute(query)
 }
 
-func (m *Query) Select() string {
-	return "SELECT * "
+func (q *Query) One() *sqlx.Row {
+	//query := q.Select([]string{})+q.From()+q.Where()+q.OrderBy();
+	query := "SELECT * FROM "+q.Table+" WHERE "+q.PrimaryKey+" = ? LIMIT  1"
+	db, err := sqlx.Connect("mysql", config.DB)
+	checkErr(err)
+	defer db.Close()
+
+	row := db.QueryRowx(query, q.ID)
+
+	fmt.Println(query,q.ID)
+	return row
 }
-func (m *Query) From() string{
-	return "FROM "+m.Table
+
+func (q *Query) Select(columns []string ) string {
+	if len(columns) > 0 {
+		return "SELECT columns "
+	} else {
+		return "SELECT * "
+	}
+
 }
-func (m *Query) Where() string {
+func (q *Query) From() string{
+	return "FROM "+q.Table
+}
+func (q *Query) Where() string {
 	parts := []string{}
-	columns := map[string]string{ m.PrimaryKey : "10" }
+	columns := map[string]string{ q.PrimaryKey : "10" }
 	for column,value := range columns {
 		// Set column to ? for prepared statement
- 		parts = append(parts,m.Table+"."+column+" = ?")
+ 		parts = append(parts,q.Table+"."+column+" = ?")
 		// Set values array for PDO prepared statement
-		m.Values = append(m.Values,value);
+		q.Values = append(q.Values,value);
 	}
 	where := strings.Join(parts," AND ")
 	return " WHERE "+where;
 }
 
-func (m *Query) OrderBy() string{
-	return " ORDER BY "+m.Table+"."+m.PrimaryKey+" DESC"
+func (q *Query) OrderBy() string{
+	return " ORDER BY "+q.Table+"."+q.PrimaryKey+" DESC"
 }
 
 func checkErr(err error) {

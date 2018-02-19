@@ -16,6 +16,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/controller/pages"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/posts"
 	"github.com/jschalkwijk/GolangBlog/admin/controller/users"
+	"github.com/jschalkwijk/GolangBlog/admin/controller/roles"
 )
 
 var static string = "/static/"
@@ -79,6 +80,9 @@ func main() {
 		u.HandleFunc("/add", users.Add)
 		u.HandleFunc("/edit/{id:[0-9]+}/{username}", users.Edit)
 		u.HandleFunc("/trashed-users", users.Deleted)
+	r.HandleFunc("/admin/roles",roles.Index)
+		role := r.PathPrefix("/admin/roles").Subrouter()
+		role.HandleFunc("/{id:[0-9]+}", roles.One)
 	//Files
 	r.HandleFunc("/admin/files", files.Index)
 	f := r.PathPrefix("/admin/files/").Subrouter()
