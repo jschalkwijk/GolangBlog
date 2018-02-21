@@ -185,7 +185,7 @@ func Multiple(multiple []string)(string,[]interface {}) {
 	// delete the last 2 characters of the string which are ", ". Otherwise we have a error in the query.
 	placeholder = placeholder[:len(placeholder)-2]
 	fmt.Println(placeholder)
-
+	
 	// the stmt.Exec can loop over an interface, so let's make one first to populate.
 	values := make([]interface{}, 0, len(multiple))
 	// To math the amount of ? with the needed ID values, we create a new interface in which we append all the checked ID's,

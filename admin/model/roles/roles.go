@@ -8,11 +8,11 @@ import (
 	//"net/http"
 	//"strconv"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
 	//"github.com/gorilla/schema"
 	//"github.com/jmoiron/sqlx"
 	"log"
 	"database/sql"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
 )
 /* Role struct will hold data about a role and can be added to the Data struct */
 type Role struct {
@@ -29,11 +29,13 @@ type Data struct {
 	Message string
 }
 
-var Query QueryBuilder.Query
+var m Model.Model
 
 func init(){
-	Query.PrimaryKey = "role_id"
-	Query.Table = "roles"
+	m.PrimaryKey = "role_id"
+	m.Table = "roles"
+	m.Query.PrimaryKey = m.PrimaryKey
+	m.Query.Table = m.Table
 }
 /* -- Get all Roles --
  * 	Connects to the database and gets all roles rows.
@@ -46,7 +48,7 @@ func init(){
  */
 func All() *Data {
 
-	rows,err := Query.All()
+	rows,err := m.All()
 	checkErr(err)
 
 	data := new(Data)
@@ -78,14 +80,14 @@ func All() *Data {
   	inside a template.
  */
 func One(id string, getPermission bool) *Data {
-	Query.ID = id
+	m.ID = id
 
-	rows := Query.One()
+	rows := m.One(id)
 	data := new(Data)
 	role := new(Role)
 
 	err := rows.StructScan(
-		&role,
+		role,
 	)
 	checkErr(err)
 	// convert string to HTML markdown
