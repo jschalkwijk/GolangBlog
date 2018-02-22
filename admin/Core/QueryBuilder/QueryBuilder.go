@@ -3,16 +3,34 @@ package QueryBuilder
 import (
 	"fmt"
 	"strings"
+	"log"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
+	"github.com/jmoiron/sqlx"
 )
 
 type Query struct {
-	ID string
-	PrimaryKey string
-	Table string
-	Allowed []string
-	Relations []string
+	Model.Model
 	Values []interface{}
 	Columns []string
+}
+
+func (q *Query) All() (*sqlx.Rows,error) {
+	query := q.Select([]string{})+q.From(q.Table)+q.OrderBy();
+	fmt.Println(query)
+	return q.Execute(query,[]interface{}{})
+}
+
+func (q *Query) One(id string) (*sqlx.Rows,error) {
+	//query := m.Select([]string{})+m.From()+m.Where()+m.OrderBy();
+
+	query := q.Select([]string{})+q.From(q.Table)+q.Where(map[string]string{q.PrimaryKey:q.ID})+" LIMIT 1"
+
+
+	fmt.Println(query)
+	fmt.Println(q.Columns)
+	fmt.Println(q.Values)
+
+	return q.Execute(query,q.Values)
 }
 
 func (q *Query) Select(columns []string ) string {
@@ -46,4 +64,10 @@ func (q *Query) Where(columns map[string]string) string {
 
 func (q *Query) OrderBy() string{
 	return " ORDER BY "+q.Table+"."+q.PrimaryKey+" DESC"
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Println(err)
+	}
 }

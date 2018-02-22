@@ -12,7 +12,7 @@ import (
 	//"github.com/jmoiron/sqlx"
 	"log"
 	"database/sql"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
+	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
 )
 /* Role struct will hold data about a role and can be added to the Data struct */
 type Role struct {
@@ -29,13 +29,14 @@ type Data struct {
 	Message string
 }
 
-var m Model.Model
+var q QueryBuilder.Query
 
 func init(){
+	// we don't need to assign the embedded model struct but for readability I chose to do so.
+	// Also it now point to the memory address.
+	m := &q.Model
 	m.PrimaryKey = "role_id"
 	m.Table = "roles"
-	m.Query.PrimaryKey = m.PrimaryKey
-	m.Query.Table = m.Table
 }
 /* -- Get all Roles --
  * 	Connects to the database and gets all roles rows.
@@ -48,7 +49,7 @@ func init(){
  */
 func All() *Data {
 
-	rows,err := m.All()
+	rows,err := q.All()
 	checkErr(err)
 
 	data := new(Data)
@@ -80,19 +81,20 @@ func All() *Data {
   	inside a template.
  */
 func One(id string, getPermission bool) *Data {
-	m.ID = id
+	q.ID = id
 
-	rows := m.One(id)
+	rows,err := q.One(id)
 	data := new(Data)
 	role := new(Role)
 
-	err := rows.StructScan(
-		role,
-	)
-	checkErr(err)
-	// convert string to HTML markdown
+	for rows.Next() {
+		err = rows.StructScan(
+			&role,
+		)
+		checkErr(err)
+		data.Roles = append(data.Roles , role)
+	}
 
-	data.Roles = append(data.Roles , role)
 	/* When we need to edit or create a role, we need to get the permissions in order to select them inside the html page.
 	 * since we already have a function inside the permissions model, we will call that.
 	 * This returns a pointer to the Data struct of model/roles. We  set our

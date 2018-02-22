@@ -4,9 +4,7 @@ import (
 	_"github.com/go-sql-driver/mysql"
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
-	"fmt"
 	"github.com/jmoiron/sqlx"
-	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
 )
 
 /*
@@ -17,53 +15,34 @@ import (
 	crud functionaliteiten.
 */
 
+
 type BaseModel interface {
-	All() (*sqlx.Rows,error)
-	One(id string) *sqlx.Row
+	Execute(query string) (*sqlx.Rows,error)
 }
 
 type Model struct{
-	QueryBuilder.Query
 	ID string
 	PrimaryKey string
 	Table string
 	Allowed []string
 	Relations []string
 }
-func (m *Model) Execute(query string) (*sqlx.Rows,error){
+func (m *Model) Execute(query string, values []interface{}) (*sqlx.Rows,error){
 	db, err := sqlx.Connect("mysql", config.DB)
 	checkErr(err)
 	defer db.Close()
+	var rows *sqlx.Rows
 
-	// Selects all rows from roles, and links the category_id row to the matching title.
-	rows, err := db.Queryx(query)
+	if len(values) < 1 {
+		// Selects all rows from roles, and links the category_id row to the matching title.
+		rows, err = db.Queryx(query)
+	} else {
+		rows, err = db.Queryx(query,values...)
+	}
+
 	checkErr(err)
 
 	return rows,err
-}
-func (m *Model) All() (*sqlx.Rows,error) {
-	var q = m.Query
-
-	query := q.Select([]string{})+q.From(m.Table)+q.OrderBy();
-	fmt.Println(query)
-	return m.Execute(query)
-}
-
-func (m *Model) One(id string) *sqlx.Row {
-	//query := m.Select([]string{})+m.From()+m.Where()+m.OrderBy();
-
-	query := m.Select([]string{})+m.From(m.Table)+m.Where(map[string]string{m.PrimaryKey:m.ID,"description":"Jorn"})+m.OrderBy()
-	db, err := sqlx.Connect("mysql", config.DB)
-	checkErr(err)
-	defer db.Close()
-
-	row := db.QueryRowx(query, m.Values...)
-
-	fmt.Println(query)
-	fmt.Println(m.Columns)
-	fmt.Println(m.Values)
-
-	return row
 }
 
 func checkErr(err error) {
