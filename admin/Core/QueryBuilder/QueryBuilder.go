@@ -20,7 +20,7 @@ func (q *Query) All() (*sqlx.Rows,error) {
 	return q.Execute(query,[]interface{}{})
 }
 
-func (q *Query) One(id string) (*sqlx.Rows,error) {
+func (q *Query) One(id string,model interface{}) (interface{}) {
 	//query := m.Select([]string{})+m.From()+m.Where()+m.OrderBy();
 
 	query := q.Select([]string{})+q.From(q.Table)+q.Where(map[string]string{q.PrimaryKey:q.ID})+" LIMIT 1"
@@ -30,7 +30,15 @@ func (q *Query) One(id string) (*sqlx.Rows,error) {
 	fmt.Println(q.Columns)
 	fmt.Println(q.Values)
 
-	return q.Execute(query,q.Values)
+	rows,err := q.Execute(query,q.Values)
+
+	for rows.Next() {
+		err = rows.StructScan(
+			model,
+		)
+		checkErr(err)
+	}
+	return &model
 }
 
 func (q *Query) Select(columns []string ) string {

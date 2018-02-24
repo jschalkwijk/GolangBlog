@@ -83,17 +83,13 @@ func All() *Data {
 func One(id string, getPermission bool) *Data {
 	q.ID = id
 
-	rows,err := q.One(id)
-	data := new(Data)
-	role := new(Role)
+	model := new(Role)
+	role := q.One(id,model).(*Role)
 
-	for rows.Next() {
-		err = rows.StructScan(
-			&role,
-		)
-		checkErr(err)
-		data.Roles = append(data.Roles , role)
-	}
+	data := new(Data)
+
+	data.Roles = append(data.Roles , role)
+
 
 	/* When we need to edit or create a role, we need to get the permissions in order to select them inside the html page.
 	 * since we already have a function inside the permissions model, we will call that.
