@@ -8,7 +8,7 @@
                     <tr><th>Name</th><th>Date</th><th>Edit</th><th>View</th><th></th></tr>
                     {{ range $key, $value := .Roles }}
                     <tr>
-                        <td class="td-title"><a href="/admin/roles/{{.Role_ID}}/{{.Name}}">{{.Name}}</a></td>
+                        <td class="td-title"><a href="/admin/roles/{{.Role_ID}}/{{.Name}}">{{.Value.Name}}</a></td>
                         <td class="td-date">{{.Updated_At}}</td>
                         <input type="hidden" name="id" value="{{.Role_ID}}" />
                         <td class="td-btn"><a href="/admin/roles/edit/{{.Role_ID}}/{{.Name}}"><img class="glyph-small link-btn" src="/images/edit.png"/></a></td>

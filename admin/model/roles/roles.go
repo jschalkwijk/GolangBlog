@@ -13,6 +13,7 @@ import (
 	"log"
 	"database/sql"
 	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
+	"reflect"
 )
 /* Role struct will hold data about a role and can be added to the Data struct */
 type Role struct {
@@ -69,6 +70,21 @@ func All() *Data {
 
 	return data
 }
+//func All() *Data {
+//
+//	rows := q.All(new(Role))
+//	fmt.Printf("%s",rows)
+//	data := new(Data)
+//
+//	for _, role := range rows {
+//		fmt.Println(role)
+//		// Add the Role to the Roles slice .
+//		fmt.Println(reflect.TypeOf(role))
+//		data.Roles = append(data.Roles ,role)
+//	}
+//
+//	return data
+//}
 
 /* -- Get a single Role -- */
 /* GetOneRole gets a role from the DB and returns a pointer to the Struct. It takes a id and role_title.

@@ -5,6 +5,7 @@ import (
 	"strings"
 	"log"
 	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
+	//"reflect"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,6 +20,38 @@ func (q *Query) All() (*sqlx.Rows,error) {
 	fmt.Println(query)
 	return q.Execute(query,[]interface{}{})
 }
+
+//func (q *Query) All(model interface{}) ([]interface{}){
+//	query := q.Select([]string{})+q.From(q.Table)+q.OrderBy();
+//	fmt.Println(query)
+//	rows,err := q.Execute(query,[]interface{}{})
+//	checkErr(err)
+//	models := make([]interface{},0,0)
+//	slice := reflect.ValueOf(model).Elem()
+//	value := reflect.ValueOf(model)
+//	// Allocate slice with desired capacity
+//	fmt.Printf("Hello, Model: %s\n", slice)
+//	fmt.Print(reflect.TypeOf(model))
+//
+//	for rows.Next() {
+//		role := reflect.New(value.Type())
+//		role.Elem().Set(value)
+//
+//		//role := reflect.ValueOf(value).Elem()
+//		fmt.Printf("Hello, item2 : %s\n", role.String())
+//		//fmt.Println(value)
+//		// puts all columns inside the Role struct automaticly
+//		err := rows.StructScan(
+//			role.Interface(),
+//		)
+//		checkErr(err)
+//		//fmt.Println(role.Role_ID,role.Title)
+//		fmt.Println(role)
+//		// Add the Role to the Roles slice.
+//		models = append(models , role)
+//	}
+//	return models
+//}
 
 func (q *Query) One(id string,model interface{}) (interface{}) {
 	//query := m.Select([]string{})+m.From()+m.Where()+m.OrderBy();
@@ -38,7 +71,7 @@ func (q *Query) One(id string,model interface{}) (interface{}) {
 		)
 		checkErr(err)
 	}
-	return &model
+	return model
 }
 
 func (q *Query) Select(columns []string ) string {
