@@ -7,13 +7,14 @@ import (
 	//"html/template"
 	//"net/http"
 	//"strconv"
-	"github.com/jschalkwijk/GolangBlog/admin/config"
+
 	//"github.com/gorilla/schema"
 	//"github.com/jmoiron/sqlx"
 	"log"
-	"database/sql"
 	"github.com/jschalkwijk/GolangBlog/admin/Core/QueryBuilder"
-	"reflect"
+	"github.com/gorilla/schema"
+	"net/http"
+	"net/url"
 )
 /* Role struct will hold data about a role and can be added to the Data struct */
 type Role struct {
@@ -38,6 +39,7 @@ func init(){
 	m := &q.Model
 	m.PrimaryKey = "role_id"
 	m.Table = "roles"
+	m.Allowed = map[string]int{"Name":0,"Description":1}
 }
 /* -- Get all Roles --
  * 	Connects to the database and gets all roles rows.
@@ -131,26 +133,35 @@ func One(id string, getPermission bool) *Data {
  * Checks how many rows are affected.
  * Returns an error if needed.
 */
-func (r *Role) update() error {
-	db, err := sql.Open("mysql", config.DB)
-	defer db.Close()
-	checkErr(err)
+func (role *Role) Patch(r *http.Request) (*Data,bool) {
+	data := new(Data)
+	updated := false
 
-	fmt.Println("reference to Role struct: ", r)
+	err := r.ParseForm()
 
-	stmt, err := db.Prepare("UPDATE roles SET name=?, description=?, WHERE role_id=?")
-	fmt.Println(stmt)
+	decoder := schema.NewDecoder()
+	decoder.ZeroEmpty(true)
+	err = decoder.Decode(role, r.PostForm)
 	checkErr(err)
-	/* To be able to save the new html to the database, convert it to a slice of bytes, why is this working?, we can't save
-	 * a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
-	 * the content in html format on the page.
-	 */
-	_, err = stmt.Exec(r.Name,r.Description,r.Role_ID)
+	columns := r.Form
+	fmt.Println(columns)
+	//columns := map[string]string{
+	//	"name":role.Name,
+	//	"description":role.Description,
+	//	"role_id": role.Role_ID,
+	//}
+	err = role.Update(columns)
 	checkErr(err)
+	data.Roles = append(data.Roles , role)
 
-	return err
+	return data,updated
 }
 
+func (r *Role) Update(role url.Values) error {
+		err := q.Update(role)
+		checkErr(err)
+		return err
+}
 /* save saves the values of a new category to the database and is a method to Role.
  * Called by CreateRole
  * Connect to the DB and prepares query.

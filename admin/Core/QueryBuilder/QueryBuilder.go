@@ -7,6 +7,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/Core/Model"
 	//"reflect"
 	"github.com/jmoiron/sqlx"
+	"net/url"
 )
 
 type Query struct {
@@ -18,6 +19,8 @@ type Query struct {
 func (q *Query) All() (*sqlx.Rows,error) {
 	query := q.Select([]string{})+q.From(q.Table)+q.OrderBy();
 	fmt.Println(query)
+	q.Values = []interface{}{}
+	q.Columns = make([]string,0,0)
 	return q.Execute(query,[]interface{}{})
 }
 
@@ -65,6 +68,9 @@ func (q *Query) One(id string,model interface{}) (interface{}) {
 
 	rows,err := q.Execute(query,q.Values)
 
+	q.Values = []interface{}{}
+	q.Columns = make([]string,0,0)
+
 	for rows.Next() {
 		err = rows.StructScan(
 			model,
@@ -89,7 +95,9 @@ func (q *Query) From(table string) string{
 func (q *Query) Where(columns map[string]string) string {
 	parts := []string{}
 	fmt.Println(columns)
-	q.Values = make([]interface{}, 0, len(columns))
+	if len(q.Values) < 1 {
+		q.Values = make([]interface{}, 0, len(columns))
+	}
 	for column,value := range columns {
 
 		q.Values = append(q.Values, value);
@@ -107,6 +115,30 @@ func (q *Query) OrderBy() string{
 	return " ORDER BY "+q.Table+"."+q.PrimaryKey+" DESC"
 }
 
+func (q *Query)  Update(columns url.Values) (error){
+	parts := []string{}
+	q.Values = make([]interface{}, 0, len(columns))
+
+	for column,value := range columns {
+		if _ , ok := q.Allowed[column]; ok {
+			q.Values = append(q.Values, value);
+			// Set Columns Slices
+			q.Columns = append(q.Columns,column)
+			// Set column to ? for prepared statement
+			parts = append(parts,column+" = ?")
+		}
+	}
+
+	query := "UPDATE "+q.Table+" SET "+strings.Join(parts,", ")
+	query = query+q.Where(map[string]string{q.PrimaryKey:q.ID})
+	fmt.Println(query)
+	values := q.Values
+	fmt.Println(values)
+	//q.Values = []interface{}{}
+	//q.Columns = make([]string,0,0)
+	return q.PrepareExecute(query,values)
+	//return query
+}
 func checkErr(err error) {
 	if err != nil {
 		log.Println(err)

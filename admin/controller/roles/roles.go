@@ -65,7 +65,7 @@ func One(w http.ResponseWriter, r *http.Request){
 //func Create(w http.ResponseWriter, r *http.Request){
 //	session := login.GetSession(r)
 //
-//	if (!session.Logged) {
+//	if (!session.Logged) {p
 //		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 //	}
 //
@@ -78,27 +78,27 @@ func One(w http.ResponseWriter, r *http.Request){
 //	}
 //}
 //
-//func Edit(w http.ResponseWriter, r *http.Request){
-//	session := login.GetSession(r)
-//
-//	if (!session.Logged) {
-//		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
-//	}
-//
-//	vars := mux.Vars(r)
-//	id := vars["id"]
-//	u := roles.One(id)
-//
-//	if r.Method == "POST" {
-//		data, updated := u.Roles[0].Patch(r);
-//		if (updated) {
-//			http.Redirect(w, r, "/admin/roles", http.StatusSeeOther)
-//		} else {
-//			u = data
-//		}
-//	}
-//	controller.View(w,"roles/edit-user",u)
-//}
+func Edit(w http.ResponseWriter, r *http.Request){
+	session := login.GetSession(r)
+
+	if (!session.Logged) {
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	u := roles.One(id,false)
+
+	if r.Method == "POST" {
+		data,updated := u.Roles[0].Patch(r);
+		if (updated) {
+			http.Redirect(w, r, "/admin/roles", http.StatusSeeOther)
+		} else {
+			u = data
+		}
+	}
+	controller.View(w,"roles/edit-role",u)
+}
 //
 //func Add(w http.ResponseWriter, r *http.Request){
 //	session := login.GetSession(r)

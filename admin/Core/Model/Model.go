@@ -5,6 +5,7 @@ import (
 	"github.com/jschalkwijk/GolangBlog/admin/config"
 	"log"
 	"github.com/jmoiron/sqlx"
+	"fmt"
 )
 
 /*
@@ -24,7 +25,7 @@ type Model struct{
 	ID string
 	PrimaryKey string
 	Table string
-	Allowed []string
+	Allowed map[string]int
 	Relations []string
 }
 func (m *Model) Execute(query string, values []interface{}) (*sqlx.Rows,error){
@@ -43,6 +44,23 @@ func (m *Model) Execute(query string, values []interface{}) (*sqlx.Rows,error){
 	checkErr(err)
 
 	return rows,err
+}
+func (m *Model) PrepareExecute(query string, values []interface{}) (error){
+	db, err := sqlx.Connect("mysql", config.DB)
+	checkErr(err)
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
+	fmt.Println(stmt)
+	checkErr(err)
+	/* To be able to save the new html to the database, convert it to a slice of bytes, why is this working?, we can't save
+	 * a value of type template.HTML to the DB. I tried different things, change the .Content to string, byte, but then I have a problem displaying
+	 * the content in html format on the page.
+	 */
+	_, err = stmt.Exec(values...)
+	checkErr(err)
+
+	return err
 }
 
 func checkErr(err error) {

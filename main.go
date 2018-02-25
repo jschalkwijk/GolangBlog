@@ -83,6 +83,7 @@ func main() {
 	r.HandleFunc("/admin/roles",roles.Index)
 		role := r.PathPrefix("/admin/roles").Subrouter()
 		role.HandleFunc("/{id:[0-9]+}", roles.One)
+		role.HandleFunc("/edit/{id:[0-9]+}", roles.Edit)
 	//Files
 	r.HandleFunc("/admin/files", files.Index)
 	f := r.PathPrefix("/admin/files/").Subrouter()
